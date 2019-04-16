@@ -1,6 +1,6 @@
-![Bulk Reviewer logo](https://github.com/bulk-reviewer/bulk-reviewer/blob/master/build/icons/256x256.png)
+# Bulk Reviewer
 
-## Identify, review, and remove sensitive files
+> Identify, review, and remove sensitive files
 
 **Note: This project is under active development. A first release is expected in summer 2019.**
 
