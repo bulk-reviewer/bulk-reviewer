@@ -43,7 +43,7 @@ Bulk Reviewer requires that the following programs are installed on the same com
 
 For Bulk Reviewer to be able to handle Encase/E01 disk images, bulk_extractor and The Sleuth Kit must be build in an environment with [libewf](https://github.com/libyal/libewf/).
 
-These dependencies should already be installed in the BitCurator Environment (unless you need to scan for Canadian SINs, in which case bulk_extractor will need to be rebuilt from source.)
+These dependencies should already be installed in the [BitCurator Environment](https://confluence.educopia.org/display/BC/BitCurator+Environment) (unless you need to scan for Canadian SINs, in which case bulk_extractor will need to be rebuilt from source.)
 
 ## Development
 
