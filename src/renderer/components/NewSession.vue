@@ -24,23 +24,48 @@
       </b-field>
 
       <b-field>
+        <section>
+          <button
+            class="button is-light"
+            @click.prevent="chooseDirectory"
+            v-if="sourceType === 'directory'">
+            Choose directory
+          </button>
+          <button
+            class="button is-light"
+            @click.prevent="chooseFile"
+            v-else>
+            Choose file
+          </button>
+          <div style="margin: 5px;">
+            <span v-if="sourcePath">
+              {{ sourcePath }}
+              <!-- button to reset sourcePath -->
+              <button class="button is-light is-small" @click="resetSourcePath">
+                <b-icon icon="times"></b-icon>
+              </button>
+            </span>
+            <span v-else>
+              None selected.
+            </span>
+          </div>
+        </section>
+    </b-field>
+
+    <!-- Named entity extraction -->
+
+    <b-field label="Regular expressions file">
+      <section>
         <button
           class="button is-light"
-          @click.prevent="chooseDirectory"
-          v-if="sourceType === 'directory'">
-          Choose directory
-        </button>
-        <button
-          class="button is-light"
-          @click.prevent="chooseFile"
-          v-else>
+          @click.prevent="chooseRegexFile">
           Choose file
         </button>
-        <div style="margin-left: 5px;">
-          <span v-if="sourcePath">
-            {{ sourcePath }}
+        <div style="margin: 5px;">
+          <span v-if="regexFilePath">
+            {{ regexFilePath }}
             <!-- button to reset sourcePath -->
-            <button class="button is-light is-small" @click="resetSourcePath">
+            <button class="button is-light is-small" @click="resetRegexFilePath">
               <b-icon icon="times"></b-icon>
             </button>
           </span>
@@ -48,11 +73,8 @@
             None selected.
           </span>
         </div>
+      </section>
     </b-field>
-
-    <!-- Named entity extraction -->
-
-    <!--Regular expressions file -->
 
     <b-field label="Social Security Number identification mode">
       <b-select
@@ -109,6 +131,7 @@ export default {
       name: '',
       sourceType: 'directory',
       sourcePath: '',
+      regexFilePath: '',
       ssnMode: '0',
       loading: false,
       includeExifResults: false,
@@ -126,14 +149,23 @@ export default {
         this.sourcePath = filename.toString()
       })
     },
+    chooseRegexFile () {
+      dialog.showOpenDialog({ properties: ['openFile'] }, (filename) => {
+        this.regexFilePath = filename.toString()
+      })
+    },
     resetSourcePath () {
       this.sourcePath = ''
+    },
+    resetRegexFilePath () {
+      this.regexFilePath = ''
     },
     resetForm () {
       this.isDisabled = false
       this.name = ''
       this.sourceType = 'directory'
       this.sourcePath = ''
+      this.regexFilePath = ''
       this.ssnMode = '0'
       this.includeExifResults = false
       this.includeNetworkResults = false
@@ -175,6 +207,10 @@ export default {
         }
         if (this.includeNetworkResults === true) {
           sessionParameters.splice(1, 0, '--include_network')
+        }
+        if (this.regexFilePath.length > 0) {
+          sessionParameters.splice(1, 0, '--regex')
+          sessionParameters.splice(2, 0, this.regexFilePath)
         }
 
         const pyProc = require('child_process').spawn('python3', sessionParameters)
