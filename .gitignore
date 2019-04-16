@@ -11,3 +11,4 @@ thumbs.db
 *.pyc
 __pycache__
 src/main/backend/stoplists/
+.env/
