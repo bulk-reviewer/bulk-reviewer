@@ -1,0 +1,23 @@
+.padded {
+  padding: 20px;
+}
+.dismissed {
+  color: #a9a9a9;
+}
+.verified {
+  color: green;
+}
+#fileSelector {
+  border: 2px solid;
+  border-radius: 5px;
+  padding: 10px 10px 0px 10px;
+  margin: 10px;
+  font-size: 90%;
+}
+#featureExplorer {
+  margin-top: 20px;
+}
+:focus {
+  border: 2px solid;
+  border-color: black !important;
+}
