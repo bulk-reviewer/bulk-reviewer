@@ -1,6 +1,6 @@
 # Bulk Reviewer
 
-> Identify, review, and remote private information in directories and disk images
+> Identify, review, and remove private information in directories and disk images
 
 #### Build Setup
 
