@@ -1,6 +1,6 @@
-# Bulk Reviewer
+![Bulk Reviewer logo](https://github.com/bulk-reviewer/bulk-reviewer/blob/master/build/icons/256x256.png)
 
-> Identify, review, and remove private information in directories and disk images
+## Identify, review, and remove sensitive files
 
 **Note: This project is under active development. A first release is expected in summer 2019.**
 
