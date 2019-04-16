@@ -226,7 +226,9 @@ def user_friendly_feature_type(feature_file):
     exists, return name of feature file.
     """
     if feature_file == 'pii.txt':
-        return 'Social Security Number'
+        return 'Social Security Number (USA)'
+    elif feature_file == 'sin.txt':
+        return 'Social Insurance Number (Canada)'
     elif feature_file == 'ccn.txt':
         return 'Credit card number'
     elif feature_file == 'telephone.txt':

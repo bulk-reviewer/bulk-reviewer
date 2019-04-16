@@ -30,8 +30,12 @@
           ({{ selectedFileFeatureCount }})
         </option>
         <option value="ssn">
-          Social Security Number 
+          Social Security Number (USA)
           ({{ featureCountByType(ssnFilter) }})
+        </option>
+        <option value="sin">
+          Social Insurance Number (Canada)
+          ({{ featureCountByType(sinFilter) }})
         </option>
         <option value="ccn">
           Credit card number 
@@ -253,6 +257,8 @@ export default {
           return this.tableData
         case 'ssn':
           return this.ssnFilter
+        case 'sin':
+          return this.sinFilter
         case 'ccn':
           return this.ccnFilter
         case 'phone':
@@ -276,7 +282,10 @@ export default {
       }
     },
     ssnFilter () {
-      return this.tableData.filter(f => f.feature_type === 'Social Security Number')
+      return this.tableData.filter(f => f.feature_type === 'Social Security Number (USA)')
+    },
+    sinFilter () {
+      return this.tableData.filter(f => f.feature_type === 'Social Insurance Number (Canada)')
     },
     ccnFilter () {
       return this.tableData.filter(f => f.feature_type === 'Credit card number')
