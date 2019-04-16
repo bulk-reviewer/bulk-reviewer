@@ -2,22 +2,46 @@
 
 > Identify, review, and remove private information in directories and disk images
 
-#### Build Setup
+## Development
+
+Bulk Reviewer is an Electron desktop application with a Python backend. Local development requires Python 3, Node, and npm/yarn (instructions here use yarn).
+
+1. Clone this repository
+
+`git clone https://github.com/bulk-reviewer/bulk-reviewer`
+
+2. Prepare Python virtual environment
 
 ``` bash
-# install dependencies
-yarn
+# First time
 
-# serve with hot reload at localhost:9080
-yarn run dev
+virtualenv -p python3 env
+source env/bin/activate
+pip install -r src/main/backend/requirements.txt
 
-# build electron application for production
-yarn run build
+# Subsequent times
 
-# lint all JS/Vue component files in `src/`
-yarn run lint
-
+source env/bin/activate
 ```
+
+3. Install npm modules (first time only)
+
+`yarn install`
+
+4. Start webpack development server
+
+`yarn run dev`
+
+## Build locally
+
+Instructions forthcoming. Basic steps:
+
+1. Package Python scripts
+
+2. Build Electron application for production
+
+`yarn run build`
+
 
 ---
 
