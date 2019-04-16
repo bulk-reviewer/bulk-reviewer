@@ -157,7 +157,8 @@
                   Open
                 </button>
               </p>
-              <p><strong>Context: </strong>{{ unescapeText(props.row.context) }}</p>
+              <p><strong>Feature in context: </strong>{{ unescapeText(props.row.context) }}</p>
+              <p><strong>Forensic path: </strong>{{ unescapeText(props.row.forensic_path) }}</p>
             </div>
           </div>
         </article>
