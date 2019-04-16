@@ -9,6 +9,7 @@ Bulk Reviewer is a software program that aids in identification, review, and rem
 Currently, Bulk Reviewer can scan directories and disk images for:
 
 * Social Security Numbers (SSNs)
+* Canadian Social Insurance Number (SINs)
 * Credit card numbers
 * Email addresses
 * Phone numbers
@@ -21,8 +22,8 @@ Scanners planned but not yet implemented include:
 * Personal names
 * Names of nationalities, religions, and political affiliations
 * User-supplied regular expressions
-* Canadian Social Insurance Number (SIN) and other national identifiers
-* Banking information
+* Other national identifiers
+* Banking information (e.g. IBAN and SWIFT account numbers)
 * Personal health information
 * Facebook and Outlook data
 * Additional lexicons (like [those developed by the ePADD project team](https://library.stanford.edu/projects/epadd/community/lexicon-working-group))
@@ -32,6 +33,17 @@ The application is designed to aid archivists and librarians in processing and p
 An earlier server-based version of Bulk Reviewer developed using Django can be found [here](https://github.com/timothyryanwalsh/bulk-reviewer).
 
 Contributions are welcome! Interested in getting involved? [Get in touch](mailto:tim.walsh@concordia.ca)!
+
+## Dependencies
+
+Bulk Reviewer requires that the following programs are installed on the same computer and that their command line interfaces are available on the system path:
+
+* [bulk_extractor](https://github.com/simsong/bulk_extractor): Note that scanning for Canadian Social Insurance Numbers (SINs) was only added to the master branch of bulk_extractor (version 1.6.0-dev) as of commit [018b056](https://github.com/simsong/bulk_extractor/commit/018b056a2b24cca4335f92d17d06d7802792530e). In order for Bulk Reviewer to find display SIN results, you will need to build bulk_extractor from source from this or a later commit.
+* [fiwalk](https://forensicswiki.org/wiki/Fiwalk): Installed as part of [The Sleuth Kit (TSK)](https://github.com/sleuthkit/sleuthkit).
+
+For Bulk Reviewer to be able to handle Encase/E01 disk images, bulk_extractor and The Sleuth Kit must be build in an environment with [libewf](https://github.com/libyal/libewf/).
+
+These dependencies should already be installed in the BitCurator Environment (unless you need to scan for Canadian SINs, in which case bulk_extractor will need to be rebuilt from source.)
 
 ## Development
 
