@@ -2,6 +2,8 @@
 
 > Identify, review, and remove private information in directories and disk images
 
+**Note: This project is under active development. A first release is expected in summer 2019.**
+
 Bulk Reviewer is a software program that aids in identification, review, and removal of sensitive files in directories and disk images. Bulk Reviewer scans directories and disk images for personally identifiable information (PII) and other sensitive information using [bulk_extractor](https://github.com/simsong/bulk_extractor), a best-in-class digital forensics tool, and can optionally extract named entities (personal names as well as nationalities, religions, and political affiliations) using [spaCy](https://spacy.io/) and [Apache Tika](https://tika.apache.org/). A browser application enables users to configure, start, and review scans, generate reports, and export files, separating problematic files (e.g., those requiring redaction or further review) from those that are free of sensitive information.
 
 Currently, Bulk Reviewer can scan directories and disk images for:
@@ -27,9 +29,9 @@ Scanners planned but not yet implemented include:
 
 Contributions are welcome!
 
-The application is designed to aid archivists and librarians in processing and providing access to digital collections but may be useful in other domains as well. The application is currently under active development, and is still in the exploratory/prototype phase. This project has been made possible in part by the generous support of the [Library Innovation Lab](https://lil.law.harvard.edu) at Harvard University, where Tim Walsh was a 2018 Summer Fellow, and a Concordia University Library Research Grant.
+The application is designed to aid archivists and librarians in processing and providing access to digital collections but may be useful in other domains as well. Bulk Reviewer has been made possible in part by the generous support of the [Library Innovation Lab](https://lil.law.harvard.edu) at Harvard University, where Tim Walsh was a 2018 Summer Fellow, and a Concordia University Library Research Grant.
 
-An earlier Django-based server application version of Bulk Reviewer can be found [here](https://github.com/timothyryanwalsh/bulk-reviewer).
+An earlier server-based version of Bulk Reviewer developed using Django can be found [here](https://github.com/timothyryanwalsh/bulk-reviewer).
 
 Interested in getting involved? [Get in touch](mailto:tim.walsh@concordia.ca)!
 
