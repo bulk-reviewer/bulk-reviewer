@@ -123,16 +123,16 @@ def run_bulk_extractor(src, bulk_extractor_path, stoplist_dir,
            # os.path.join(stoplist_dir, 'combined-ccn.txt'),
            # '-w',
            # os.path.join(stoplist_dir, 'domain.txt'),
-           '-x',
-           'accts_lg',
-           '-x',
-           'email_lg',
-           '-x',
-           'gps_lg',
-           '-x',
-           'lightgrep',
-           '-x',
-           'base16_lg',
+           # '-x',
+           # 'accts_lg',
+           # '-x',
+           # 'email_lg',
+           # '-x',
+           # 'gps_lg',
+           # '-x',
+           # 'lightgrep',
+           # '-x',
+           # 'base16_lg',
            '-x',
            'windirs',
            '-x',
@@ -147,7 +147,7 @@ def run_bulk_extractor(src, bulk_extractor_path, stoplist_dir,
            'jpeg_carve_mode=0',
            src]
     if not args.diskimage:
-        cmd.insert(25, '-R')
+        cmd.insert(15, '-R')
     if args.regex:
         cmd.insert(1, '-F')
         cmd.insert(2, args.regex)
