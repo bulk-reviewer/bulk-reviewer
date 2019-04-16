@@ -16,12 +16,12 @@ Currently, Bulk Reviewer can scan directories and disk images for:
 * URLs, web domains, RFC822 headers, and HTTP logs
 * GPS data
 * EXIF metadata
+* User-supplied regular expressions (uploaded as a txt file with each regexp on a new line)
 
 Scanners planned but not yet implemented include:
 
 * Personal names
 * Names of nationalities, religions, and political affiliations
-* User-supplied regular expressions
 * Other national identifiers
 * Banking information (e.g. IBAN and SWIFT account numbers)
 * Personal health information
