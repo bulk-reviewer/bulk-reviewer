@@ -6,9 +6,9 @@ build/*
 node_modules/
 npm-debug.log
 npm-debug.log.*
-thumbs.db
+Thumbs.db
 !.gitkeep
 *.pyc
-__pycache__
+src/main/backend/__pycache__/
 src/main/backend/stoplists/
 .env/
