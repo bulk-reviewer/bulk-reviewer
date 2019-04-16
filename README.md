@@ -41,7 +41,7 @@ Bulk Reviewer requires that the following programs are installed on the same com
 * [bulk_extractor](https://github.com/simsong/bulk_extractor): Note that scanning for Canadian Social Insurance Numbers (SINs) was only added to the master branch of bulk_extractor (version 1.6.0-dev) as of commit [018b056](https://github.com/simsong/bulk_extractor/commit/018b056a2b24cca4335f92d17d06d7802792530e). In order for Bulk Reviewer to find display SIN results, you will need to build bulk_extractor from source from this or a later commit.
 * [fiwalk](https://forensicswiki.org/wiki/Fiwalk): Installed as part of [The Sleuth Kit (TSK)](https://github.com/sleuthkit/sleuthkit).
 
-For Bulk Reviewer to be able to handle Encase/E01 disk images, bulk_extractor and The Sleuth Kit must be build in an environment with [libewf](https://github.com/libyal/libewf/).
+For Bulk Reviewer to be able to handle Encase/E01 disk images, bulk_extractor and The Sleuth Kit must be built with [libewf](https://github.com/libyal/libewf/).
 
 These dependencies should already be installed in the [BitCurator Environment](https://confluence.educopia.org/display/BC/BitCurator+Environment) (unless you need to scan for Canadian SINs, in which case bulk_extractor will need to be rebuilt from source.)
 
