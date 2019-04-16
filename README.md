@@ -27,13 +27,11 @@ Scanners planned but not yet implemented include:
 * Facebook and Outlook data
 * Additional lexicons (like [those developed by the ePADD project team](https://library.stanford.edu/projects/epadd/community/lexicon-working-group))
 
-Contributions are welcome!
-
 The application is designed to aid archivists and librarians in processing and providing access to digital collections but may be useful in other domains as well. Bulk Reviewer has been made possible in part by the generous support of the [Library Innovation Lab](https://lil.law.harvard.edu) at Harvard University, where Tim Walsh was a 2018 Summer Fellow, and a Concordia University Library Research Grant.
 
 An earlier server-based version of Bulk Reviewer developed using Django can be found [here](https://github.com/timothyryanwalsh/bulk-reviewer).
 
-Interested in getting involved? [Get in touch](mailto:tim.walsh@concordia.ca)!
+Contributions are welcome! Interested in getting involved? [Get in touch](mailto:tim.walsh@concordia.ca)!
 
 ## Development
 
