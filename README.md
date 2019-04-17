@@ -38,7 +38,7 @@ Contributions are welcome! Interested in getting involved? [Get in touch](mailto
 
 Bulk Reviewer requires that the following programs are installed on the same computer and that their command line interfaces are available on the system path:
 
-* [bulk_extractor](https://github.com/simsong/bulk_extractor): Note that scanning for Canadian Social Insurance Numbers (SINs) was only added to the master branch of bulk_extractor (version 1.6.0-dev) as of commit [018b056](https://github.com/simsong/bulk_extractor/commit/018b056a2b24cca4335f92d17d06d7802792530e). In order for Bulk Reviewer to find display SIN results, you will need to build bulk_extractor from source from this or a later commit.
+* [bulk_extractor](https://github.com/simsong/bulk_extractor): Bulk Reviewer is compatible with bulk_extractor 1.5.5+. Scanning for Canadian Social Insurance Numbers (SINs) requires bulk_extractor version 1.6.0-dev, built from commit [f4ac85d](https://github.com/simsong/bulk_extractor/commit/f4ac85d84c5d5d5aee868234acee527695727344) or later.
 * [The Sleuth Kit (TSK)](https://github.com/sleuthkit/sleuthkit)
 
 For Bulk Reviewer to be able to handle Encase/E01 disk images, bulk_extractor and The Sleuth Kit must be built with [libewf](https://github.com/libyal/libewf/).
