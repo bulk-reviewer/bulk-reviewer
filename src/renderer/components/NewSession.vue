@@ -170,51 +170,59 @@ export default {
       this.includeExifResults = false
       this.includeNetworkResults = false
     },
-    onSubmit () {
-      if (!this.sourcePath) {
-        this.errorMessage('Source directory or disk image required')
-      } else {
-        // disable submit button
-        this.isDisabled = true
+    guessPackaged () {
+      const path = require('path')
+      const PY_DIST_FOLDER = path.join(__dirname, '../../main/', 'backend_dist')
+      console.log('guessPackaged:', require('fs').existsSync(PY_DIST_FOLDER))
+      return require('fs').existsSync(PY_DIST_FOLDER)
+    },
+    getScriptPath () {
+      const path = require('path')
+      const PY_DIST_FOLDER = path.join(__dirname, '../../main/', 'backend_dist')
+      const PY_FOLDER = path.join(__dirname, '../../main/', 'backend')
+      const PY_MODULE = 'br_processor'
 
-        // switch status indicators
-        this.loading = true
+      if (!this.guessPackaged()) {
+        return path.join(PY_FOLDER, PY_MODULE + '.py')
+      }
+      if (process.platform === 'win32') {
+        return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE + '.exe')
+      }
+      return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE)
+    },
+    runPythonProcess () {
+      const path = require('path')
+      const homeDir = app.getPath('home')
+      const brDir = path.join(homeDir, 'bulk-reviewer')
 
-        // kick off br_processor
-        const path = require('path')
+      let script = this.getScriptPath()
 
-        const homeDir = app.getPath('home')
-        const brDir = path.join(homeDir, 'bulk-reviewer')
+      let sessionParameters = [
+        script,
+        '--ssn',
+        parseInt(this.ssnMode),
+        this.sourcePath,
+        brDir,
+        this.name
+      ]
+      if (this.sourceType === 'diskImage') {
+        sessionParameters.splice(1, 0, '-d')
+      }
+      if (this.includeExifResults === true) {
+        sessionParameters.splice(1, 0, '--include_exif')
+      }
+      if (this.includeNetworkResults === true) {
+        sessionParameters.splice(1, 0, '--include_network')
+      }
+      if (this.regexFilePath.length > 0) {
+        sessionParameters.splice(1, 0, '--regex')
+        sessionParameters.splice(2, 0, this.regexFilePath)
+      }
 
-        const PY_FOLDER = path.join(__dirname, '../../main/', 'backend')
-        const PY_MODULE = 'br_processor'
-        const PY_SCRIPT = PY_MODULE + '.py'
-        const script = path.join(PY_FOLDER, PY_SCRIPT)
+      console.log(sessionParameters)
 
-        let sessionParameters = [
-          script,
-          '--ssn',
-          parseInt(this.ssnMode),
-          this.sourcePath,
-          brDir,
-          this.name
-        ]
-        if (this.sourceType === 'diskImage') {
-          sessionParameters.splice(1, 0, '-d')
-        }
-        if (this.includeExifResults === true) {
-          sessionParameters.splice(1, 0, '--include_exif')
-        }
-        if (this.includeNetworkResults === true) {
-          sessionParameters.splice(1, 0, '--include_network')
-        }
-        if (this.regexFilePath.length > 0) {
-          sessionParameters.splice(1, 0, '--regex')
-          sessionParameters.splice(2, 0, this.regexFilePath)
-        }
-
-        const pyProc = require('child_process').spawn('python3', sessionParameters)
-
+      if (this.guessPackaged()) {
+        let pyProc = require('child_process').execFile(script, sessionParameters.slice(1))
         let jsonPath = ''
         let pyErrors = ''
 
@@ -247,6 +255,54 @@ export default {
             self.$router.push('review')
           }
         })
+      } else {
+        let pyProc = require('child_process').spawn('python3', sessionParameters)
+        let jsonPath = ''
+        let pyErrors = ''
+
+        pyProc.stdout.on('data', function (data) {
+          jsonPath += data.toString()
+        })
+
+        pyProc.stderr.on('data', function (data) {
+          let errorMessage = data.toString()
+          // ignore 'Attempt to open' disk image messages
+          if (!errorMessage.includes('Attempt to open')) {
+            pyErrors += errorMessage
+          }
+        })
+
+        // throw error message or load review dashboard
+        // when python script has completed
+        let self = this
+        pyProc.stdout.on('end', function (data) {
+          // catch errors
+          if (pyErrors.length > 0) {
+            self.loading = false
+            self.isDisabled = false
+            self.errorMessage(`ERROR: ${pyErrors}`)
+          // if no errors, load review dashboard
+          } else {
+            let jsonFile = jsonPath.trim()
+            self.loading = false
+            self.$store.dispatch('loadFromJSON', jsonFile)
+            self.$router.push('review')
+          }
+        })
+      }
+    },
+    onSubmit () {
+      if (!this.sourcePath) {
+        this.errorMessage('Source directory or disk image required')
+      } else {
+        // disable submit button
+        this.isDisabled = true
+
+        // switch status indicators
+        this.loading = true
+
+        // kick off br_processor
+        this.runPythonProcess()
       }
     },
     // display error message in toast for 5 seconds
