@@ -17,6 +17,7 @@ from sqlalchemy import create_engine, Column, ForeignKey, \
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm.exc import NoResultFound
+from pathlib import Path
 import argparse
 import json
 import os
@@ -86,16 +87,16 @@ def create_dfxml_diskimage(src, dfxml_path):
         return False
 
 
-def create_dfxml_directory(src, dfxml_path):
+def create_dfxml_directory(src, dfxml_path, scripts_dir):
     """
     Create DFXML representation of source directory using walk_to_dfxml.py
     and save to destination directory. Return True is successful,
     False if unsuccessful.
     """
-    SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-    walk_to_dfxml = os.path.join(SCRIPT_DIR, 'walk_to_dfxml.py')
-    cmd = 'cd "{0}" && python3 {1} > "{2}"'.\
-        format(src, walk_to_dfxml, dfxml_path)
+    walk_to_dfxml = os.path.join(scripts_dir, 'walk_to_dfxml.py')
+    cmd = 'cd "{0}" && python3 {1} > "{2}"'.format(src,
+                                                   walk_to_dfxml,
+                                                   dfxml_path)
     try:
         subprocess.call(cmd, shell=True)
         return True
@@ -255,13 +256,13 @@ def user_friendly_feature_type(feature_file):
 
 def annotate_feature_files(feature_files_dir,
                            annotated_feature_path,
-                           dfxml_path):
+                           dfxml_path,
+                           scripts_dir):
     """
     Annotate bulk_extractor feature files for disk images
     to associate features to files in the image.
     """
-    SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-    identify_filenames = os.path.join(SCRIPT_DIR, 'identify_filenames.py')
+    identify_filenames = os.path.join(scripts_dir, 'identify_filenames.py')
 
     if not os.path.exists(annotated_feature_path):
             os.makedirs(annotated_feature_path)
@@ -606,6 +607,9 @@ def main():
         reports_path,
         'bulk_extractor_annotated'
     )
+    user_home_dir = os.path.abspath(str(Path.home()))
+    bulk_reviewer_dir = os.path.join(user_home_dir, 'bulk-reviewer')
+    scripts_dir = os.path.join(bulk_reviewer_dir, 'scripts')
 
     # Create output directories
     for out_dir in dest, reports_path, bulk_extractor_path:
@@ -641,18 +645,17 @@ def main():
     br_session_id = br_session_find.id
 
     # Make sure stoplists are extracted
-    SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-    stoplist_zip = os.path.join(SCRIPT_DIR, 'stoplists.zip')
-    stoplist_dir = os.path.join(SCRIPT_DIR, 'stoplists')
+    stoplist_zip = os.path.join(bulk_reviewer_dir, 'stoplists.zip')
+    stoplist_dir = os.path.join(bulk_reviewer_dir, 'stoplists')
     if not os.path.isdir(stoplist_dir):
         with zipfile.ZipFile(stoplist_zip, 'r') as zip_ref:
-            zip_ref.extractall(SCRIPT_DIR)
+            zip_ref.extractall(bulk_reviewer_dir)
 
     # Create dfxml
     if args.diskimage:
         dfxml_success = create_dfxml_diskimage(src, dfxml_path)
     else:
-        dfxml_success = create_dfxml_directory(src, dfxml_path)
+        dfxml_success = create_dfxml_directory(src, dfxml_path, scripts_dir)
     if dfxml_success is False:
         sys.exit(1)
 
@@ -674,7 +677,8 @@ def main():
         annotate_success = annotate_feature_files(
             bulk_extractor_path,
             annotated_feature_path,
-            dfxml_path
+            dfxml_path,
+            scripts_dir
         )
         if annotate_success is False:
             sys.exit(1)
