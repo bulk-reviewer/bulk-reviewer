@@ -51,9 +51,19 @@ Bulk Reviewer is an Electron desktop application with a Python backend. Local de
 
 1. Clone this repository
 
-`git clone https://github.com/bulk-reviewer/bulk-reviewer`
+``` bash
+git clone https://github.com/bulk-reviewer/bulk-reviewer
+```
 
-2. Prepare Python virtual environment
+2. Copy helper scripts and bulk_extractor stoplists to `bulk-reviewer` home directory
+
+``` bash
+mkdir ~/bulk-reviewer
+cp -r scripts/ ~/bulk-reviewer/scripts/
+cp stoplists.zip ~/bulk-reviewer/
+```
+
+3. Prepare Python virtual environment
 
 ``` bash
 # First time
@@ -67,13 +77,17 @@ pip install -r src/main/backend/requirements.txt
 source env/bin/activate
 ```
 
-3. Install npm modules (first time only)
+4. Install npm modules (first time only)
 
-`yarn install`
+``` bash
+yarn install
+```
 
-4. Start webpack development server
+5. Start webpack development server
 
-`yarn run dev`
+``` bash
+yarn run dev
+```
 
 ## Build locally
 
@@ -83,7 +97,9 @@ Instructions forthcoming. Basic steps:
 
 2. Build Electron application for production
 
-`yarn run build`
+``` bash
+yarn run build
+```
 
 ## Logo design
 [Bailey McGinn](https://baileymcginn.com/)
