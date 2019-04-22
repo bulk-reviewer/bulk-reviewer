@@ -20,6 +20,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from pathlib import Path
 import argparse
 import json
+import logging
 import os
 import sqlite3
 import subprocess
@@ -83,7 +84,7 @@ def create_dfxml_diskimage(src, dfxml_path):
         subprocess.check_output(cmd)
         return True
     except subprocess.CalledProcessError as e:
-        print('Error creating DFXML with fiwalk. Details: {}'.format(e))
+        logging.error('Error creating DFXML with fiwalk: %s', e)
         return False
 
 
@@ -101,8 +102,7 @@ def create_dfxml_directory(src, dfxml_path, scripts_dir):
         subprocess.call(cmd, shell=True)
         return True
     except subprocess.CalledProcessError as e:
-        print('Error creating DFXML with walk_to_dfxml.py. Details: {}'
-              .format(e))
+        logging.error('Error creating DFXML with walk_to_dfxml.py: %s', e)
         return False
 
 
@@ -147,7 +147,7 @@ def run_bulk_extractor(src, bulk_extractor_path, stoplist_dir,
         subprocess.check_output(cmd)
         return True
     except subprocess.CalledProcessError as e:
-        print('Error running bulk_extractor. Details: {}'.format(e))
+        logging.error('Error running bulk_extractor: %s', e)
         return False
 
 
@@ -207,7 +207,7 @@ def parse_dfxml_to_db(session, br_session_id, dfxml_path):
             session.add(new_file)
             session.commit()
         except Exception:
-            print("Error writing file {} to database.".format(filepath))
+            logging.error("File %s not written to database", filepath)
 
 
 def user_friendly_feature_type(feature_file):
@@ -267,7 +267,7 @@ def annotate_feature_files(feature_files_dir,
         subprocess.check_output(cmd)
         return True
     except subprocess.CalledProcessError as e:
-        print('identify_filenames.py unable to annotated feature files. Details: {}'.format(e))
+        logging.error('identify_filenames.py unable to annotate feature files: %s', e)
         return False
 
 
@@ -361,7 +361,7 @@ def parse_feature_file(feature_file, br_session_id, session):
                         session=br_session_id
                     ).first()
                 except NoResultFound:
-                    print("Matching file not found for", filepath)
+                    logging.error("Matching file not found for file %s", filepath)
                     continue
 
                 # Set feature type
@@ -377,14 +377,10 @@ def parse_feature_file(feature_file, br_session_id, session):
                     cleared=False,
                     file=matching_file.id
                 )
-                try:
-                    session.add(postprocessed_feature)
-                    session.commit()
-                except Exception:
-                    print("Error writing to database.")
+                session.add(postprocessed_feature)
+                session.commit()
             except Exception:
-                continue  # for debugging
-                # print("Error processing line in feature file {0}. Unread line: {1}".format(feature_file, line))
+                logging.warning("Error processing line in feature file %s. Unread line: %s", feature_file, line)
 
 
 def parse_annotated_feature_file(feature_file, br_session_id, session):
@@ -456,8 +452,7 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
                 session.commit()
 
             except Exception:
-                continue  # debugging
-                # print("Error reading line to feature file {0}. Unread line: {1}".format(feature_file, line))
+                logging.warning("Error processing line in feature file %s. Unread line: %s", feature_file, line)
 
 
 def dict_factory(cursor, row):
@@ -548,8 +543,20 @@ def brv_to_json(brv_path, json_path):
     conn.close()
 
 
+def _configure_logging(bulk_reviewer_dir):
+    log_format = "%(asctime)s - %(levelname)s - %(message)s"
+    log_file = os.path.join(bulk_reviewer_dir, 'bulk-reviewer.log')
+    logging.basicConfig(filename=log_file,
+                        filemode='w',
+                        format=log_format,
+                        level=logging.INFO)
+
+
 def _make_parser():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--quiet",
+                        help="",
+                        action="store_true")
     parser.add_argument("-d",
                         "--diskimage",
                         help="Scan disk image",
@@ -601,6 +608,10 @@ def main():
     bulk_reviewer_dir = os.path.join(user_home_dir, 'bulk-reviewer')
     scripts_dir = os.path.join(bulk_reviewer_dir, 'scripts')
 
+    # Configure logging
+    _configure_logging(bulk_reviewer_dir)
+    logging.info('Starting Bulk Reviewer processor script. Name: %s. Source: %s.', args.filename, src)
+
     # Create output directories
     for out_dir in dest, reports_path, bulk_extractor_path:
         if not os.path.isdir(out_dir):
@@ -638,10 +649,12 @@ def main():
     stoplist_zip = os.path.join(bulk_reviewer_dir, 'stoplists.zip')
     stoplist_dir = os.path.join(bulk_reviewer_dir, 'stoplists')
     if not os.path.isdir(stoplist_dir):
+        logging.info('Extracting bulk_extractor stoplists')
         with zipfile.ZipFile(stoplist_zip, 'r') as zip_ref:
             zip_ref.extractall(bulk_reviewer_dir)
 
     # Create dfxml
+    logging.info('Creating DFXML')
     if args.diskimage:
         dfxml_success = create_dfxml_diskimage(src, dfxml_path)
     else:
@@ -650,9 +663,11 @@ def main():
         sys.exit(1)
 
     # Parse dfxml to db
+    logging.info('Parsing DFXML to database')
     parse_dfxml_to_db(session, br_session_id, dfxml_path)
 
     # Run bulk_extractor
+    logging.info('Running bulk_extractor')
     bulk_extractor_success = run_bulk_extractor(
         src, bulk_extractor_path,
         stoplist_dir,
@@ -664,6 +679,7 @@ def main():
 
     if args.diskimage:
         # Disk image source: Annotate feature files and read into database
+        logging.info('Annotating feature files')
         annotate_success = annotate_feature_files(
             bulk_extractor_path,
             annotated_feature_path,
@@ -672,6 +688,7 @@ def main():
         )
         if annotate_success is False:
             sys.exit(1)
+        logging.info('Reading feature files to database')
         read_features_to_db(
             annotated_feature_path,
             br_session_id,
@@ -681,6 +698,7 @@ def main():
 
     else:
         # Directory source: read feature files into database
+        logging.info('Reading feature files to database')
         read_features_to_db(
             bulk_extractor_path,
             br_session_id,
@@ -694,9 +712,10 @@ def main():
     json_path = os.path.join(dest, args.filename + '.json')
     try:
         brv_to_json(db_path, json_path)
+        logging.info('Complete. JSON output file: %s', json_path)
         print(json_path)
     except Exception:
-        print('Error creating JSON file')
+        logging.error('Error creating JSON file %s', json_path)
         sys.exit(1)
 
 
