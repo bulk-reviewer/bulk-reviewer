@@ -170,12 +170,15 @@ export default {
       this.includeExifResults = false
       this.includeNetworkResults = false
     },
+    // determine if python is packaged as executable by checking
+    // for presence of backend_dist directory
     guessPackaged () {
       const path = require('path')
       const PY_DIST_FOLDER = path.join(__dirname, '../../main/', 'backend_dist')
       console.log('guessPackaged:', require('fs').existsSync(PY_DIST_FOLDER))
       return require('fs').existsSync(PY_DIST_FOLDER)
     },
+    // get path to script or executable as appropriate
     getScriptPath () {
       const path = require('path')
       const PY_DIST_FOLDER = path.join(__dirname, '../../main/', 'backend_dist')
@@ -190,6 +193,9 @@ export default {
       }
       return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE)
     },
+    // run br_processor python script. on completion, display errors
+    // or, if no errors, load data from JSON file to store and
+    // push router to ReviewDashboard component
     runPythonProcess () {
       const path = require('path')
       const homeDir = app.getPath('home')
