@@ -242,6 +242,29 @@ export default {
         this.successMessage(`${csvFile} saved`)
       })
     },
+    // determine if python is packaged as executable by checking
+    // for presence of backend_dist directory
+    guessPackaged () {
+      const path = require('path')
+      const PY_DIST_FOLDER = path.join(__dirname, '../../main/', 'backend_dist')
+      console.log('guessPackaged:', require('fs').existsSync(PY_DIST_FOLDER))
+      return require('fs').existsSync(PY_DIST_FOLDER)
+    },
+    // get path to script or executable as appropriate
+    getScriptPath () {
+      const path = require('path')
+      const PY_DIST_FOLDER = path.join(__dirname, '../../main/', 'backend_dist')
+      const PY_FOLDER = path.join(__dirname, '../../main/', 'backend')
+      const PY_MODULE = 'br_processor'
+
+      if (!this.guessPackaged()) {
+        return path.join(PY_FOLDER, PY_MODULE + '.py')
+      }
+      if (process.platform === 'win32') {
+        return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE + '.exe')
+      }
+      return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE)
+    },
     // copy files from source from user-supplied destination
     // copy files with pii if piiBoolean is true
     // copy files without pii if piiBoolean is false
@@ -262,15 +285,14 @@ export default {
         this.saveToJSONFile(jsonTempFile, true)
 
         // build script parameters
-        const PY_FOLDER = path.join(__dirname, '../../main/', 'backend')
-        const PY_MODULE = 'export_files'
-        const PY_SCRIPT = PY_MODULE + '.py'
-        const script = path.join(PY_FOLDER, PY_SCRIPT)
+        let script = this.getScriptPath()
 
         let scriptParameters = [
           script,
+          '--export',
           jsonTempFile,
-          outDir
+          outDir,
+          'export' // can be any string
         ]
         if (piiBoolean === true) {
           scriptParameters.splice(1, 0, '--pii')
@@ -279,30 +301,56 @@ export default {
           scriptParameters.splice(1, 0, '-d')
         }
 
-        // call python script
-        const pyProc = require('child_process').spawn('python3', scriptParameters)
-        let pyOut = ''
-        let pyErr = ''
+        // run python script/executable
+        if (this.guessPackaged()) {
+          let pyProc = require('child_process').execFile(script, scriptParameters.slice(1))
+          let pyOut = ''
+          let pyErr = ''
 
-        // collect stdout
-        pyProc.stdout.on('data', function (data) {
-          pyOut += data.toString()
-        })
+          // collect stdout
+          pyProc.stdout.on('data', function (data) {
+            pyOut += data.toString()
+          })
 
-        // collect stderr
-        pyProc.stderr.on('data', function (data) {
-          pyErr += data.toString()
-        })
+          // collect stderr
+          pyProc.stderr.on('data', function (data) {
+            pyErr += data.toString()
+          })
 
-        // show user error or success message on completion
-        let self = this
-        pyProc.stdout.on('end', function (data) {
-          if (pyErr.length > 0) {
-            self.errorMessage(pyErr)
-          } else {
-            self.successMessage(pyOut)
-          }
-        })
+          // show user error or success message on completion
+          let self = this
+          pyProc.stdout.on('end', function (data) {
+            if (pyErr.length > 0) {
+              self.errorMessage(pyErr)
+            } else {
+              self.successMessage(pyOut)
+            }
+          })
+        } else {
+          let pyProc = require('child_process').spawn('python3', scriptParameters)
+          let pyOut = ''
+          let pyErr = ''
+
+          // collect stdout
+          pyProc.stdout.on('data', function (data) {
+            pyOut += data.toString()
+          })
+
+          // collect stderr
+          pyProc.stderr.on('data', function (data) {
+            pyErr += data.toString()
+          })
+
+          // show user error or success message on completion
+          let self = this
+          pyProc.stdout.on('end', function (data) {
+            if (pyErr.length > 0) {
+              self.errorMessage(pyErr)
+            } else {
+              self.successMessage(pyOut)
+            }
+          })
+        }
       })
     },
     // display success message in toast for 3 seconds

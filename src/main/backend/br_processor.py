@@ -22,6 +22,7 @@ import argparse
 import json
 import logging
 import os
+import shutil
 import sqlite3
 import subprocess
 import sys
@@ -543,6 +544,151 @@ def brv_to_json(brv_path, json_path):
     conn.close()
 
 
+def carve_file(filepath, fs_offset, disk_image, inode, file_dest):
+    """
+    Carve file from disk image using The Sleuth Kit's
+    icat command line utility.
+
+    Return True is successful, False if not.
+    """
+    icat_cmd = 'icat -o {0} "{1}" {2} > "{3}"'.format(
+        fs_offset,
+        disk_image,
+        inode,
+        file_dest
+    )
+    try:
+        subprocess.call(icat_cmd, shell=True)
+        logging.debug('File %s exported from disk image', filepath)
+        return True
+    except subprocess.CalledProcessError as e:
+        logging.error('Error exporting file %s: %s', filepath, e)
+        return False
+
+
+def export_files(json_path, dest_path, args):
+    """Exports files from source directory or disk image.
+
+    Takes Bulk Reviewer JSON as input and based on
+    user-supplied options exports either only files
+    with confirmed PII or only files clear of private
+    or otherwise sensitive information.
+    """
+
+    # Convert input json to dict
+    with open(json_path, 'r') as f:
+        session_dict = json.load(f)
+
+    # Delete temp json file
+    try:
+        os.remove(json_path)
+    except OSError:
+        logging.warning('Unable to delete JSON file %s', json_path)
+
+    # Create list of files with PII
+    features = session_dict['features']
+    files_with_pii = []
+    for f in features:
+        if f['cleared'] is False:
+            if f['filepath'] not in files_with_pii:
+                files_with_pii.append(f['filepath'])
+
+    # Create list of files without PII
+    files = session_dict['files']
+    files_without_pii = []
+    for f in files:
+        if f['filepath'] not in files_with_pii:
+            files_without_pii.append(f['filepath'])
+
+    # Export files from directory
+    if not args.diskimage:
+
+        # Export files without PII, replicating directory structure
+        if not args.pii:
+            for f in files_without_pii:
+                # Build paths for source and dest file
+                file_src = os.path.join(session_dict['source_path'], f)
+                file_dest = os.path.join(dest_path, f)
+                # Copy file, creating dirs if necessary
+                os.makedirs(os.path.dirname(file_dest), exist_ok=True)
+                try:
+                    shutil.copy2(file_src, file_dest)
+                except OSError as e:
+                    logging.error('Error copying file %s: %s', file_src, e)
+                    return False
+            logging.info('Files without PII copied to %s', dest_path)
+            return True
+
+        # Export files with PII to flat directory
+        for f in files_with_pii:
+            # Get file information
+            filtered_files = [x for x in files if x['filepath'] == f]
+            file_info = filtered_files[0]
+            # Build path for source file
+            file_src = os.path.join(session_dict['source_path'], f)
+            # Build path for destination file, appending
+            # ID to filename to prevent filepath collisions
+            file_basename = str(file_info['id']) + '_' + os.path.basename(f)
+            file_dest = os.path.join(dest_path, file_basename)
+            # Copy file
+            try:
+                shutil.copy2(file_src, file_dest)
+            except OSError as e:
+                logging.error('Error copying file %s: %s', file_src, e)
+                return False
+        logging.info('Files with PII copied to %s', dest_path)
+        return True
+
+    # Export files from disk image
+
+    # Export files without PII, replicating directory structure
+    if not args.pii:
+        for f in files_without_pii:
+            # Build path for destination file
+            file_dest = os.path.join(dest_path, f)
+            # Create intermediate dirs if necessary
+            os.makedirs(os.path.dirname(file_dest), exist_ok=True)
+            # Get file information
+            filtered_files = [x for x in files if x['filepath'] == f]
+            file_info = filtered_files[0]
+            # TODO: CHECK IF FILE IS ALLOCATED
+            # Carve file from disk image
+            carve_success = carve_file(f,
+                                       int(file_info['fs_offset']),
+                                       session_dict['source_path'],
+                                       int(file_info['inode']),
+                                       file_dest)
+            if carve_success is False:
+                return False
+            # TODO: RESTORE FS DATES FROM VALUES RECORDED IN DFXML
+        logging.info('Files without PII copied to %s', dest_path)
+        return True
+
+    # Export files with PII to flat directory
+    for f in files_with_pii:
+        # Get file information
+        filtered_files = [x for x in files if x['filepath'] == f]
+        file_info = filtered_files[0]
+        # Build path for destination file, appending
+        # ID to filename to prevent filepath collisions
+        file_basename = str(file_info['id']) + '_' + os.path.basename(f)
+        file_dest = os.path.join(dest_path, file_basename)
+        # Create intermediate dirs if necessary
+        os.makedirs(os.path.dirname(file_dest), exist_ok=True)
+        # TODO: CHECK IF FILE IS ALLOCATED
+        # Carve file from disk image
+        carve_success = carve_file(f,
+                                   int(file_info['fs_offset']),
+                                   session_dict['source_path'],
+                                   int(file_info['inode']),
+                                   file_dest)
+        if carve_success is False:
+            return False
+        # TODO: RESTORE FS DATES FROM VALUES RECORDED IN DFXML
+    logging.info('Files with PII copied to %s', dest_path)
+    return True
+
+
 def _configure_logging(bulk_reviewer_dir):
     log_format = "%(asctime)s - %(levelname)s - %(message)s"
     log_file = os.path.join(bulk_reviewer_dir, 'bulk-reviewer.log')
@@ -578,6 +724,14 @@ def _make_parser():
                         "--named_entity_extraction",
                         help="Extract named entities with Tika and spaCy",
                         action="store_true")
+    parser.add_argument("--export",
+                        help="Use script in export mode \
+                            (export files based on JSON input)",
+                        action="store_true")
+    parser.add_argument("--pii",
+                        help="Export files with PII. \
+                            Used in tandem with --export flag",
+                        action="store_true")
     parser.add_argument("source",
                         help="Path to source directory or disk image")
     parser.add_argument("destination",
@@ -610,7 +764,21 @@ def main():
 
     # Configure logging
     _configure_logging(bulk_reviewer_dir)
-    logging.info('Starting Bulk Reviewer processor script. Name: %s. Source: %s.', args.filename, src)
+
+    # Check if script run in export mode
+    # If yes, run export_files and return
+    if args.export:
+        logging.info('Starting Bulk Reviewer processor script in export mode. \
+            JSON file: %s. Destination: %s.', src, dest)
+        export_success = export_files(src, dest, args)
+        if export_success is False:
+            sys.exit(1)
+        print('Files exported successfully.')
+        return
+
+    # Otherwise, log starting message and continue
+    logging.info('Starting Bulk Reviewer processor script. \
+        Name: %s. Source: %s.', args.filename, src)
 
     # Create output directories
     for out_dir in dest, reports_path, bulk_extractor_path:
