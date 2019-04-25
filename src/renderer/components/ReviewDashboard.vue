@@ -247,7 +247,6 @@ export default {
     guessPackaged () {
       const path = require('path')
       const PY_DIST_FOLDER = path.join(__dirname, '../../main/', 'backend_dist')
-      console.log('guessPackaged:', require('fs').existsSync(PY_DIST_FOLDER))
       return require('fs').existsSync(PY_DIST_FOLDER)
     },
     // get path to script or executable as appropriate
