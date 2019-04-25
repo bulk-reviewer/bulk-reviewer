@@ -268,8 +268,7 @@ def annotate_feature_files(feature_files_dir,
         subprocess.check_output(cmd)
         return True
     except subprocess.CalledProcessError as e:
-        logging.error("""
-            identify_filenames.py unable to annotate feature files: %s.
+        logging.error("""identify_filenames.py unable to annotate feature files: %s.\
             """, e)
         return False
 
@@ -385,8 +384,7 @@ def parse_feature_file(feature_file, br_session_id, session):
                 session.add(postprocessed_feature)
                 session.commit()
             except Exception:
-                logging.warning("""
-                    Error processing line in feature file %s. Unread line: %s.
+                logging.warning("""Error processing line in feature file %s. Unread line: %s.\
                     """, feature_file, line)
 
 
@@ -459,8 +457,7 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
                 session.commit()
 
             except Exception:
-                logging.warning("""
-                    Error processing line in feature file %s. Unread line: %s.
+                logging.warning("""Error processing line in feature file %s. Unread line: %s.\
                     """, feature_file, line)
 
 
@@ -783,8 +780,7 @@ def main():
     # Check if script run in export mode
     # If yes, run export_files and return
     if args.export:
-        logging.info("""
-            Running script in file export mode. JSON file: %s. Destination: %s.
+        logging.info("""Running script in file export mode. JSON file: %s. Destination: %s.\
             """, src, dest)
         export_success = export_files(src, dest, args)
         if export_success is False:
@@ -793,8 +789,7 @@ def main():
         return
 
     # Otherwise, log starting message and continue
-    logging.info("""
-        Running script in processing mode. Name: %s. Source: %s.
+    logging.info("""Running script in processing mode. Name: %s. Source: %s.\
         """, args.filename, src)
 
     # Create output directories
