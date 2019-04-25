@@ -771,6 +771,7 @@ def main():
             JSON file: %s. Destination: %s.', src, dest)
         export_success = export_files(src, dest, args)
         if export_success is False:
+            print("See bulk-reviewer.log for details", file=sys.stderr)
             sys.exit(1)
         print('Files exported successfully.')
         return
@@ -808,9 +809,14 @@ def main():
     session.commit()
 
     # Store br_session_id
-    br_session_find = session.query(BRSession)\
-        .filter(BRSession.name == args.filename).one()
-    br_session_id = br_session_find.id
+    try:
+        br_session_find = session.query(BRSession)\
+            .filter(BRSession.name == args.filename).one()
+        br_session_id = br_session_find.id
+    except Exception:
+        logging.error('JSON file with same name already exists in output directory. Quitting.')
+        print("See bulk-reviewer.log for details", file=sys.stderr)
+        sys.exit(1)
 
     # Make sure stoplists are extracted
     stoplist_zip = os.path.join(bulk_reviewer_dir, 'stoplists.zip')
@@ -827,6 +833,7 @@ def main():
     else:
         dfxml_success = create_dfxml_directory(src, dfxml_path, scripts_dir)
     if dfxml_success is False:
+        print("See bulk-reviewer.log for details", file=sys.stderr)
         sys.exit(1)
 
     # Parse dfxml to db
@@ -842,6 +849,7 @@ def main():
         args
     )
     if bulk_extractor_success is False:
+        print("See bulk-reviewer.log for details", file=sys.stderr)
         sys.exit(1)
 
     if args.diskimage:
@@ -854,6 +862,7 @@ def main():
             scripts_dir
         )
         if annotate_success is False:
+            print("See bulk-reviewer.log for details", file=sys.stderr)
             sys.exit(1)
         logging.info('Reading feature files to database')
         read_features_to_db(
@@ -883,6 +892,7 @@ def main():
         print(json_path)
     except Exception:
         logging.error('Error creating JSON file %s', json_path)
+        print("See bulk-reviewer.log for details", file=sys.stderr)
         sys.exit(1)
 
 
