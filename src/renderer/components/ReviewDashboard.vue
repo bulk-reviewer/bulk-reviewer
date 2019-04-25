@@ -306,6 +306,9 @@ export default {
           let pyOut = ''
           let pyErr = ''
 
+          // show in progress message
+          this.inProgressMessage()
+
           // collect stdout
           pyProc.stdout.on('data', function (data) {
             pyOut += data.toString()
@@ -330,6 +333,9 @@ export default {
           let pyOut = ''
           let pyErr = ''
 
+          // show in progress message
+          this.inProgressMessage()
+
           // collect stdout
           pyProc.stdout.on('data', function (data) {
             pyOut += data.toString()
@@ -350,6 +356,12 @@ export default {
             }
           })
         }
+      })
+    },
+    // display in progress message while file export occurs
+    inProgressMessage () {
+      this.$toast.open({
+        message: 'File export in progress...'
       })
     },
     // display success message in toast for 3 seconds
