@@ -697,6 +697,14 @@ def export_files(json_path, dest_path, args):
     return True
 
 
+def print_to_stderr_and_exit():
+    """
+    Print generic error message to stderr and exit with code 1.
+    """
+    print("See bulk-reviewer.log for details.", file=sys.stderr)
+    sys.exit(1)
+
+
 def _configure_logging(bulk_reviewer_dir):
     log_format = "%(asctime)s - %(levelname)s - %(message)s"
     log_file = os.path.join(bulk_reviewer_dir, 'bulk-reviewer.log')
@@ -780,8 +788,7 @@ def main():
             """, src, dest)
         export_success = export_files(src, dest, args)
         if export_success is False:
-            print("See bulk-reviewer.log for details", file=sys.stderr)
-            sys.exit(1)
+            print_to_stderr_and_exit()
         print('Files exported successfully.')
         return
 
@@ -825,8 +832,7 @@ def main():
         br_session_id = br_session_find.id
     except Exception:
         logging.error('JSON file with same name already exists. Quitting.')
-        print("See bulk-reviewer.log for details", file=sys.stderr)
-        sys.exit(1)
+        print_to_stderr_and_exit()
 
     # Make sure stoplists are extracted
     stoplist_zip = os.path.join(bulk_reviewer_dir, 'stoplists.zip')
@@ -843,8 +849,7 @@ def main():
     else:
         dfxml_success = create_dfxml_directory(src, dfxml_path, scripts_dir)
     if dfxml_success is False:
-        print("See bulk-reviewer.log for details", file=sys.stderr)
-        sys.exit(1)
+        print_to_stderr_and_exit()
 
     # Parse dfxml to db
     logging.info('Parsing DFXML to database.')
@@ -859,8 +864,7 @@ def main():
         args
     )
     if bulk_extractor_success is False:
-        print("See bulk-reviewer.log for details.", file=sys.stderr)
-        sys.exit(1)
+        print_to_stderr_and_exit()
 
     if args.diskimage:
         # Disk image source: Annotate feature files and read into database
@@ -872,8 +876,7 @@ def main():
             scripts_dir
         )
         if annotate_success is False:
-            print("See bulk-reviewer.log for details", file=sys.stderr)
-            sys.exit(1)
+            print_to_stderr_and_exit()
         logging.info('Reading feature files to database.')
         read_features_to_db(
             annotated_feature_path,
@@ -902,8 +905,7 @@ def main():
         print(json_path)
     except Exception:
         logging.error('Error creating JSON file %s.', json_path)
-        print("See bulk-reviewer.log for details.", file=sys.stderr)
-        sys.exit(1)
+        print_to_stderr_and_exit()
 
 
 if __name__ == '__main__':
