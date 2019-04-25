@@ -693,7 +693,6 @@ def _configure_logging(bulk_reviewer_dir):
     log_format = "%(asctime)s - %(levelname)s - %(message)s"
     log_file = os.path.join(bulk_reviewer_dir, 'bulk-reviewer.log')
     logging.basicConfig(filename=log_file,
-                        filemode='w',
                         format=log_format,
                         level=logging.INFO)
 
