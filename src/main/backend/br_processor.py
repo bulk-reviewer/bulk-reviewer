@@ -85,7 +85,7 @@ def create_dfxml_diskimage(src, dfxml_path):
         subprocess.check_output(cmd)
         return True
     except subprocess.CalledProcessError as e:
-        logging.error('Error creating DFXML with fiwalk: %s', e)
+        logging.error('Error creating DFXML with fiwalk: %s.', e)
         return False
 
 
@@ -103,7 +103,7 @@ def create_dfxml_directory(src, dfxml_path, scripts_dir):
         subprocess.call(cmd, shell=True)
         return True
     except subprocess.CalledProcessError as e:
-        logging.error('Error creating DFXML with walk_to_dfxml.py: %s', e)
+        logging.error('Error creating DFXML with walk_to_dfxml.py: %s.', e)
         return False
 
 
@@ -148,7 +148,7 @@ def run_bulk_extractor(src, bulk_extractor_path, stoplist_dir,
         subprocess.check_output(cmd)
         return True
     except subprocess.CalledProcessError as e:
-        logging.error('Error running bulk_extractor: %s', e)
+        logging.error('Error running bulk_extractor: %s.', e)
         return False
 
 
@@ -208,7 +208,7 @@ def parse_dfxml_to_db(session, br_session_id, dfxml_path):
             session.add(new_file)
             session.commit()
         except Exception:
-            logging.error("File %s not written to database", filepath)
+            logging.error("File %s not written to database.", filepath)
 
 
 def user_friendly_feature_type(feature_file):
@@ -268,7 +268,9 @@ def annotate_feature_files(feature_files_dir,
         subprocess.check_output(cmd)
         return True
     except subprocess.CalledProcessError as e:
-        logging.error('identify_filenames.py unable to annotate feature files: %s', e)
+        logging.error("""
+            identify_filenames.py unable to annotate feature files: %s.
+            """, e)
         return False
 
 
@@ -362,7 +364,9 @@ def parse_feature_file(feature_file, br_session_id, session):
                         session=br_session_id
                     ).first()
                 except NoResultFound:
-                    logging.error("Matching file not found for file %s", filepath)
+                    logging.error("""
+                        Matching file not found for file %s.
+                        """, filepath)
                     continue
 
                 # Set feature type
@@ -381,7 +385,9 @@ def parse_feature_file(feature_file, br_session_id, session):
                 session.add(postprocessed_feature)
                 session.commit()
             except Exception:
-                logging.warning("Error processing line in feature file %s. Unread line: %s", feature_file, line)
+                logging.warning("""
+                    Error processing line in feature file %s. Unread line: %s.
+                    """, feature_file, line)
 
 
 def parse_annotated_feature_file(feature_file, br_session_id, session):
@@ -453,7 +459,9 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
                 session.commit()
 
             except Exception:
-                logging.warning("Error processing line in feature file %s. Unread line: %s", feature_file, line)
+                logging.warning("""
+                    Error processing line in feature file %s. Unread line: %s.
+                    """, feature_file, line)
 
 
 def dict_factory(cursor, row):
@@ -559,10 +567,10 @@ def carve_file(filepath, fs_offset, disk_image, inode, file_dest):
     )
     try:
         subprocess.call(icat_cmd, shell=True)
-        logging.debug('File %s exported from disk image', filepath)
+        logging.debug('File %s exported from disk image.', filepath)
         return True
     except subprocess.CalledProcessError as e:
-        logging.error('Error exporting file %s: %s', filepath, e)
+        logging.error('Error exporting file %s: %s.', filepath, e)
         return False
 
 
@@ -583,7 +591,7 @@ def export_files(json_path, dest_path, args):
     try:
         os.remove(json_path)
     except OSError:
-        logging.warning('Unable to delete JSON file %s', json_path)
+        logging.warning('Unable to delete JSON file %s.', json_path)
 
     # Create list of files with PII
     features = session_dict['features']
@@ -614,9 +622,9 @@ def export_files(json_path, dest_path, args):
                 try:
                     shutil.copy2(file_src, file_dest)
                 except OSError as e:
-                    logging.error('Error copying file %s: %s', file_src, e)
+                    logging.error('Error copying file %s: %s.', file_src, e)
                     return False
-            logging.info('Files without PII copied to %s', dest_path)
+            logging.info('Files without PII copied to %s.', dest_path)
             return True
 
         # Export files with PII to flat directory
@@ -634,9 +642,9 @@ def export_files(json_path, dest_path, args):
             try:
                 shutil.copy2(file_src, file_dest)
             except OSError as e:
-                logging.error('Error copying file %s: %s', file_src, e)
+                logging.error('Error copying file %s: %s.', file_src, e)
                 return False
-        logging.info('Files with PII copied to %s', dest_path)
+        logging.info('Files with PII copied to %s.', dest_path)
         return True
 
     # Export files from disk image
@@ -661,7 +669,7 @@ def export_files(json_path, dest_path, args):
             if carve_success is False:
                 return False
             # TODO: RESTORE FS DATES FROM VALUES RECORDED IN DFXML
-        logging.info('Files without PII copied to %s', dest_path)
+        logging.info('Files without PII copied to %s.', dest_path)
         return True
 
     # Export files with PII to flat directory
@@ -685,7 +693,7 @@ def export_files(json_path, dest_path, args):
         if carve_success is False:
             return False
         # TODO: RESTORE FS DATES FROM VALUES RECORDED IN DFXML
-    logging.info('Files with PII copied to %s', dest_path)
+    logging.info('Files with PII copied to %s.', dest_path)
     return True
 
 
@@ -767,8 +775,9 @@ def main():
     # Check if script run in export mode
     # If yes, run export_files and return
     if args.export:
-        logging.info('Starting Bulk Reviewer processor script in export mode. \
-            JSON file: %s. Destination: %s.', src, dest)
+        logging.info("""
+            Running script in file export mode. JSON file: %s. Destination: %s.
+            """, src, dest)
         export_success = export_files(src, dest, args)
         if export_success is False:
             print("See bulk-reviewer.log for details", file=sys.stderr)
@@ -777,8 +786,9 @@ def main():
         return
 
     # Otherwise, log starting message and continue
-    logging.info('Starting Bulk Reviewer processor script. \
-        Name: %s. Source: %s.', args.filename, src)
+    logging.info("""
+        Running script in processing mode. Name: %s. Source: %s.
+        """, args.filename, src)
 
     # Create output directories
     for out_dir in dest, reports_path, bulk_extractor_path:
@@ -814,7 +824,7 @@ def main():
             .filter(BRSession.name == args.filename).one()
         br_session_id = br_session_find.id
     except Exception:
-        logging.error('JSON file with same name already exists in output directory. Quitting.')
+        logging.error('JSON file with same name already exists. Quitting.')
         print("See bulk-reviewer.log for details", file=sys.stderr)
         sys.exit(1)
 
@@ -822,12 +832,12 @@ def main():
     stoplist_zip = os.path.join(bulk_reviewer_dir, 'stoplists.zip')
     stoplist_dir = os.path.join(bulk_reviewer_dir, 'stoplists')
     if not os.path.isdir(stoplist_dir):
-        logging.info('Extracting bulk_extractor stoplists')
+        logging.info('Extracting bulk_extractor stoplists.')
         with zipfile.ZipFile(stoplist_zip, 'r') as zip_ref:
             zip_ref.extractall(bulk_reviewer_dir)
 
     # Create dfxml
-    logging.info('Creating DFXML')
+    logging.info('Creating DFXML.')
     if args.diskimage:
         dfxml_success = create_dfxml_diskimage(src, dfxml_path)
     else:
@@ -837,11 +847,11 @@ def main():
         sys.exit(1)
 
     # Parse dfxml to db
-    logging.info('Parsing DFXML to database')
+    logging.info('Parsing DFXML to database.')
     parse_dfxml_to_db(session, br_session_id, dfxml_path)
 
     # Run bulk_extractor
-    logging.info('Running bulk_extractor')
+    logging.info('Running bulk_extractor.')
     bulk_extractor_success = run_bulk_extractor(
         src, bulk_extractor_path,
         stoplist_dir,
@@ -849,12 +859,12 @@ def main():
         args
     )
     if bulk_extractor_success is False:
-        print("See bulk-reviewer.log for details", file=sys.stderr)
+        print("See bulk-reviewer.log for details.", file=sys.stderr)
         sys.exit(1)
 
     if args.diskimage:
         # Disk image source: Annotate feature files and read into database
-        logging.info('Annotating feature files')
+        logging.info('Annotating feature files.')
         annotate_success = annotate_feature_files(
             bulk_extractor_path,
             annotated_feature_path,
@@ -864,7 +874,7 @@ def main():
         if annotate_success is False:
             print("See bulk-reviewer.log for details", file=sys.stderr)
             sys.exit(1)
-        logging.info('Reading feature files to database')
+        logging.info('Reading feature files to database.')
         read_features_to_db(
             annotated_feature_path,
             br_session_id,
@@ -874,7 +884,7 @@ def main():
 
     else:
         # Directory source: read feature files into database
-        logging.info('Reading feature files to database')
+        logging.info('Reading feature files to database.')
         read_features_to_db(
             bulk_extractor_path,
             br_session_id,
@@ -888,11 +898,11 @@ def main():
     json_path = os.path.join(dest, args.filename + '.json')
     try:
         brv_to_json(db_path, json_path)
-        logging.info('Complete. JSON output file: %s', json_path)
+        logging.info('Complete. JSON output file: %s.', json_path)
         print(json_path)
     except Exception:
-        logging.error('Error creating JSON file %s', json_path)
-        print("See bulk-reviewer.log for details", file=sys.stderr)
+        logging.error('Error creating JSON file %s.', json_path)
+        print("See bulk-reviewer.log for details.", file=sys.stderr)
         sys.exit(1)
 
 
