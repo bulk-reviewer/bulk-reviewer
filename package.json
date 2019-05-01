@@ -56,6 +56,7 @@
     "@fortawesome/fontawesome-free-webfonts": "^1.0.9",
     "axios": "^0.18.0",
     "buefy": "^0.7.3",
+    "builder": "^4.0.0",
     "fast-csv": "^2.4.1",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
