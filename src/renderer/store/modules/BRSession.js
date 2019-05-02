@@ -6,9 +6,9 @@ const mutations = {
   LOAD_JSON_DATA (state, data) {
     state.brSession = data
   },
-  TOGGLE_FEATURE_CLEARED (state, featureID) {
+  TOGGLE_FEATURE_DISMISSED (state, featureID) {
     let index = featureID - 1
-    state.brSession.features[index].cleared = !state.brSession.features[index].cleared
+    state.brSession.features[index].dismissed = !state.brSession.features[index].dismissed
   },
   TOGGLE_FILE_VERIFIED (state, fileID) {
     let index = fileID - 1
@@ -22,8 +22,8 @@ const actions = {
     console.log(data)
     commit('LOAD_JSON_DATA', data)
   },
-  toggleFeatureCleared ({ commit }, featureID) {
-    commit('TOGGLE_FEATURE_CLEARED', featureID)
+  toggleFeatureDismissed ({ commit }, featureID) {
+    commit('TOGGLE_FEATURE_DISMISSED', featureID)
   },
   toggleFileVerified ({ commit }, fileID) {
     commit('TOGGLE_FILE_VERIFIED', fileID)
