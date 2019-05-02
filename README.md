@@ -96,12 +96,19 @@ yarn run dev
 2. Package Python script as executable
 
 ``` bash
-pyinstaller src/main/backend/br_processor.py --distpath src/main/backend_dist
+cd src/main
+pyinstaller backend/br_processor.py --distpath backend_dist
+rm -rf br_processor.spec
+rm -rf build
 ```
 
 3. Build Electron application for production
 
 ``` bash
+# return to main bulk-reviewer directory
+cd ../..
+
+# run build command
 yarn run build
 ```
 
