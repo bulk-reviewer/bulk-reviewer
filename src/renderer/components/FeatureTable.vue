@@ -106,7 +106,7 @@
         <b-table-column
           field="feature"
           label="Feature"
-          :class="{'dismissed':props.row.cleared === true}"
+          :class="{'dismissed':props.row.dismissed === true}"
           sortable>
           {{ unescapeText(props.row.feature) }}
         </b-table-column>
@@ -114,20 +114,20 @@
         <b-table-column
           field="feature_type"
           label="Type"
-          :class="{'dismissed':props.row.cleared === true}"
+          :class="{'dismissed':props.row.dismissed === true}"
           sortable>
           {{ props.row.feature_type }}
         </b-table-column>
 
         <b-table-column
-          field="cleared"
+          field="dismissed"
           label="Dismiss"
-          :class="{'dismissed':props.row.cleared === true}"
+          :class="{'dismissed':props.row.dismissed === true}"
           sortable>
-          <span v-if="props.row.cleared === false">
+          <span v-if="props.row.dismissed === false">
             <button
               class="button is-small is-light"
-              @click="toggleFeatureClearedStatus(props.row.id)">
+              @click="toggleFeatureDismissedStatus(props.row.id)">
               x Dismiss
             </button>
           </span>
@@ -135,7 +135,7 @@
             Dismissed
             <button
               class="button is-small is-primary"
-              @click="toggleFeatureClearedStatus(props.row.id)">
+              @click="toggleFeatureDismissedStatus(props.row.id)">
               Undo
             </button>
           </span>
@@ -195,9 +195,9 @@ export default {
     unescapeText (escapedText) {
       return escapedText.replace(/\\x[a-fA-F0-9]{2}/g, String.fromCharCode('$1'))
     },
-    // toggle cleared boolean for feature with given id
-    toggleFeatureClearedStatus (featureID) {
-      this.$store.dispatch('toggleFeatureCleared', featureID)
+    // toggle dismissed boolean for feature with given id
+    toggleFeatureDismissedStatus (featureID) {
+      this.$store.dispatch('toggleFeatureDismissed', featureID)
     },
     // open file using default system program
     // doesn't work for disk images
@@ -214,7 +214,7 @@ export default {
     // return count of non-dismissed features in given array
     // used for the counts in feature type selector
     featureCountByType (filteredFeatureArray) {
-      let filteredNotDismissed = filteredFeatureArray.filter(f => f.cleared !== true)
+      let filteredNotDismissed = filteredFeatureArray.filter(f => f.dismissed !== true)
       return filteredNotDismissed.length
     },
     // if switch has been toggled on, expand details for all rows
@@ -241,7 +241,7 @@ export default {
     featureCount () {
       // filter out dismissed features
       let features = this.$store.state.BRSession.brSession.features
-      let notDismissed = features.filter(f => f.cleared !== true)
+      let notDismissed = features.filter(f => f.dismissed !== true)
       return notDismissed.length
     },
     selectedFileFeatures () {
@@ -252,7 +252,7 @@ export default {
     selectedFileFeatureCount () {
       // filter dismissed features from selectedFileFeatures if file is selected
       if (!this.noSelection) {
-        let notDismissedFileFeatures = this.selectedFileFeatures.filter(f => f.cleared !== true)
+        let notDismissedFileFeatures = this.selectedFileFeatures.filter(f => f.dismissed !== true)
         return notDismissedFileFeatures.length
       } else {
         return this.featureCount

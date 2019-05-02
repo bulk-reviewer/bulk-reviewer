@@ -39,7 +39,7 @@
         <b-dropdown-item
           aria-role="listitem"
           @click="exportFiles(false)">
-          Export cleared files (without PII)
+          Export cleareed files (without PII)
         </b-dropdown-item>
 
         <b-dropdown-item
@@ -179,8 +179,8 @@ export default {
     toggleFileSelector () {
       this.showFileSelector = !this.showFileSelector
     },
-    toggleFeatureClearedStatus (featureID) {
-      this.$store.dispatch('toggleFeatureCleared', featureID)
+    toggleFeatureDismissedStatus (featureID) {
+      this.$store.dispatch('toggleFeatureDismissed', featureID)
     },
     toggleFileVerifiedStatus (fileID) {
       this.$store.dispatch('toggleFileVerified', fileID)
@@ -199,7 +199,7 @@ export default {
       let features = this.$store.state.BRSession.brSession.features
       let fileFeatures = features.filter(f => f.filepath === filepath)
       // filter out dismissed features
-      let notDismissed = fileFeatures.filter(f => f.cleared !== true)
+      let notDismissed = fileFeatures.filter(f => f.dismissed !== true)
       return notDismissed.length
     },
     // show user dialog to select file to save to
@@ -410,7 +410,7 @@ export default {
     featureCount () {
       // filter out dismissed features
       let features = this.$store.state.BRSession.brSession.features
-      let notDismissed = features.filter(f => f.cleared !== true)
+      let notDismissed = features.filter(f => f.dismissed !== true)
       return notDismissed.length
     },
     filesWithFeatures () {
@@ -431,7 +431,7 @@ export default {
     selectedFileFeatureCount () {
       // filter dismissed features from selectedFileFeatures if file is selected
       if (!this.noSelection) {
-        let notDismissedFileFeatures = this.selectedFileFeatures.filter(f => f.cleared !== true)
+        let notDismissedFileFeatures = this.selectedFileFeatures.filter(f => f.dismissed !== true)
         return notDismissedFileFeatures.length
       } else {
         return this.featureCount

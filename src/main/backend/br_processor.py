@@ -67,7 +67,7 @@ class Feature(Base):
     feature = Column(String)
     context = Column(String, nullable=True)
     note = Column(String, nullable=True)
-    cleared = Column(Boolean)
+    dismissed = Column(Boolean)
     file = Column(Integer, ForeignKey('file.id'))
 
 
@@ -378,7 +378,7 @@ def parse_feature_file(feature_file, br_session_id, session):
                     forensic_path=forensic_path,
                     feature=feature,
                     context=context,
-                    cleared=False,
+                    dismissed=False,
                     file=matching_file.id
                 )
                 session.add(postprocessed_feature)
@@ -450,7 +450,7 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
                     offset=offset,
                     feature=feature,
                     context=context,
-                    cleared=False,
+                    dismissed=False,
                     file=matching_file.id
                 )
                 session.add(postprocessed_feature)
@@ -504,7 +504,7 @@ def brv_to_json(brv_path, json_path):
     features_sql_query = """\
         SELECT f.id, f.feature_type, f.forensic_path, \
             f.offset, f.feature, f.context, f.note, \
-            f.cleared, f.file, fl.filepath
+            f.dismissed, f.file, fl.filepath
         from feature f, file fl
         WHERE f.file = fl.id
         """.format(session_info['id'])
@@ -535,10 +535,10 @@ def brv_to_json(brv_path, json_path):
             session_info['files'][index]['verified'] = False
 
     for index, feature_dict in enumerate(session_info['features']):
-        if feature_dict['cleared'] == 1:
-            session_info['features'][index]['cleared'] = True
+        if feature_dict['dismissed'] == 1:
+            session_info['features'][index]['dismissed'] = True
         else:
-            session_info['features'][index]['cleared'] = False
+            session_info['features'][index]['dismissed'] = False
 
     # Write dictionary as JSON to file
     with open(json_path, 'w', encoding="utf-8") as outfile:
@@ -594,7 +594,7 @@ def export_files(json_path, dest_path, args):
     features = session_dict['features']
     files_with_pii = []
     for f in features:
-        if f['cleared'] is False:
+        if f['dismissed'] is False:
             if f['filepath'] not in files_with_pii:
                 files_with_pii.append(f['filepath'])
 
