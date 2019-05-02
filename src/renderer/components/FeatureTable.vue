@@ -149,6 +149,7 @@
         <article class="media">
           <div class="media-content" >
             <div class="content">
+              <!-- Filepath -->
               <p>
                 <strong>File: </strong>{{ props.row.filepath }}
                 <button
@@ -157,8 +158,16 @@
                   Open
                 </button>
               </p>
-              <p><strong>Feature in context: </strong>{{ unescapeText(props.row.context) }}</p>
-              <p><strong>Forensic path: </strong>{{ unescapeText(props.row.forensic_path) }}</p>
+              <!-- Feature in context -->
+              <span v-if="props.row.context">
+                <p><strong>Feature in context: </strong>{{ unescapeText(props.row.context) }}</p>
+              </span>
+              <span v-else></span>
+              <!-- Forensic path (directories only) -->
+              <span v-if="props.row.forensic_path">
+                <p><strong>Forensic path: </strong>{{ unescapeText(props.row.forensic_path) }}</p>
+              </span>
+              <span v-else></span>
             </div>
           </div>
         </article>
