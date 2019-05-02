@@ -151,7 +151,7 @@
             <div class="content">
               <!-- Filepath -->
               <p>
-                <strong>File: </strong>{{ props.row.filepath }}
+                <strong>File:</strong> {{ props.row.filepath }}
                 <button
                   class="button is-small is-info"
                   @click="openFileOnDesktop(props.row.filepath)">
@@ -159,13 +159,11 @@
                 </button>
               </p>
               <!-- Feature in context -->
-              <span v-if="props.row.context">
-                <p><strong>Feature in context: </strong>{{ unescapeText(props.row.context) }}</p>
-              </span>
-              <span v-else></span>
+              <p v-if="props.row.context"><strong>Feature in context:</strong> {{ unescapeText(props.row.context) }}</p>
+              <p v-else><strong>Feature in context:</strong> n/a</p>
               <!-- Forensic path (directories only) -->
-              <span v-if="props.row.forensic_path">
-                <p><strong>Forensic path: </strong>{{ unescapeText(props.row.forensic_path) }}</p>
+              <span v-if="props.row.forensic_path" style="margin-top: 5px;">
+                <p><strong>Forensic path:</strong> {{ unescapeText(props.row.forensic_path) }}</p>
               </span>
               <span v-else></span>
             </div>
