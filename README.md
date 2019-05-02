@@ -67,13 +67,11 @@ cp stoplists.zip ~/bulk-reviewer/
 
 ``` bash
 # First time
-
 virtualenv -p python3 env
 source env/bin/activate
 pip install -r src/main/backend/requirements.txt
 
 # Subsequent times
-
 source env/bin/activate
 ```
 
@@ -105,10 +103,10 @@ rm -rf build
 3. Build Electron application for production
 
 ``` bash
-# return to main bulk-reviewer directory
+# Return to main bulk-reviewer directory
 cd ../..
 
-# run build command
+# Run build command
 yarn run build
 ```
 
