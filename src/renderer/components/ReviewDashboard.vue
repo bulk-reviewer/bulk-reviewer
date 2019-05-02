@@ -252,17 +252,30 @@ export default {
     // get path to script or executable as appropriate
     getScriptPath () {
       const path = require('path')
-      const PY_DIST_FOLDER = path.join(__dirname, '../../main/', 'backend_dist')
-      const PY_FOLDER = path.join(__dirname, '../../main/', 'backend')
-      const PY_MODULE = 'br_processor'
-
-      if (!this.guessPackaged()) {
-        return path.join(PY_FOLDER, PY_MODULE + '.py')
+      const remote = require('electron').remote
+      const app = remote.app
+      // check if app has been built
+      // if yes, get path to python script in asar
+      if (app.isPackaged) {
+        const PY_DIST_FOLDER = path.join(__dirname, '../../../backend_dist')
+        const PY_MODULE = 'br_processor'
+        if (process.platform === 'win32') {
+          return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE + '.exe')
+        }
+        return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE)
+      // if no, get script path to development location
+      } else {
+        const PY_DIST_FOLDER = path.join(__dirname, '../../main/', 'backend_dist')
+        const PY_FOLDER = path.join(__dirname, '../../main/', 'backend')
+        const PY_MODULE = 'br_processor'
+        if (!this.guessPyPackaged()) {
+          return path.join(PY_FOLDER, PY_MODULE + '.py')
+        }
+        if (process.platform === 'win32') {
+          return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE + '.exe')
+        }
+        return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE)
       }
-      if (process.platform === 'win32') {
-        return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE + '.exe')
-      }
-      return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE)
     },
     // copy files from source from user-supplied destination
     // copy files with pii if piiBoolean is true
@@ -301,20 +314,26 @@ export default {
         }
 
         // run python script/executable
-        if (this.guessPackaged()) {
-          let pyProc = require('child_process').execFile(script, scriptParameters.slice(1))
-          let pyOut = ''
-          let pyErr = ''
+        if (app.isPackaged) {
+          // fix for mac os to make system PATH available to node
+          const fixPath = require('fix-path')
+          fixPath()
+
+          // spawn command in shell
+          let parametersMinusScript = scriptParameters.slice(1)
+          console.log(`Script: ${script}`)
+          console.log(`Parameters: ${parametersMinusScript}`)
+          let pyProc = require('child_process').spawn(script, parametersMinusScript, { shell: true })
 
           // show in progress message
           this.inProgressMessage()
 
-          // collect stdout
+          // collect stdout and stderr
+          let pyOut = ''
+          let pyErr = ''
           pyProc.stdout.on('data', function (data) {
             pyOut += data.toString()
           })
-
-          // collect stderr
           pyProc.stderr.on('data', function (data) {
             pyErr += data.toString()
           })

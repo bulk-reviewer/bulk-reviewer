@@ -541,7 +541,7 @@ def brv_to_json(brv_path, json_path):
             session_info['features'][index]['cleared'] = False
 
     # Write dictionary as JSON to file
-    with open(json_path, 'w') as outfile:
+    with open(json_path, 'w', encoding="utf-8") as outfile:
         return json.dump(session_info, outfile, ensure_ascii=False, indent=2)
 
     # Close sqlite connection
@@ -581,7 +581,7 @@ def export_files(json_path, dest_path, args):
     """
 
     # Convert input json to dict
-    with open(json_path, 'r') as f:
+    with open(json_path, 'r', encoding="utf-8") as f:
         session_dict = json.load(f)
 
     # Delete temp json file

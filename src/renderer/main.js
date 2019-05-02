@@ -15,6 +15,16 @@ import './assets/custom.css'
 import '@fortawesome/fontawesome-free-webfonts/css/fa-solid.css'
 import '@fortawesome/fontawesome-free-webfonts/css/fontawesome.css'
 
+import { remote } from 'electron'
+
+remote.globalShortcut.register('CommandOrControl+Shift+K', () => {
+  remote.BrowserWindow.getFocusedWindow().webContents.openDevTools()
+})
+
+window.addEventListener('beforeunload', () => {
+  remote.globalShortcut.unregisterAll()
+})
+
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false

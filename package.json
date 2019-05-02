@@ -27,6 +27,12 @@
     "files": [
       "dist/electron/**/*"
     ],
+    "extraResources": [
+      {
+        "from": "src/main/backend_dist",
+        "to": "backend_dist"
+      }
+    ],
     "dmg": {
       "contents": [
         {
@@ -58,6 +64,8 @@
     "buefy": "^0.7.3",
     "builder": "^4.0.0",
     "fast-csv": "^2.4.1",
+    "fix-path": "^2.1.0",
+    "processor": "^0.1.9",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",
@@ -82,7 +90,7 @@
     "css-loader": "^0.28.11",
     "del": "^3.0.0",
     "devtron": "^1.4.0",
-    "electron": "^2.0.4",
+    "electron": "^3.0.8",
     "electron-builder": "^20.19.2",
     "electron-debug": "^1.5.0",
     "electron-devtools-installer": "^2.2.4",

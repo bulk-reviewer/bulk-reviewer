@@ -91,15 +91,21 @@ yarn run dev
 
 ## Build locally
 
-Instructions forthcoming. Basic steps:
+1. Follow Development steps 1-4 above
 
-1. Package Python scripts
+2. Package Python script as executable
 
-2. Build Electron application for production
+``` bash
+pyinstaller src/main/backend/br_processor.py --distpath src/main/backend_dist
+```
+
+3. Build Electron application for production
 
 ``` bash
 yarn run build
 ```
+
+The resulting built application can be found in the `build` directory.
 
 ## Logo design
 [Bailey McGinn](https://baileymcginn.com/)

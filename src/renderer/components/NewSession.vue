@@ -172,7 +172,7 @@ export default {
     },
     // determine if python is packaged as executable by checking
     // for presence of backend_dist directory
-    guessPackaged () {
+    guessPyPackaged () {
       const path = require('path')
       const PY_DIST_FOLDER = path.join(__dirname, '../../main/', 'backend_dist')
       return require('fs').existsSync(PY_DIST_FOLDER)
@@ -180,17 +180,28 @@ export default {
     // get path to script or executable as appropriate
     getScriptPath () {
       const path = require('path')
-      const PY_DIST_FOLDER = path.join(__dirname, '../../main/', 'backend_dist')
-      const PY_FOLDER = path.join(__dirname, '../../main/', 'backend')
-      const PY_MODULE = 'br_processor'
-
-      if (!this.guessPackaged()) {
-        return path.join(PY_FOLDER, PY_MODULE + '.py')
+      // check if app has been built
+      // if yes, get path to python script in asar
+      if (app.isPackaged) {
+        const PY_DIST_FOLDER = path.join(__dirname, '../../../backend_dist')
+        const PY_MODULE = 'br_processor'
+        if (process.platform === 'win32') {
+          return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE + '.exe')
+        }
+        return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE)
+      // if no, get script path to development location
+      } else {
+        const PY_DIST_FOLDER = path.join(__dirname, '../../main/', 'backend_dist')
+        const PY_FOLDER = path.join(__dirname, '../../main/', 'backend')
+        const PY_MODULE = 'br_processor'
+        if (!this.guessPyPackaged()) {
+          return path.join(PY_FOLDER, PY_MODULE + '.py')
+        }
+        if (process.platform === 'win32') {
+          return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE + '.exe')
+        }
+        return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE)
       }
-      if (process.platform === 'win32') {
-        return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE + '.exe')
-      }
-      return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE)
     },
     // run br_processor python script. on completion, display errors
     // or, if no errors, load data from JSON file to store and
@@ -201,14 +212,15 @@ export default {
       const brDir = path.join(homeDir, 'bulk-reviewer')
 
       let script = this.getScriptPath()
+      let quotedScript = '"' + script + '"'
 
       let sessionParameters = [
-        script,
+        quotedScript,
         '--ssn',
         parseInt(this.ssnMode),
-        this.sourcePath,
-        brDir,
-        this.name
+        '"' + this.sourcePath + '"',
+        '"' + brDir + '"',
+        '"' + this.name + '"'
       ]
       if (this.sourceType === 'diskImage') {
         sessionParameters.splice(1, 0, '-d')
@@ -224,15 +236,31 @@ export default {
         sessionParameters.splice(2, 0, this.regexFilePath)
       }
 
-      if (this.guessPackaged()) {
-        let pyProc = require('child_process').execFile(script, sessionParameters.slice(1))
+      // if electron app is built, use child process to run python executable
+      if (app.isPackaged) {
+        // fix for mac os to make system PATH available to node
+        const fixPath = require('fix-path')
+        fixPath()
+
+        // spawn command in shell
+        let parametersMinusScript = sessionParameters.slice(1)
+        console.log(`Script: ${quotedScript}`)
+        console.log(`Parameters: ${parametersMinusScript}`)
+        let pyProc = require('child_process').spawn(quotedScript, parametersMinusScript, { shell: true })
+
+        // handle error starting python process
+        if (!pyProc) {
+          this.loading = false
+          this.isDisabled = false
+          this.errorMessage('Python process not started.')
+        }
+
+        // record stdout and stderr
         let jsonPath = ''
         let pyErrors = ''
-
         pyProc.stdout.on('data', function (data) {
           jsonPath += data.toString()
         })
-
         pyProc.stderr.on('data', function (data) {
           let errorMessage = data.toString()
           // ignore 'Attempt to open' disk image messages
@@ -258,15 +286,24 @@ export default {
             self.$router.push('review')
           }
         })
+      // if not built, use system python3 to call script
       } else {
+        // spawn script using system python3
         let pyProc = require('child_process').spawn('python3', sessionParameters)
+
+        // handle error starting python process
+        if (!pyProc) {
+          this.loading = false
+          this.isDisabled = false
+          this.errorMessage('Python process not started.')
+        }
+
+        // record stdout and stderr
         let jsonPath = ''
         let pyErrors = ''
-
         pyProc.stdout.on('data', function (data) {
           jsonPath += data.toString()
         })
-
         pyProc.stderr.on('data', function (data) {
           let errorMessage = data.toString()
           // ignore 'Attempt to open' disk image messages
