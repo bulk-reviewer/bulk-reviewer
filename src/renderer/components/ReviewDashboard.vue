@@ -39,7 +39,7 @@
         <b-dropdown-item
           aria-role="listitem"
           @click="exportFiles(false)">
-          Export cleareed files (without PII)
+          Export cleared files (without PII)
         </b-dropdown-item>
 
         <b-dropdown-item
