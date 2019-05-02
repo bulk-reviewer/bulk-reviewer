@@ -7126,6 +7126,11 @@ process@^0.11.10:
   resolved "https://registry.yarnpkg.com/process/-/process-0.11.10.tgz#7332300e840161bda3e69a1d1d91a7d4bc16f182"
   integrity sha1-czIwDoQBYb2j5podHZGn1LwW8YI=
 
+processor@^0.1.9:
+  version "0.1.9"
+  resolved "https://registry.yarnpkg.com/processor/-/processor-0.1.9.tgz#3b7ea14d9e362f94f5ce8c3fe1b12ce3b8d51698"
+  integrity sha1-O36hTZ42L5T1zow/4bEs47jVFpg=
+
 progress-stream@^1.1.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/progress-stream/-/progress-stream-1.2.0.tgz#2cd3cfea33ba3a89c9c121ec3347abe9ab125f77"
