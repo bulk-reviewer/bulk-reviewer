@@ -131,11 +131,11 @@
             </button>
           </b-table-column>
 
-          <b-table-column field="date_modified" label="Modified" sortable>
+          <b-table-column field="date_modified" label="Modified" sortable v-if="brSession.disk_image === false">
             {{ props.row.date_modified }}
           </b-table-column>
 
-          <b-table-column field="date_created" label="Created" sortable>
+          <b-table-column field="date_created" label="Created" sortable v-else>
             {{ props.row.date_created }}
           </b-table-column>
 
