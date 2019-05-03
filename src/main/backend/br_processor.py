@@ -208,8 +208,8 @@ def parse_dfxml_to_db(session, br_session_id, dfxml_path):
         try:
             session.add(new_file)
             session.commit()
-        except Exception:
-            logging.error("File %s not written to database.", filepath)
+        except Exception as e:
+            logging.error("File %s not written to database: %s", filepath, e)
 
 
 def user_friendly_feature_type(feature_file):
@@ -852,8 +852,8 @@ def main():
     logging.info('Parsing DFXML to database')
     try:
         parse_dfxml_to_db(session, br_session_id, dfxml_path)
-    except Exception:
-        logging.error('Error parsing DFXML file %s', dfxml_path)
+    except Exception as e:
+        logging.error('Error parsing DFXML file %s: %s', dfxml_path, e)
         print_to_stderr_and_exit()
 
     # Run bulk_extractor
@@ -904,8 +904,8 @@ def main():
         brv_to_json(db_path, json_path)
         logging.info('Created JSON file %s', json_path)
         print(json_path)
-    except Exception:
-        logging.error('Error creating JSON file %s', json_path)
+    except Exception as e:
+        logging.error('Error creating JSON file %s: %s', json_path, e)
         print_to_stderr_and_exit()
 
     # Delete temp_dir with .brv file
