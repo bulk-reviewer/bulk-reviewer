@@ -86,7 +86,7 @@ def create_dfxml_diskimage(src, dfxml_path):
         subprocess.check_output(cmd)
         return True
     except subprocess.CalledProcessError as e:
-        logging.error('Error creating DFXML with fiwalk: %s.', e)
+        logging.error('Error creating DFXML with fiwalk: %s', e)
         return False
 
 
@@ -104,7 +104,7 @@ def create_dfxml_directory(src, dfxml_path, scripts_dir):
         subprocess.call(cmd, shell=True)
         return True
     except subprocess.CalledProcessError as e:
-        logging.error('Error creating DFXML with walk_to_dfxml.py: %s.', e)
+        logging.error('Error creating DFXML with walk_to_dfxml.py: %s', e)
         return False
 
 
@@ -149,7 +149,7 @@ def run_bulk_extractor(src, bulk_extractor_path, stoplist_dir,
         subprocess.check_output(cmd)
         return True
     except subprocess.CalledProcessError as e:
-        logging.error('Error running bulk_extractor: %s.', e)
+        logging.error('Error running bulk_extractor: %s', e)
         return False
 
 
@@ -565,10 +565,10 @@ def carve_file(filepath, fs_offset, disk_image, inode, file_dest):
     )
     try:
         subprocess.call(icat_cmd, shell=True)
-        logging.debug('File %s exported from disk image.', filepath)
+        logging.debug('File %s exported from disk image', filepath)
         return True
     except subprocess.CalledProcessError as e:
-        logging.error('Error exporting file %s: %s.', filepath, e)
+        logging.error('Error exporting file %s: %s', filepath, e)
         return False
 
 
@@ -589,7 +589,7 @@ def export_files(json_path, dest_path, args):
     try:
         os.remove(json_path)
     except OSError:
-        logging.warning('Unable to delete JSON file %s.', json_path)
+        logging.warning('Unable to delete JSON file %s', json_path)
 
     # Create list of files with PII
     features = session_dict['features']
@@ -620,9 +620,9 @@ def export_files(json_path, dest_path, args):
                 try:
                     shutil.copy2(file_src, file_dest)
                 except OSError as e:
-                    logging.error('Error copying file %s: %s.', file_src, e)
+                    logging.error('Error copying file %s: %s', file_src, e)
                     return False
-            logging.info('Files without PII copied to %s.', dest_path)
+            logging.info('Files without PII copied to %s', dest_path)
             return True
 
         # Export files with PII to flat directory
@@ -640,9 +640,9 @@ def export_files(json_path, dest_path, args):
             try:
                 shutil.copy2(file_src, file_dest)
             except OSError as e:
-                logging.error('Error copying file %s: %s.', file_src, e)
+                logging.error('Error copying file %s: %s', file_src, e)
                 return False
-        logging.info('Files with PII copied to %s.', dest_path)
+        logging.info('Files with PII copied to %s', dest_path)
         return True
 
     # Export files from disk image
@@ -667,7 +667,7 @@ def export_files(json_path, dest_path, args):
             if carve_success is False:
                 return False
             # TODO: RESTORE FS DATES FROM VALUES RECORDED IN DFXML
-        logging.info('Files without PII copied to %s.', dest_path)
+        logging.info('Files without PII copied to %s', dest_path)
         return True
 
     # Export files with PII to flat directory
@@ -691,7 +691,7 @@ def export_files(json_path, dest_path, args):
         if carve_success is False:
             return False
         # TODO: RESTORE FS DATES FROM VALUES RECORDED IN DFXML
-    logging.info('Files with PII copied to %s.', dest_path)
+    logging.info('Files with PII copied to %s', dest_path)
     return True
 
 
@@ -787,7 +787,7 @@ def main():
         export_success = export_files(src, dest, args)
         if export_success is False:
             print_to_stderr_and_exit()
-        print('Files exported successfully.')
+        print('Files exported successfully')
         return
 
     # Otherwise, log starting message and continue
@@ -828,19 +828,19 @@ def main():
             .filter(BRSession.name == args.filename).one()
         br_session_id = br_session_find.id
     except Exception:
-        logging.error('JSON file with same name already exists. Quitting.')
+        logging.error('JSON file with same name already exists. Quitting')
         print_to_stderr_and_exit()
 
     # Make sure stoplists are extracted
     stoplist_zip = os.path.join(bulk_reviewer_dir, 'stoplists.zip')
     stoplist_dir = os.path.join(bulk_reviewer_dir, 'stoplists')
     if not os.path.isdir(stoplist_dir):
-        logging.info('Extracting bulk_extractor stoplists.')
+        logging.info('Extracting bulk_extractor stoplists')
         with zipfile.ZipFile(stoplist_zip, 'r') as zip_ref:
             zip_ref.extractall(bulk_reviewer_dir)
 
     # Create dfxml
-    logging.info('Creating DFXML.')
+    logging.info('Creating DFXML')
     if args.diskimage:
         dfxml_success = create_dfxml_diskimage(src, dfxml_path)
     else:
@@ -849,11 +849,11 @@ def main():
         print_to_stderr_and_exit()
 
     # Parse dfxml to db
-    logging.info('Parsing DFXML to database.')
+    logging.info('Parsing DFXML to database')
     parse_dfxml_to_db(session, br_session_id, dfxml_path)
 
     # Run bulk_extractor
-    logging.info('Running bulk_extractor.')
+    logging.info('Running bulk_extractor')
     bulk_extractor_success = run_bulk_extractor(
         src, bulk_extractor_path,
         stoplist_dir,
@@ -865,7 +865,7 @@ def main():
 
     if args.diskimage:
         # Disk image source: Annotate feature files and read into database
-        logging.info('Annotating feature files.')
+        logging.info('Annotating feature files')
         annotate_success = annotate_feature_files(
             bulk_extractor_path,
             annotated_feature_path,
@@ -874,7 +874,7 @@ def main():
         )
         if annotate_success is False:
             print_to_stderr_and_exit()
-        logging.info('Reading feature files to database.')
+        logging.info('Reading feature files to database')
         read_features_to_db(
             annotated_feature_path,
             br_session_id,
@@ -884,7 +884,7 @@ def main():
 
     else:
         # Directory source: read feature files into database
-        logging.info('Reading feature files to database.')
+        logging.info('Reading feature files to database')
         read_features_to_db(
             bulk_extractor_path,
             br_session_id,
@@ -898,20 +898,20 @@ def main():
     json_path = os.path.join(dest, args.filename + '.json')
     try:
         brv_to_json(db_path, json_path)
-        logging.info('Created JSON file %s.', json_path)
+        logging.info('Created JSON file %s', json_path)
         print(json_path)
     except Exception:
-        logging.error('Error creating JSON file %s.', json_path)
+        logging.error('Error creating JSON file %s', json_path)
         print_to_stderr_and_exit()
 
     # Delete temp_dir with .brv file
     try:
         shutil.rmtree(temp_dir)
-        logging.info('Deleted tempdir.')
+        logging.info('Deleted tempdir')
     except Exception:
-        logging.warning('Unable to delete tempdir %s.', temp_dir)
+        logging.warning('Unable to delete tempdir %s', temp_dir)
 
-    logging.info('Complete.')
+    logging.info('Complete')
 
 if __name__ == '__main__':
     main()
