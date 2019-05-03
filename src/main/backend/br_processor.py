@@ -907,7 +907,7 @@ def main():
     # Delete temp_dir with .brv file
     try:
         shutil.rmtree(temp_dir)
-        logging.info('Deleted tempdir.', temp_dir)
+        logging.info('Deleted tempdir.')
     except Exception:
         logging.warning('Unable to delete tempdir %s.', temp_dir)
 
