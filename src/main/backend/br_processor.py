@@ -850,7 +850,11 @@ def main():
 
     # Parse dfxml to db
     logging.info('Parsing DFXML to database')
-    parse_dfxml_to_db(session, br_session_id, dfxml_path)
+    try:
+        parse_dfxml_to_db(session, br_session_id, dfxml_path)
+    except Exception:
+        logging.error('Error parsing DFXML file %s', dfxml_path)
+        print_to_stderr_and_exit()
 
     # Run bulk_extractor
     logging.info('Running bulk_extractor')
