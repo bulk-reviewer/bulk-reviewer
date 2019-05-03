@@ -17,6 +17,7 @@ from sqlalchemy import create_engine, Column, ForeignKey, \
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm.exc import NoResultFound
+from datetime import datetime
 from pathlib import Path
 import argparse
 import json
@@ -210,6 +211,44 @@ def parse_dfxml_to_db(session, br_session_id, dfxml_path):
             session.commit()
         except Exception as e:
             logging.error("File %s not written to database: %s", filepath, e)
+
+
+def read_filesystem_metadata_to_db(session, br_session_id, src):
+    """
+    Recursively walk filesystem of src and write
+    metadata for each file to database.
+    """
+    for root, dirs, files in os.walk(src):
+        for f in files:
+            # Filepath
+            fpath = os.path.join(root, f)
+            rel_fpath = os.path.relpath(fpath, start=src)
+            abs_fpath = os.path.abspath(fpath)
+
+            # Modified date
+            file_info = os.stat(abs_fpath)
+            date_modified = ''
+            if file_info.st_mtime:
+                date_modified = datetime.utcfromtimestamp(file_info.st_mtime).\
+                    isoformat()
+
+            # Save file metadata to model
+            new_file = File(
+                filepath=rel_fpath,
+                filename=f,
+                session=br_session_id,
+                date_modified=date_modified,
+                date_created='',
+                allocated=True,
+                inode='',
+                fs_offset='',
+                verified=False
+            )
+            try:
+                session.add(new_file)
+                session.commit()
+            except Exception as e:
+                logging.error("File %s not written to database: %s", filepath, e)
 
 
 def user_friendly_feature_type(feature_file):
@@ -839,22 +878,31 @@ def main():
         with zipfile.ZipFile(stoplist_zip, 'r') as zip_ref:
             zip_ref.extractall(bulk_reviewer_dir)
 
-    # Create dfxml
-    logging.info('Creating DFXML')
+    # Disk image - Write file info to db
     if args.diskimage:
-        dfxml_success = create_dfxml_diskimage(src, dfxml_path)
-    else:
-        dfxml_success = create_dfxml_directory(src, dfxml_path, scripts_dir)
-    if dfxml_success is False:
-        print_to_stderr_and_exit()
 
-    # Parse dfxml to db
-    logging.info('Parsing DFXML to database')
-    try:
-        parse_dfxml_to_db(session, br_session_id, dfxml_path)
-    except Exception as e:
-        logging.error('Error parsing DFXML file %s: %s', dfxml_path, e)
-        print_to_stderr_and_exit()
+        # Create dfxml
+        logging.info('Creating DFXML')
+        if args.diskimage:
+            dfxml_success = create_dfxml_diskimage(src, dfxml_path)
+        else:
+            dfxml_success = create_dfxml_directory(src, dfxml_path, scripts_dir)
+        if dfxml_success is False:
+            print_to_stderr_and_exit()
+
+        # Parse dfxml to db
+        logging.info('Parsing DFXML to database')
+        try:
+            parse_dfxml_to_db(session, br_session_id, dfxml_path)
+        except Exception as e:
+            logging.error('Error parsing DFXML file %s: %s', dfxml_path, e)
+            print_to_stderr_and_exit()
+
+    # Directory - Write file info to db
+    else:
+        logging.info('Writing source file metadata to database')
+        # TODO: WALK FILESYSTEM AND WRITE FILE METADATA TO DB
+        read_filesystem_metadata_to_db(session, br_session_id, src)
 
     # Run bulk_extractor
     logging.info('Running bulk_extractor')
