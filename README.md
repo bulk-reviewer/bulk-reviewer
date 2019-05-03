@@ -59,7 +59,7 @@ git clone https://github.com/bulk-reviewer/bulk-reviewer
 
 ``` bash
 mkdir ~/bulk-reviewer
-cp -r scripts/ ~/bulk-reviewer/scripts/
+cp -r scripts/ ~/bulk-reviewer/.scripts/
 cp stoplists.zip ~/bulk-reviewer/
 ```
 

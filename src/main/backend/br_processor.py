@@ -26,6 +26,7 @@ import shutil
 import sqlite3
 import subprocess
 import sys
+import tempfile
 import zipfile
 import Objects
 
@@ -762,7 +763,8 @@ def main():
     # Save references to filepaths for source and outputs
     src = os.path.abspath(args.source)
     dest = os.path.abspath(args.destination)
-    db_path = os.path.join(dest, args.filename + '.brv')
+    temp_dir = tempfile.mkdtemp()
+    db_path = os.path.join(temp_dir, args.filename + '.brv')
     reports_path = os.path.join(dest, args.filename + '_reports')
     dfxml_path = os.path.join(reports_path, 'dfxml.xml')
     bulk_extractor_path = os.path.join(reports_path, 'bulk_extractor')
@@ -772,7 +774,7 @@ def main():
     )
     user_home_dir = os.path.abspath(str(Path.home()))
     bulk_reviewer_dir = os.path.join(user_home_dir, 'bulk-reviewer')
-    scripts_dir = os.path.join(bulk_reviewer_dir, 'scripts')
+    scripts_dir = os.path.join(bulk_reviewer_dir, '.scripts')
 
     # Configure logging
     _configure_logging(bulk_reviewer_dir)
@@ -896,12 +898,20 @@ def main():
     json_path = os.path.join(dest, args.filename + '.json')
     try:
         brv_to_json(db_path, json_path)
-        logging.info('Complete. JSON output file: %s.', json_path)
+        logging.info('Created JSON file %s.', json_path)
         print(json_path)
     except Exception:
         logging.error('Error creating JSON file %s.', json_path)
         print_to_stderr_and_exit()
 
+    # Delete temp_dir with .brv file
+    try:
+        shutil.rmtree(temp_dir)
+        logging.info('Deleted tempdir.', temp_dir)
+    except Exception:
+        logging.warning('Unable to delete tempdir %s.', temp_dir)
+
+    logging.info('Complete.')
 
 if __name__ == '__main__':
     main()
