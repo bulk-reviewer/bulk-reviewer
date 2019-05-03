@@ -135,6 +135,10 @@
             {{ props.row.date_modified }}
           </b-table-column>
 
+          <b-table-column field="date_modified" label="Created" sortable>
+            {{ props.row.date_created }}
+          </b-table-column>
+
           <b-table-column field="feature_count" label="Features" sortable>
             {{ fileFeatureCount(props.row.filepath) }} 
             <span 
