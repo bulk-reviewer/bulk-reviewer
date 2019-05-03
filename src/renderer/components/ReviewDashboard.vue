@@ -135,7 +135,7 @@
             {{ props.row.date_modified }}
           </b-table-column>
 
-          <b-table-column field="date_modified" label="Created" sortable>
+          <b-table-column field="date_created" label="Created" sortable>
             {{ props.row.date_created }}
           </b-table-column>
 
