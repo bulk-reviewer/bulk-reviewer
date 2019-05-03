@@ -29,6 +29,7 @@ install:
 - source ~/.bashrc
 - npm install -g xvfb-maybe
 - yarn
+- cd src/main && pip install -r backend/requirements.txt && pyinstaller backend/br_processor.py --distpath backend_dist
 script:
 - yarn run build
 branches:
