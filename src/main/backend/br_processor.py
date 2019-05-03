@@ -248,7 +248,8 @@ def read_filesystem_metadata_to_db(session, br_session_id, src):
                 session.add(new_file)
                 session.commit()
             except Exception as e:
-                logging.error("File %s not written to database: %s", filepath, e)
+                logging.error("File %s not written to database: %s",
+                              rel_fpath, e)
 
 
 def user_friendly_feature_type(feature_file):
@@ -611,6 +612,45 @@ def carve_file(filepath, fs_offset, disk_image, inode, file_dest):
         return False
 
 
+def write_export_readme(dest_path, session_dict, export_type):
+    """
+    Write README file in output directory for file export.
+    Include metadata about the session and export.
+    """
+    out_file = os.path.join(dest_path, '_BulkReviewer_README.txt')
+    time_of_export = str(datetime.now())[:19]
+    source_type = 'Directory'
+    if session_dict['disk_image'] is True:
+        source_type = 'Disk image'
+    private_faq = """
+\n\nFor private file exports, files are written to a flat directory.
+In order to prevent name collisions and to expedite redaction workflows,
+each file's unique ID (as assigned by Bulk Reviewer) is added to the
+beginning of the filename on export. These IDs can be matched to original
+filepaths and corresponding features using the Bulk Reviewer CSV export.
+    """
+
+    try:
+        with open(out_file, 'w') as f:
+            # Write metadata
+            f.write('Files exported from Bulk Reviewer')
+            f.write('\n================================')
+            f.write('\nType: {}'.format(export_type))
+            f.write('\nDate: {}'.format(time_of_export))
+            f.write('\nSource: {}'.format(session_dict['source_path']))
+            f.write('\nSource type: {}'.format(source_type))
+
+            # For private export, write description of file IDs
+            if export_type == 'Private files':
+                f.write(private_faq)
+
+        logging.info('Created export README file %s', out_file)
+
+    except Exception as e:
+        logging.warning('Unable to create export README file %s. Details: %s',
+                        out_file, e)
+
+
 def export_files(json_path, dest_path, args):
     """Exports files from source directory or disk image.
 
@@ -661,6 +701,8 @@ def export_files(json_path, dest_path, args):
                 except OSError as e:
                     logging.error('Error copying file %s: %s', file_src, e)
                     return False
+            write_export_readme(dest_path, session_dict,
+                                'Cleared files (no PII)')
             logging.info('Files without PII copied to %s', dest_path)
             return True
 
@@ -681,6 +723,7 @@ def export_files(json_path, dest_path, args):
             except OSError as e:
                 logging.error('Error copying file %s: %s', file_src, e)
                 return False
+        write_export_readme(dest_path, session_dict, 'Private files')
         logging.info('Files with PII copied to %s', dest_path)
         return True
 
@@ -706,6 +749,7 @@ def export_files(json_path, dest_path, args):
             if carve_success is False:
                 return False
             # TODO: RESTORE FS DATES FROM VALUES RECORDED IN DFXML
+        write_export_readme(dest_path, session_dict, 'Cleared files (no PII)')
         logging.info('Files without PII copied to %s', dest_path)
         return True
 
@@ -730,6 +774,7 @@ def export_files(json_path, dest_path, args):
         if carve_success is False:
             return False
         # TODO: RESTORE FS DATES FROM VALUES RECORDED IN DFXML
+    write_export_readme(dest_path, session_dict, 'Private files')
     logging.info('Files with PII copied to %s', dest_path)
     return True
 
@@ -886,7 +931,8 @@ def main():
         if args.diskimage:
             dfxml_success = create_dfxml_diskimage(src, dfxml_path)
         else:
-            dfxml_success = create_dfxml_directory(src, dfxml_path, scripts_dir)
+            dfxml_success = create_dfxml_directory(src, dfxml_path,
+                                                   scripts_dir)
         if dfxml_success is False:
             print_to_stderr_and_exit()
 
@@ -964,6 +1010,7 @@ def main():
         logging.warning('Unable to delete tempdir %s', temp_dir)
 
     logging.info('Complete')
+
 
 if __name__ == '__main__':
     main()
