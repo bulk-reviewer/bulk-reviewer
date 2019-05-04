@@ -132,6 +132,18 @@
           :class="{'dismissed':props.row.dismissed === true}"
           sortable>
           {{ unescapeText(props.row.feature) }}
+          <!-- Copy to clipboard button -->
+          <button
+            class="button is-small"
+            style="margin-left: 5px;"
+            @click="copyFeatureToClipboard(props.row.feature)">
+            <b-tooltip
+              label="Copy feature to clipboard"
+              position="is-right"
+              type="is-light">
+              <b-icon icon="clipboard"></b-icon>
+            </b-tooltip>
+          </button>
         </b-table-column>
 
         <b-table-column
@@ -319,6 +331,12 @@ export default {
     // dispatch Vuex action to delete note
     deleteNote (featureID) {
       this.$store.dispatch('deleteFeatureNote', featureID)
+    },
+    // copy unescaped feature to clipboard
+    copyFeatureToClipboard (feature) {
+      const remote = require('electron').remote
+      const clipboard = remote.clipboard
+      clipboard.writeText(this.unescapeText(feature))
     }
   },
   computed: {
