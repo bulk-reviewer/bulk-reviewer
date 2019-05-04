@@ -79,10 +79,33 @@
         </option>
       </b-select>
 
-      <!-- TODO: Show all details -->
+      <!-- Show all details -->
       <b-switch
         v-model="showAllDetails"
-        v-on:input="toggleShowAllDetails()">Show details</b-switch>
+        v-on:input="toggleShowAllDetails()">
+        Show details
+      </b-switch>
+
+      <!-- Button group -->
+      <b-field grouped>
+
+        <!-- Dismiss all button -->
+        <button
+          class="button is-small is-primary"
+          style="margin-left: 5px;"
+          @click="dismissAllFeatures">
+          Dismiss all
+        </button>
+
+        <!-- Undismiss all button -->
+        <button
+          class="button is-small"
+          style="margin-left: 5px;"
+          @click="undismissAllFeatures">
+          Undismiss all
+        </button>
+
+      </b-field>
 
     </b-field>
 
@@ -199,6 +222,14 @@ export default {
     toggleFeatureDismissedStatus (featureID) {
       this.$store.dispatch('toggleFeatureDismissed', featureID)
     },
+    // set dismissed for all features in table to true
+    dismissAllFeatures () {
+      this.$store.dispatch('setFeaturesDismissedTrue', this.selectedIDArray)
+    },
+    // set dismissed for all features in table to false
+    undismissAllFeatures () {
+      this.$store.dispatch('setFeaturesDismissedFalse', this.selectedIDArray)
+    },
     // open file using default system program
     // doesn't work for disk images
     openFileOnDesktop (myFile) {
@@ -235,22 +266,26 @@ export default {
     brSession () {
       return this.$store.state.BRSession.brSession
     },
+    // return true if no file currently selected
+    // otherwise return false
     noSelection () {
       return this.selectedFile === null
     },
+    // return count of features in session, not counting dismissed
     featureCount () {
-      // filter out dismissed features
       let features = this.$store.state.BRSession.brSession.features
       let notDismissed = features.filter(f => f.dismissed !== true)
       return notDismissed.length
     },
+    // return array of features in currently selected file
     selectedFileFeatures () {
       let features = this.$store.state.BRSession.brSession.features
       let fileFeatures = features.filter(f => f.file === this.selectedFile.id)
       return fileFeatures
     },
+    // return count of features
+    // if file is currently selected, filter out dismissed features first
     selectedFileFeatureCount () {
-      // filter dismissed features from selectedFileFeatures if file is selected
       if (!this.noSelection) {
         let notDismissedFileFeatures = this.selectedFileFeatures.filter(f => f.dismissed !== true)
         return notDismissedFileFeatures.length
@@ -258,8 +293,13 @@ export default {
         return this.featureCount
       }
     },
+    // return array of IDs from tableDataToDisplay
+    selectedIDArray () {
+      return this.tableDataToDisplay.map(f => f.id)
+    },
+    // filter table data by feature type
+    // if not feature type selected, return tableData
     tableDataToDisplay () {
-      // filter by feature type
       switch (this.typeFilter) {
         case 'all':
           return this.tableData
