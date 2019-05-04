@@ -91,18 +91,18 @@
 
         <!-- Dismiss all button -->
         <button
-          class="button is-small is-primary"
+          class="button is-small is-light"
           style="margin-left: 5px;"
           @click="dismissAllFeatures">
-          Dismiss all
+          x Dismiss all
         </button>
 
         <!-- Undismiss all button -->
         <button
-          class="button is-small"
+          class="button is-small is-primary"
           style="margin-left: 5px;"
           @click="undismissAllFeatures">
-          Undismiss all
+          Undo all
         </button>
 
       </b-field>
