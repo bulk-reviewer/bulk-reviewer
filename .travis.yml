@@ -29,11 +29,17 @@ install:
 - curl -o- -L https://yarnpkg.com/install.sh | bash
 - source ~/.bashrc
 - npm install -g xvfb-maybe
-- yarn
 - sudo pip install --upgrade virtualenv && virtualenv -p python3 env
 - source env/bin/activate && cd src/main && pip install -r backend/requirements.txt && pyinstaller backend/br_processor.py --distpath backend_dist
-script:
+- yarn install
 - yarn run build
+script:
+- |
+  if [[ $TRAVIS_BRANCH == 'master' || $TRAVIS_BRANCH == 'prerelease' ]]; then
+    yarn run release
+  else
+    yarn run dist
+  fi
 branches:
   only:
   - master
