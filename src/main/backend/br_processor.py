@@ -871,7 +871,10 @@ def main():
         export_success = export_files(src, dest, args)
         if export_success is False:
             print_to_stderr_and_exit()
-        print('Files exported successfully')
+        if args.pii:
+            print('Private files successfully exported to directory', dest)
+        else:
+            print('Cleared files successfully exported to directory', dest)
         return
 
     # Otherwise, log starting message and continue
