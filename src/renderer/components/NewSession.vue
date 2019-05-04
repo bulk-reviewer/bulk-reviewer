@@ -95,6 +95,9 @@
         <div class="field">
           <b-checkbox v-model="includeNetworkResults">Include network/web data (domains, URLs, RFC822 headers, HTTP logs) in results</b-checkbox>
         </div>
+        <div class="field">
+          <b-checkbox v-model="stoplists">Use bulk_extractor stoplists</b-checkbox>
+        </div>
       </section>
     </b-field>
 
@@ -135,7 +138,8 @@ export default {
       ssnMode: '0',
       loading: false,
       includeExifResults: false,
-      includeNetworkResults: false
+      includeNetworkResults: false,
+      stoplists: false
     }
   },
   methods: {
@@ -169,6 +173,7 @@ export default {
       this.ssnMode = '0'
       this.includeExifResults = false
       this.includeNetworkResults = false
+      this.stoplists = false
     },
     // determine if python is packaged as executable by checking
     // for presence of backend_dist directory
@@ -230,6 +235,9 @@ export default {
       }
       if (this.includeNetworkResults === true) {
         sessionParameters.splice(1, 0, '--include_network')
+      }
+      if (this.stoplists === true) {
+        sessionParameters.splice(1, 0, '--stoplists')
       }
       if (this.regexFilePath.length > 0) {
         sessionParameters.splice(1, 0, '--regex')

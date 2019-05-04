@@ -117,16 +117,6 @@ def run_bulk_extractor(src, bulk_extractor_path, stoplist_dir,
     cmd = ['bulk_extractor',
            '-o',
            bulk_extractor_path,
-           # '-w',
-           # os.path.join(stoplist_dir, 'combined-url.txt'),
-           # '-w',
-           # os.path.join(stoplist_dir, 'combined-email.txt'),
-           # '-w',
-           # os.path.join(stoplist_dir, 'combined-telephone.txt'),
-           # '-w',
-           # os.path.join(stoplist_dir, 'combined-ccn.txt'),
-           # '-w',
-           # os.path.join(stoplist_dir, 'domain.txt'),
            '-x',
            'windirs',
            '-x',
@@ -145,6 +135,17 @@ def run_bulk_extractor(src, bulk_extractor_path, stoplist_dir,
     if args.regex:
         cmd.insert(1, '-F')
         cmd.insert(2, args.regex)
+    if args.stoplists:
+        cmd.insert(5, '-w')
+        cmd.insert(6, os.path.join(stoplist_dir, 'domain.txt'))
+        cmd.insert(5, '-w')
+        cmd.insert(6, os.path.join(stoplist_dir, 'combined-ccn.txt'))
+        # cmd.insert(5, '-w')
+        # cmd.insert(6, os.path.join(stoplist_dir, 'combined-telephone.txt'))
+        # cmd.insert(5, '-w')
+        # cmd.insert(6, os.path.join(stoplist_dir, 'combined-url.txt'))
+        # cmd.insert(5, '-w')
+        # cmd.insert(6, os.path.join(stoplist_dir, 'combined-email.txt'))
 
     try:
         subprocess.check_output(cmd)
@@ -817,6 +818,9 @@ def _make_parser():
     parser.add_argument("--regex",
                         help="Specify path to regex file",
                         action="store")
+    parser.add_argument("--stoplists",
+                        help="Use stoplists in directory ~/bulk-reviewer/stoplists in bulk_extractor scan",
+                        action="store_true")
     parser.add_argument("-n",
                         "--named_entity_extraction",
                         help="Extract named entities with Tika and spaCy",
