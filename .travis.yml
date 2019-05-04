@@ -37,8 +37,6 @@ script:
 - |
   if [[ $TRAVIS_BRANCH == 'master' || $TRAVIS_BRANCH == 'prerelease' ]]; then
     yarn run release
-  else
-    yarn run dist
   fi
 branches:
   only:
