@@ -87,7 +87,7 @@
       </b-switch>
 
       <!-- Button group -->
-      <b-field grouped>
+      <b-field grouped style="margin-left: 30px; margin-top: 10px;">
 
         <!-- Dismiss all button -->
         <button
