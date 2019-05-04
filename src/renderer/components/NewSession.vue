@@ -345,13 +345,15 @@ export default {
         this.runPythonProcess()
       }
     },
-    // display error message in toast for 5 seconds
+    // display error message in dialog
     errorMessage (msg) {
-      this.$toast.open({
-        duration: 5000,
+      this.$dialog.alert({
+        title: 'Error',
         message: msg,
-        position: 'is-bottom',
-        type: 'is-danger'
+        type: 'is-danger',
+        hasIcon: true,
+        icon: 'times-circle',
+        iconPack: 'fa'
       })
     }
   },

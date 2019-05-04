@@ -387,20 +387,22 @@ export default {
         message: 'File export in progress...'
       })
     },
-    // display success message in toast for 3 seconds
+    // display success message in dialog
     successMessage (msg) {
-      this.$toast.open({
-        duration: 3000,
+      this.$dialog.alert({
+        title: 'Success',
         message: msg
       })
     },
-    // display error message in toast for 10 seconds
+    // display error message in dialog
     errorMessage (msg) {
-      this.$toast.open({
-        duration: 10000,
+      this.$dialog.alert({
+        title: 'Error',
         message: msg,
-        position: 'is-bottom',
-        type: 'is-danger'
+        type: 'is-danger',
+        hasIcon: true,
+        icon: 'times-circle',
+        iconPack: 'fa'
       })
     }
   },
