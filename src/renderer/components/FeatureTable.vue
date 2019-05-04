@@ -143,6 +143,42 @@
         </b-table-column>
 
         <b-table-column
+          field="note"
+          label="Note"
+          sortable>
+          <span v-if="props.row.note !== null">
+            {{ props.row.note }}
+          </span>
+          <span class="dismissed" v-else>
+            n/a
+          </span>
+          <!-- Edit note button -->
+          <button 
+            class="button is-small"
+            @click="openNoteDialog(props.row.id)">
+            <b-tooltip
+              label="Edit note"
+              position="is-right"
+              type="is-light">
+              <b-icon icon="pencil-alt"></b-icon>
+            </b-tooltip>
+          </button>
+          <!-- Delete note button -->
+          <button
+            class="button is-small"
+            v-show="props.row.note !== null"
+            @click="deleteNote(props.row.id)">
+            <b-tooltip
+              label="Delete note"
+              position="is-right"
+              type="is-light">
+              <b-icon icon="times"></b-icon>
+            </b-tooltip>
+          </button>
+          
+        </b-table-column>
+
+        <b-table-column
           field="dismissed"
           label="Dismiss"
           :class="{'dismissed':props.row.dismissed === true}"
@@ -257,6 +293,32 @@ export default {
       } else {
         this.defaultOpenedDetails = []
       }
+    },
+    // open dialog to edit note and trigger dispatch on confirm
+    openNoteDialog (featureID) {
+      let featureIndex = featureID - 1
+      let currentNote = this.brSession.features[featureIndex].note
+      let notePlaceholder = currentNote === null ? '' : currentNote
+      this.$dialog.prompt({
+        title: `Edit note`,
+        inputAttrs: {
+          type: 'string',
+          value: notePlaceholder
+        },
+        onConfirm: (value) => this.dispatchEditNoteVuexAction(featureID, value)
+      })
+    },
+    // dispatch Vuex action to edit note
+    dispatchEditNoteVuexAction (featureID, editedNote) {
+      let notePayload = {
+        'featureID': featureID,
+        'note': editedNote
+      }
+      this.$store.dispatch('editFeatureNote', notePayload)
+    },
+    // dispatch Vuex action to delete note
+    deleteNote (featureID) {
+      this.$store.dispatch('deleteFeatureNote', featureID)
     }
   },
   computed: {

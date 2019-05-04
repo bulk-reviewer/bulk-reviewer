@@ -25,6 +25,14 @@ const mutations = {
   TOGGLE_FILE_VERIFIED (state, fileID) {
     let index = fileID - 1
     state.brSession.files[index].verified = !state.brSession.files[index].verified
+  },
+  EDIT_FEATURE_NOTE (state, notePayload) {
+    let index = notePayload.featureID - 1
+    state.brSession.features[index].note = notePayload.note
+  },
+  DELETE_FEATURE_NOTE (state, featureID) {
+    let index = featureID - 1
+    state.brSession.features[index].note = null
   }
 }
 
@@ -45,6 +53,12 @@ const actions = {
   },
   toggleFileVerified ({ commit }, fileID) {
     commit('TOGGLE_FILE_VERIFIED', fileID)
+  },
+  editFeatureNote ({ commit }, notePayload) {
+    commit('EDIT_FEATURE_NOTE', notePayload)
+  },
+  deleteFeatureNote ({ commit }, featureID) {
+    commit('DELETE_FEATURE_NOTE', featureID)
   }
 }
 
