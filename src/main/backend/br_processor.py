@@ -1010,11 +1010,14 @@ def print_to_stderr_and_exit():
 
 
 def _configure_logging(bulk_reviewer_dir):
-    log_format = "%(asctime)s - %(levelname)s - %(message)s"
-    log_file = os.path.join(bulk_reviewer_dir, 'bulk-reviewer.log')
-    logging.basicConfig(filename=log_file,
-                        format=log_format,
-                        level=logging.INFO)
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    handler = logging.FileHandler(os.path.join(bulk_reviewer_dir,
+                                  'bulk-reviewer.log'),
+                                  'w', 'utf-8')
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    root_logger.addHandler(handler)
 
 
 def _make_parser():
@@ -1215,7 +1218,8 @@ def main():
     try:
         brv_to_json(db_path, json_path)
         logging.info('Created JSON file %s', json_path)
-        print(json_path)
+        # print path to stdout as utf-8 (supports utf-8 chars/emojis)
+        sys.stdout.buffer.write(json_path.encode('utf-8'))
     except Exception as e:
         logging.error('Error creating JSON file %s: %s', json_path, e)
         print_to_stderr_and_exit()
