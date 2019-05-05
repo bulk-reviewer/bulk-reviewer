@@ -7,7 +7,7 @@
     <h4 class="subtitle is-6">
       Showing results from: {{ currentFeatureContext }}
       <button
-        v-show="selectedFile !== null"
+        v-show="showOpenFileButton"
         class="button is-small is-info"
         @click="openFileOnDesktop(selectedFile.filepath)">
         Open
@@ -329,9 +329,12 @@ export default {
       return this.$store.state.BRSession.brSession
     },
     // return true if no file currently selected
-    // otherwise return false
     noSelection () {
       return this.selectedFile === null
+    },
+    // return true if selected file is not null and source is directory
+    showOpenFileButton () {
+      return this.selectedFile !== null && this.brSession.disk_image === false
     },
     // return count of features in session, not counting dismissed
     featureCount () {
