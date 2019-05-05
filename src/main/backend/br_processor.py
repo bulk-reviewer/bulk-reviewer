@@ -1105,6 +1105,7 @@ def main():
     )
     user_home_dir = os.path.abspath(str(Path.home()))
     bulk_reviewer_dir = os.path.join(user_home_dir, 'bulk-reviewer')
+    stoplist_dir = os.path.join(bulk_reviewer_dir, 'stoplists')
 
     # Make bulk_reviewer_dir if doesn't already exist
     if not os.path.exists(bulk_reviewer_dir):
