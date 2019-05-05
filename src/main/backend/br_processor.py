@@ -20,18 +20,25 @@ from sqlalchemy.orm.exc import NoResultFound
 from datetime import datetime
 from pathlib import Path
 import argparse
+import bisect
+import bulk_extractor_reader
+import dfxml
+import fiwalk
 import json
 import logging
 import os
+import re
 import shutil
 import sqlite3
 import subprocess
 import sys
 import tempfile
+import time
 import zipfile
 import Objects
 
 Base = declarative_base()
+xor_re = re.compile(b"^(\\d+)\\-XOR\\-(\\d+)")
 
 
 class BRSession(Base):
@@ -71,6 +78,157 @@ class Feature(Base):
     note = Column(String, nullable=True)
     dismissed = Column(Boolean)
     file = Column(Integer, ForeignKey('file.id'))
+
+
+class byterundb:
+    """
+    The byte run database holds a set of byte runs, sorted by the
+    start byte. It can be searched to find the name of a file that
+    corresponds to a byte run.
+
+    Class slightly modified from:
+    https://github.com/bulk-reviewer/bulk-reviewer/blob/
+    master/scripts/identify_filenames.py
+    """
+    def __init__(self):
+        self.rary = []          # each element is (runstart,runend,(fileinfo))
+        self.sorted = True      # whether or not sorted
+
+    def __iter__(self):
+        return self.rary.__iter__()
+
+    def __len__(self):
+        return len(self.rary)
+
+    def dump(self):
+        for e in self.rary:
+            print(e)
+
+    def add_extent(self, offset, length, fileinfo):
+        """Add the extent the array, but fix any invalid arguments"""
+        if type(offset) != int or type(length) != int:
+            return
+        self.rary.append((offset, offset + length, fileinfo))
+        self.sorted = False
+
+    def search_offset(self, pos):
+        """Return the touple associated with a offset"""
+        if self.sorted is False:
+            self.rary.sort()
+            self.sorted = True
+
+        p = bisect.bisect_left(self.rary, ((pos, 0, "")))
+
+        # If the offset matches the first byte in the returned byte run,
+        # we have found the matching exten
+        try:
+            if self.rary[p][0] == pos:
+                return self.rary[p]
+        except IndexError:
+            pass
+
+        # If the first element in the array was found, all elements are to the
+        # right of the provided offset, so there is no byte extent that maches.
+
+        if p == 0:
+            return None
+
+        # Look at the byte extent whose origin is to the left
+        # of pos. If the extent includes pos, return it, otherwise
+        # return None
+        if self.rary[p-1][0] <= pos < self.rary[p-1][1]:
+            return self.rary[p-1]
+
+        return None
+
+    def process_fi(self, fi):
+        """Read an XML file and add each byte run to this database"""
+        def gval(x):
+            """Always return X as bytes"""
+            if x is None:
+                return b''
+            if type(x) == bytes:
+                return x
+            if type(x) != str:
+                x = str(x)
+            return x.encode('utf-8')
+        for run in fi.byte_runs():
+            try:
+                fname = gval(fi.filename())
+                md5val = gval(fi.md5())
+                if not fi.allocated():
+                    fname = b'*' + fname
+                fileinfo = (fname, md5val)
+                self.add_extent(run.img_offset, run.len, fileinfo)
+            except TypeError as e:
+                pass
+
+
+class byterundb2:
+    """
+    Maintain two byte run databases, one for allocated files,
+    one for unallocated files.
+
+    Class slightly modified from:
+    https://github.com/bulk-reviewer/bulk-reviewer/blob/
+    master/scripts/identify_filenames.py
+    """
+    def __init__(self):
+        self.allocated = byterundb()
+        self.unallocated = byterundb()
+        self.filecount = 0
+
+    def __len__(self):
+        return len(self.allocated) + len(self.unallocated)
+
+    def process(self, fi):
+        if fi.allocated():
+            self.allocated.process_fi(fi)
+        else:
+            self.unallocated.process_fi(fi)
+        self.filecount += 1
+        # if self.filecount % 1000 == 0:
+        #     print("Processed %d fileobjects in DFXML file" % self.filecount)
+
+    def read_xmlfile(self, fname):
+        # print("Reading file map from XML file {}".format(fname))
+        fiwalk.fiwalk_using_sax(xmlfile=open(fname, 'rb'),
+                                callback=self.process)
+
+    def read_imagefile(self, fname):
+        fiwalk_args = "-zM"
+        # print("Reading file map by running fiwalk on {}".format(fname))
+        fiwalk.fiwalk_using_sax(imagefile=open(fname, 'rb'),
+                                callback=self.process,
+                                fiwalk_args=fiwalk_args)
+
+    def search_offset(self, offset):
+        """First search the allocated. If there is nothing, search unallocated"""
+        r = self.allocated.search_offset(offset)
+        if not r:
+            r = self.unallocated.search_offset(offset)
+        return r
+
+    def path_to_offset(self, offset):
+        """If the path has an XOR transformation, add the offset within
+        the XOR to the initial offset. Otherwise don't. Return the integer
+        value of the offset."""
+        m = xor_re.search(offset)
+        if m:
+            return int(m.group(1))+int(m.group(2))
+        negloc = offset.find(b"-")
+        if negloc == -1:
+            return int(offset)
+        return int(offset[0:negloc])
+
+    def search_path(self, path):
+        return self.search_offset(self.path_to_offset(path))
+
+    def dump(self):
+        # print("Allocated:")
+        self.allocated.dump()
+        # print("Unallocated:")
+        self.unallocated.dump()
 
 
 def create_dfxml_diskimage(src, dfxml_path):
@@ -287,32 +445,117 @@ def user_friendly_feature_type(feature_file):
         return feature_file
 
 
+def process_featurefile2(rundb, infile, outfile):
+    """
+    Returns features from infile, determines the file for each,
+    writes results to outfile.
+
+    Slightly modified from:
+    https://github.com/bulk-reviewer/bulk-reviewer/blob/
+    master/scripts/identify_filenames.py
+    """
+    # Stats
+    unallocated_count = 0
+    feature_count = 0
+    features_encoded = 0
+    located_count = 0
+
+    outfile.write(b"# Position\tFeature")
+    outfile.write(b"\tContext")
+    outfile.write(b"\tFilename\tMD5")
+    outfile.write(b"\n")
+    t0 = time.time()
+    linenumber = 0
+    for line in infile:
+        linenumber += 1
+        if bulk_extractor_reader.is_comment_line(line):
+            outfile.write(line)
+            continue
+        try:
+            (path, feature, context) = line[:-1].split(b'\t')
+        except ValueError as e:
+            logging.error('Error annotating feature file: %s', e)
+            logging.error('Offending line %s: %s', linenumber, line[:-1])
+            continue
+        feature_count += 1
+
+        # Increment counter if this feature was encoded
+        if b"-" in path:
+            features_encoded += 1
+
+        # Search for feature in database
+        tpl = rundb.search_path(path)
+
+        # Output to annotated feature file
+        outfile.write(path)
+        outfile.write(b'\t')
+        outfile.write(feature)
+        outfile.write(b'\t')
+        outfile.write(context)
+
+        # If we found the data, output that
+        if tpl:
+            located_count += 1
+            outfile.write(b'\t')
+            outfile.write(b'\t'.join(tpl[2]))  # just the file info
+        else:
+            unallocated_count += 1
+        outfile.write(b'\n')
+
+    t1 = time.time()
+    for (title, value) in [["# Total features input: {}",
+                            feature_count],
+                           ["# Total features located to files: {}",
+                            located_count],
+                           ["# Total features in unallocated space: {}",
+                            unallocated_count],
+                           ["# Total features in encoded regions: {}",
+                            features_encoded],
+                           ["# Total processing time: {:.2} seconds",
+                            t1-t0]]:
+        outfile.write((title+"\n").format(value).encode('utf-8'))
+    return (feature_count, located_count)
+
+
 def annotate_feature_files(feature_files_dir,
                            annotated_feature_path,
-                           dfxml_path,
-                           scripts_dir):
+                           dfxml_path):
     """
     Annotate bulk_extractor feature files for disk images
     to associate features to files in the image.
-    """
-    identify_filenames = os.path.join(scripts_dir, 'identify_filenames.py')
 
+    Based on:
+    https://github.com/bulk-reviewer/bulk-reviewer/blob/
+    master/scripts/identify_filenames.py
+    """
+    # Make directory for annotated feature files
     if not os.path.exists(annotated_feature_path):
             os.makedirs(annotated_feature_path)
-    cmd = ['python3',
-           identify_filenames,
-           '--all',
-           '--xmlfile',
-           dfxml_path,
-           feature_files_dir,
-           annotated_feature_path]
+
+    # Read bulk_extractor report and DFXML file
+    rundb = byterundb2()
+    report = bulk_extractor_reader.BulkReport(feature_files_dir)
+    rundb.read_xmlfile(dfxml_path)
+    if len(rundb) == 0:
+        raise RuntimeError("\nERROR: No files detected in XML file {}\n".format(dfxml_path))
+
+    # Process each feature file
+    feature_file_list = report.feature_files()
     try:
-        subprocess.check_output(cmd)
-        return True
-    except subprocess.CalledProcessError as e:
-        logging.error("""identify_filenames.py unable to annotate feature files: %s.\
-            """, e)
-        return False
+        feature_file_list.remove("tcp.txt")  # not needed
+    except ValueError:
+        pass
+    for feature_file in feature_file_list:
+        output_fn = os.path.join(annotated_feature_path,
+                                 ("annotated_" + feature_file))
+        if os.path.exists(output_fn):
+            raise RuntimeError(output_fn + " exists")
+        # print("feature_file:", feature_file)
+        (feature_count, located_count) = process_featurefile2(
+            rundb,
+            report.open(feature_file, mode='rb'),
+            open(output_fn, 'wb')
+        )
 
 
 def read_features_to_db(feature_files_dir, br_session_id, session, args):
@@ -971,14 +1214,11 @@ def main():
     if args.diskimage:
         # Disk image source: Annotate feature files and read into database
         logging.info('Annotating feature files')
-        annotate_success = annotate_feature_files(
+        annotate_feature_files(
             bulk_extractor_path,
             annotated_feature_path,
-            dfxml_path,
-            scripts_dir
+            dfxml_path
         )
-        if annotate_success is False:
-            print_to_stderr_and_exit()
         logging.info('Reading feature files to database')
         read_features_to_db(
             annotated_feature_path,

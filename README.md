@@ -53,11 +53,10 @@ Bulk Reviewer is an Electron desktop application with a Python backend. Local de
 git clone https://github.com/bulk-reviewer/bulk-reviewer
 ```
 
-2. Copy helper scripts and bulk_extractor stoplists to `bulk-reviewer` home directory
+2. Copy bulk_extractor stoplists to `bulk-reviewer` home directory
 
 ``` bash
 mkdir ~/bulk-reviewer
-cp -r scripts/ ~/bulk-reviewer/.scripts/
 cp stoplists.zip ~/bulk-reviewer/
 ```
 
