@@ -213,7 +213,7 @@
                 <strong>File:</strong> {{ props.row.filepath }}
                 <button
                   class="button is-small is-info"
-                  v-show="showOpenFileButton"
+                  v-show="brSession.disk_image === false"
                   @click="openFileOnDesktop(props.row.filepath)">
                   Open
                 </button>
