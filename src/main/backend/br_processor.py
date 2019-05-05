@@ -1168,14 +1168,6 @@ def main():
         logging.error('JSON file with same name already exists. Quitting')
         print_to_stderr_and_exit()
 
-    # Make sure stoplists are extracted
-    stoplist_zip = os.path.join(bulk_reviewer_dir, 'stoplists.zip')
-    stoplist_dir = os.path.join(bulk_reviewer_dir, 'stoplists')
-    if not os.path.isdir(stoplist_dir):
-        logging.info('Extracting bulk_extractor stoplists')
-        with zipfile.ZipFile(stoplist_zip, 'r') as zip_ref:
-            zip_ref.extractall(bulk_reviewer_dir)
-
     # Disk image - Write file info to db
     if args.diskimage:
 
