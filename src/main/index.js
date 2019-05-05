@@ -35,7 +35,7 @@ function createWindow () {
   let template = [{
     label: 'Application',
     submenu: [
-      { label: 'About Bulk Reiewer', selector: 'orderFrontStandardAboutPanel:' },
+      { label: 'About Bulk Reviewer', selector: 'orderFrontStandardAboutPanel:' },
       { type: 'separator' },
       { label: 'Quit', accelerator: 'Command+Q', click: function () { app.quit() } }
     ]}, {
