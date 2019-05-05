@@ -79,7 +79,7 @@ yarn run dev
 
 ## Build locally
 
-1. Follow Development steps 1-4 above
+1. Follow Development steps 1-3 above
 
 2. Package Python script as executable
 
