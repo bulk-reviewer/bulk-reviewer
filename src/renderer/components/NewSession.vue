@@ -135,7 +135,7 @@
     </form>
 
     <!-- Loading indicator -->
-    <b-loading :is-full-page="false" :active.sync="loading" :can-cancel="false"></b-loading>
+    <b-loading :is-full-page="true" :active.sync="loading" :can-cancel="false"></b-loading>
 
   </section>
 </template>
