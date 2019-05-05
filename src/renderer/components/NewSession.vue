@@ -368,18 +368,24 @@ export default {
       }
     },
     onSubmit () {
+      // validate
+      if (!this.name) {
+        this.errorMessage('Name required')
+        return
+      }
       if (!this.sourcePath) {
         this.errorMessage('Source directory or disk image required')
-      } else {
-        // disable submit button
-        this.isDisabled = true
-
-        // switch status indicators
-        this.loading = true
-
-        // kick off br_processor
-        this.runPythonProcess()
+        return
       }
+
+      // disable submit button
+      this.isDisabled = true
+
+      // switch status indicators
+      this.loading = true
+
+      // kick off br_processor
+      this.runPythonProcess()
     },
     // display error message in dialog
     errorMessage (msg) {
