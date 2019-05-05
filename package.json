@@ -1,5 +1,5 @@
 {
-  "name": "Bulk Reviewer",
+  "name": "BulkReviewer",
   "version": "0.1.0",
   "author": "Tim Walsh <timothyryanwalsh@gmail.com>",
   "description": "Identify, review, and remove private information",
