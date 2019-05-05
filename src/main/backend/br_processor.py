@@ -1105,7 +1105,10 @@ def main():
     )
     user_home_dir = os.path.abspath(str(Path.home()))
     bulk_reviewer_dir = os.path.join(user_home_dir, 'bulk-reviewer')
-    scripts_dir = os.path.join(bulk_reviewer_dir, '.scripts')
+
+    # Make bulk_reviewer_dir if doesn't already exist
+    if not os.path.exists(bulk_reviewer_dir):
+        os.makedirs(bulk_reviewer_dir)
 
     # Configure logging
     _configure_logging(bulk_reviewer_dir)
