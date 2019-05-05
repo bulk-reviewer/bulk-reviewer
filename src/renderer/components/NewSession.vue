@@ -76,6 +76,28 @@
       </section>
     </b-field>
 
+    <b-field label="Stoplist directory">
+      <section>
+        <button
+          class="button is-light"
+          @click.prevent="chooseStoplistDir">
+          Choose directory
+        </button>
+        <div style="margin: 5px;">
+          <span v-if="stoplistDirPath">
+            {{ stoplistDirPath }}
+            <!-- button to reset sourcePath -->
+            <button class="button is-light is-small" @click="resetStoplistDirPath">
+              <b-icon icon="times"></b-icon>
+            </button>
+          </span>
+          <span v-else>
+            None selected.
+          </span>
+        </div>
+      </section>
+    </b-field>
+
     <b-field label="Social Security Number identification mode">
       <b-select
         placeholder="SSN mode"
@@ -93,10 +115,7 @@
           <b-checkbox v-model="includeExifResults">Include EXIF metadata in results</b-checkbox>
         </div>
         <div class="field">
-          <b-checkbox v-model="includeNetworkResults">Include network/web data (domains, URLs, RFC822 headers, HTTP logs) in results</b-checkbox>
-        </div>
-        <div class="field">
-          <b-checkbox v-model="stoplists">Use bulk_extractor stoplists</b-checkbox>
+          <b-checkbox v-model="includeNetworkResults">Include network data (domains, URLs, RFC822 headers, HTTP logs) in results</b-checkbox>
         </div>
       </section>
     </b-field>
@@ -135,11 +154,11 @@ export default {
       sourceType: 'directory',
       sourcePath: '',
       regexFilePath: '',
+      stoplistDirPath: '',
       ssnMode: '0',
       loading: false,
       includeExifResults: false,
-      includeNetworkResults: false,
-      stoplists: false
+      includeNetworkResults: false
     }
   },
   methods: {
@@ -158,11 +177,19 @@ export default {
         this.regexFilePath = filename.toString()
       })
     },
+    chooseStoplistDir () {
+      dialog.showOpenDialog({ properties: ['openDirectory'] }, (dirName) => {
+        this.stoplistDirPath = dirName.toString()
+      })
+    },
     resetSourcePath () {
       this.sourcePath = ''
     },
     resetRegexFilePath () {
       this.regexFilePath = ''
+    },
+    resetStoplistDirPath () {
+      this.stoplistDirPath = ''
     },
     resetForm () {
       this.isDisabled = false
@@ -170,10 +197,10 @@ export default {
       this.sourceType = 'directory'
       this.sourcePath = ''
       this.regexFilePath = ''
+      this.stoplistDirPath = ''
       this.ssnMode = '0'
       this.includeExifResults = false
       this.includeNetworkResults = false
-      this.stoplists = false
     },
     // determine if python is packaged as executable by checking
     // for presence of backend_dist directory
@@ -236,12 +263,13 @@ export default {
       if (this.includeNetworkResults === true) {
         sessionParameters.splice(1, 0, '--include_network')
       }
-      if (this.stoplists === true) {
-        sessionParameters.splice(1, 0, '--stoplists')
-      }
       if (this.regexFilePath.length > 0) {
         sessionParameters.splice(1, 0, '--regex')
         sessionParameters.splice(2, 0, this.regexFilePath)
+      }
+      if (this.stoplistDirPath.length > 0) {
+        sessionParameters.splice(1, 0, '--stoplists')
+        sessionParameters.splice(2, 0, this.stoplistDirPath)
       }
 
       // if electron app is built, use child process to run python executable

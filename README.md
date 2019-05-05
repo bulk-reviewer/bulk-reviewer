@@ -43,8 +43,6 @@ For Bulk Reviewer to be able to handle Encase/E01 disk images, bulk_extractor an
 
 These dependencies should already be installed in the [BitCurator Environment](https://confluence.educopia.org/display/BC/BitCurator+Environment) (unless you need to scan for Canadian SINs, in which case bulk_extractor will need to be rebuilt from source.)
 
-In order to use bulk_extractor stoplists included with this project (these will exclude known non-problematic domains and credit card numbers from the Bulk Reviewer results), first extract the stoplists contained in `stoplists.zip` to the `~/bulk-reviewer` home directory.
-
 ## Development
 
 Bulk Reviewer is an Electron desktop application with a Python backend. Local development requires Python 3, Node, and npm/yarn (instructions here use yarn).

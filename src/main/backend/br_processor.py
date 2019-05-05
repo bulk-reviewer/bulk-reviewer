@@ -294,16 +294,12 @@ def run_bulk_extractor(src, bulk_extractor_path, stoplist_dir,
         cmd.insert(1, '-F')
         cmd.insert(2, args.regex)
     if args.stoplists:
-        cmd.insert(5, '-w')
-        cmd.insert(6, os.path.join(stoplist_dir, 'domain.txt'))
-        cmd.insert(5, '-w')
-        cmd.insert(6, os.path.join(stoplist_dir, 'combined-ccn.txt'))
-        # cmd.insert(5, '-w')
-        # cmd.insert(6, os.path.join(stoplist_dir, 'combined-telephone.txt'))
-        # cmd.insert(5, '-w')
-        # cmd.insert(6, os.path.join(stoplist_dir, 'combined-url.txt'))
-        # cmd.insert(5, '-w')
-        # cmd.insert(6, os.path.join(stoplist_dir, 'combined-email.txt'))
+        # Add each .txt file found in stoplist dir to cmd
+        stoplist_files = os.listdir(stoplist_dir)
+        for f in stoplist_files:
+            if f.endswith('.txt'):
+                cmd.insert(5, '-w')
+                cmd.insert(6, os.path.join(stoplist_dir, f))
 
     try:
         subprocess.check_output(cmd)
@@ -1062,8 +1058,8 @@ def _make_parser():
                         help="Specify path to regex file",
                         action="store")
     parser.add_argument("--stoplists",
-                        help="Use stoplists in directory ~/bulk-reviewer/stoplists in bulk_extractor scan",
-                        action="store_true")
+                        help="Specify directory for bulk_extractor stoplists",
+                        action="store")
     parser.add_argument("-n",
                         "--named_entity_extraction",
                         help="Extract named entities with Tika and spaCy",
@@ -1105,7 +1101,6 @@ def main():
     )
     user_home_dir = os.path.abspath(str(Path.home()))
     bulk_reviewer_dir = os.path.join(user_home_dir, 'bulk-reviewer')
-    stoplist_dir = os.path.join(bulk_reviewer_dir, 'stoplists')
 
     # Make bulk_reviewer_dir if doesn't already exist
     if not os.path.exists(bulk_reviewer_dir):
@@ -1198,6 +1193,9 @@ def main():
 
     # Run bulk_extractor
     logging.info('Running bulk_extractor')
+    stoplist_dir = ''
+    if args.stoplists:
+        stoplist_dir = os.path.abspath(args.stoplists)
     bulk_extractor_success = run_bulk_extractor(
         src, bulk_extractor_path,
         stoplist_dir,
