@@ -231,7 +231,7 @@ class byterundb2:
         self.unallocated.dump()
 
 
-def create_dfxml_diskimage(src, dfxml_path):
+def create_dfxml(src, dfxml_path):
     """
     Create DFXML representation of source disk image using fiwalk
     and save to destination directory. Return True is successful,
@@ -246,24 +246,6 @@ def create_dfxml_diskimage(src, dfxml_path):
         return True
     except subprocess.CalledProcessError as e:
         logging.error('Error creating DFXML with fiwalk: %s', e)
-        return False
-
-
-def create_dfxml_directory(src, dfxml_path, scripts_dir):
-    """
-    Create DFXML representation of source directory using walk_to_dfxml.py
-    and save to destination directory. Return True is successful,
-    False if unsuccessful.
-    """
-    walk_to_dfxml = os.path.join(scripts_dir, 'walk_to_dfxml.py')
-    cmd = 'cd "{0}" && python3 {1} > "{2}"'.format(src,
-                                                   walk_to_dfxml,
-                                                   dfxml_path)
-    try:
-        subprocess.call(cmd, shell=True)
-        return True
-    except subprocess.CalledProcessError as e:
-        logging.error('Error creating DFXML with walk_to_dfxml.py: %s', e)
         return False
 
 
@@ -368,7 +350,7 @@ def parse_dfxml_to_db(session, br_session_id, dfxml_path):
             logging.error("File %s not written to database: %s", filepath, e)
 
 
-def read_filesystem_metadata_to_db(session, br_session_id, src):
+def write_filesystem_metadata_to_db(session, br_session_id, src):
     """
     Recursively walk filesystem of src and write
     metadata for each file to database.
@@ -1169,11 +1151,7 @@ def main():
 
         # Create dfxml
         logging.info('Creating DFXML')
-        if args.diskimage:
-            dfxml_success = create_dfxml_diskimage(src, dfxml_path)
-        else:
-            dfxml_success = create_dfxml_directory(src, dfxml_path,
-                                                   scripts_dir)
+        dfxml_success = create_dfxml(src, dfxml_path)
         if dfxml_success is False:
             print_to_stderr_and_exit()
 
@@ -1188,8 +1166,7 @@ def main():
     # Directory - Write file info to db
     else:
         logging.info('Writing source file metadata to database')
-        # TODO: WALK FILESYSTEM AND WRITE FILE METADATA TO DB
-        read_filesystem_metadata_to_db(session, br_session_id, src)
+        write_filesystem_metadata_to_db(session, br_session_id, src)
 
     # Run bulk_extractor
     logging.info('Running bulk_extractor')
