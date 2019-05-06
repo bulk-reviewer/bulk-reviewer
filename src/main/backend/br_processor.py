@@ -1084,7 +1084,7 @@ def main():
         reports_path,
         'bulk_extractor_annotated'
     )
-    user_home_dir = os.path.abspath(str(Path.home()))
+    user_home_dir = os.path.abspath(os.path.expanduser('~'))
     bulk_reviewer_dir = os.path.join(user_home_dir, 'bulk-reviewer')
 
     # Make bulk_reviewer_dir if doesn't already exist
