@@ -299,8 +299,9 @@ export default {
         })
         pyProc.stderr.on('data', function (data) {
           let errorMessage = data.toString()
-          // ignore 'Attempt to open' disk image messages
-          if (!errorMessage.includes('Attempt to open')) {
+          // ignore 'Attempt to open' disk image messages and lightgrep messages
+          if (!errorMessage.includes('Attempt to open') &&
+              !errorMessage.includes('lightgrep patterns')) {
             pyErrors += errorMessage
           }
         })
