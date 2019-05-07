@@ -18,11 +18,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm.exc import NoResultFound
 from datetime import datetime
-from pathlib import Path
 import argparse
 import bisect
 import bulk_extractor_reader
-import dfxml
 import fiwalk
 import json
 import logging
@@ -34,7 +32,6 @@ import subprocess
 import sys
 import tempfile
 import time
-import zipfile
 import Objects
 
 Base = declarative_base()
