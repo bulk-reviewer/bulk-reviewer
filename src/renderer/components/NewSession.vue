@@ -209,30 +209,35 @@ export default {
       const PY_DIST_FOLDER = path.join(__dirname, '../../main/', 'backend_dist')
       return require('fs').existsSync(PY_DIST_FOLDER)
     },
+    // create and return Python subprocess
+    // if python script has been packaged as executable, spawn it
+    // otherwise, run python script using system python3
+    createPythonProcess (sessionParameters) {
+      if (app.isPackaged) {
+        let pyExec = sessionParameters[0]
+        let parametersMinusScript = sessionParameters.slice(1)
+        let pyProc = require('child_process').spawn(pyExec, parametersMinusScript, { shell: true })
+        return pyProc
+      } else {
+        let pyProc = require('child_process').spawn('python3', sessionParameters, { shell: true })
+        return pyProc
+      }
+    },
     // get path to script or executable as appropriate
     getScriptPath () {
       const path = require('path')
-      // check if app has been built
-      // if yes, get path to python script in asar
+      const PY_DIST_FOLDER = path.join(__dirname, '../../../backend_dist')
+      const PY_FOLDER = path.join(__dirname, '../../main/', 'backend')
+      const PY_MODULE = 'br_processor'
+      // if app is built, get path to python exectuable in Resources
       if (app.isPackaged) {
-        const PY_DIST_FOLDER = path.join(__dirname, '../../../backend_dist')
-        const PY_MODULE = 'br_processor'
         if (process.platform === 'win32') {
           return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE + '.exe')
         }
         return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE)
-      // if no, get script path to development location
+      // if not build, get path to script
       } else {
-        const PY_DIST_FOLDER = path.join(__dirname, '../../main/', 'backend_dist')
-        const PY_FOLDER = path.join(__dirname, '../../main/', 'backend')
-        const PY_MODULE = 'br_processor'
-        if (!this.guessPyPackaged()) {
-          return path.join(PY_FOLDER, PY_MODULE + '.py')
-        }
-        if (process.platform === 'win32') {
-          return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE + '.exe')
-        }
-        return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE)
+        return path.join(PY_FOLDER, PY_MODULE + '.py')
       }
     },
     // run br_processor python script. on completion, display errors
@@ -272,101 +277,51 @@ export default {
         sessionParameters.splice(2, 0, this.stoplistDirPath)
       }
 
-      // if electron app is built, use child process to run python executable
-      if (app.isPackaged) {
-        // fix for mac os to make system PATH available to node
-        const fixPath = require('fix-path')
-        fixPath()
+      // fix for mac os to make system PATH available to node
+      const fixPath = require('fix-path')
+      fixPath()
 
-        // spawn command in shell
-        let parametersMinusScript = sessionParameters.slice(1)
-        console.log(`Script: ${quotedScript}`)
-        console.log(`Parameters: ${parametersMinusScript}`)
-        let pyProc = require('child_process').spawn(quotedScript, parametersMinusScript, { shell: true })
+      // create python process
+      let pyProc = this.createPythonProcess(sessionParameters)
 
-        // handle error starting python process
-        if (!pyProc) {
-          this.loading = false
-          this.isDisabled = false
-          this.errorMessage('Python process not started.')
-        }
-
-        // record stdout and stderr
-        let jsonPath = ''
-        let pyErrors = ''
-        pyProc.stdout.on('data', function (data) {
-          jsonPath += data.toString()
-        })
-        pyProc.stderr.on('data', function (data) {
-          let errorMessage = data.toString()
-          // ignore 'Attempt to open' disk image messages and lightgrep messages
-          if (!errorMessage.includes('Attempt to open') &&
-              !errorMessage.includes('lightgrep patterns')) {
-            pyErrors += errorMessage
-          }
-        })
-
-        // throw error message or load review dashboard
-        // when python script has completed
-        let self = this
-        pyProc.stdout.on('end', function (data) {
-          // catch errors
-          if (pyErrors.length > 0) {
-            self.loading = false
-            self.isDisabled = false
-            self.errorMessage(`ERROR: ${pyErrors}`)
-          // if no errors, load review dashboard
-          } else {
-            let jsonFile = jsonPath.trim()
-            self.loading = false
-            self.$store.dispatch('loadFromJSON', jsonFile)
-            self.$router.push('review')
-          }
-        })
-      // if not built, use system python3 to call script
-      } else {
-        // spawn script using system python3
-        let pyProc = require('child_process').spawn('python3', sessionParameters)
-
-        // handle error starting python process
-        if (!pyProc) {
-          this.loading = false
-          this.isDisabled = false
-          this.errorMessage('Python process not started.')
-        }
-
-        // record stdout and stderr
-        let jsonPath = ''
-        let pyErrors = ''
-        pyProc.stdout.on('data', function (data) {
-          jsonPath += data.toString()
-        })
-        pyProc.stderr.on('data', function (data) {
-          let errorMessage = data.toString()
-          // ignore 'Attempt to open' disk image messages
-          if (!errorMessage.includes('Attempt to open')) {
-            pyErrors += errorMessage
-          }
-        })
-
-        // throw error message or load review dashboard
-        // when python script has completed
-        let self = this
-        pyProc.stdout.on('end', function (data) {
-          // catch errors
-          if (pyErrors.length > 0) {
-            self.loading = false
-            self.isDisabled = false
-            self.errorMessage(`ERROR: ${pyErrors}`)
-          // if no errors, load review dashboard
-          } else {
-            let jsonFile = jsonPath.trim()
-            self.loading = false
-            self.$store.dispatch('loadFromJSON', jsonFile)
-            self.$router.push('review')
-          }
-        })
+      // handle error starting python process
+      if (!pyProc) {
+        this.loading = false
+        this.isDisabled = false
+        this.errorMessage('Python process not started.')
       }
+
+      // record stdout and stderr
+      let jsonPath = ''
+      let pyErrors = ''
+      pyProc.stdout.on('data', function (data) {
+        jsonPath += data.toString()
+      })
+      pyProc.stderr.on('data', function (data) {
+        let errorMessage = data.toString()
+        // ignore 'Attempt to open' disk image messages and lightgrep messages
+        if (!errorMessage.includes('Attempt to open') &&
+            !errorMessage.includes('lightgrep patterns')) {
+          pyErrors += errorMessage
+        }
+      })
+
+      // throw error message or load review dashboard on completion
+      let self = this
+      pyProc.stdout.on('end', function (data) {
+        // catch errors
+        if (pyErrors.length > 0) {
+          self.loading = false
+          self.isDisabled = false
+          self.errorMessage(`ERROR: ${pyErrors}`)
+        // if no errors, load review dashboard
+        } else {
+          let jsonFile = jsonPath.trim()
+          self.loading = false
+          self.$store.dispatch('loadFromJSON', jsonFile)
+          self.$router.push('review')
+        }
+      })
     },
     onSubmit () {
       // validate
