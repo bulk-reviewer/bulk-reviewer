@@ -301,6 +301,7 @@ export default {
         let errorMessage = data.toString()
         // ignore known non-error messages printed to stderr
         if (!errorMessage.includes('Attempt to open') &&
+            !errorMessage.includes(' bytes') &&
             !errorMessage.includes('active scanners') &&
             !errorMessage.includes('lightgrep patterns')) {
           pyErrors += errorMessage
