@@ -561,6 +561,9 @@ def read_features_to_db(feature_files_dir, br_session_id, session, args):
         # Skip json
         if "json" in feature_file:
             continue
+        # Skip hex
+        if "hex" in feature_file:
+            continue
         # Skip stoplist results
         if "_stopped" in feature_file:
             continue
