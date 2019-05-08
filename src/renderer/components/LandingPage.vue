@@ -3,7 +3,7 @@
     <div class="hero-body">
       <div class="container">
         <h1 class="title">
-          Identify, review, and remove personal information
+          Identify, review, and remove sensitive files
         </h1>
       </div>
       <div class="container">
