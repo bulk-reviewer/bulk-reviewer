@@ -57,9 +57,9 @@ Scripts for installing system dependencies for macOS and Ubuntu 18.04 are includ
 
 2. Move the AppImage to the "Forensics and Reporting" folder on the BitCurator desktop.
 
-3. Make the `BulkReviewer-x.x.x-x86_64.AppImage` executable (`chmod a+x FILE` in terminal or by right-clicking the AppImage, selecting Properties, and then selecting "Allow executing file as program" under the Permissions tab)
+3. Make the Bulk Reviewer AppImage executable (with `chmod a+x FILE` in terminal or by right-clicking the AppImage, selecting Properties, and then selecting "Allow executing file as program" under the Permissions tab).
 
-4. Double-click the `BulkReviewer-x.x.x-x86_64.AppImage`. A prompt will ask if you want to integrate Bulk Reviewer with your system. Choose "Yes" to install Bulk Reviewer.
+4. Double-click the AppImage. A prompt will ask if you want to integrate Bulk Reviewer with your system. Choose "Yes" to install Bulk Reviewer.
 
 From this point forward, Bulk Reviewer can be launched by selecting it from the Applications menu or double-clicking on the AppImage file in the "Forensics and Reporting" folder.
 
@@ -77,7 +77,7 @@ chmod a+x install_ubuntu18.sh
 
 3. Move the AppImage to your home directory or desktop and make the file executable.
 
-4. Double-click the `BulkReviewer-x.x.x-x86_64.AppImage`. A prompt will ask if you want to integrate Bulk Reviewer with your system. Choose "Yes" to install Bulk Reviewer.
+4. Double-click the AppImage. A prompt will ask if you want to integrate Bulk Reviewer with your system. Choose "Yes" to install Bulk Reviewer.
 
 From this point forward, Bulk Reviewer can be launched by selecting it from the Applications menu or double-clicking on the AppImage file.
 
@@ -85,7 +85,7 @@ From this point forward, Bulk Reviewer can be launched by selecting it from the 
 
 1. Make sure you have [Homebrew](https://brew.sh/) and [XCode](https://developer.apple.com/xcode/) installed.
 
-2. Download `install_mac.sh` script from this repository.
+2. Download the `install_mac.sh` script from this repository.
 
 3. In a terminal, change directory to where you saved the `install_mac.sh` script and install dependencies:
 
