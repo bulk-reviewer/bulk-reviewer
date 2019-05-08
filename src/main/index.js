@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow, Menu } from 'electron'
+import { app, BrowserWindow, Menu, shell } from 'electron'
 
 /**
  * Set `__static` path to static files in production
@@ -35,7 +35,7 @@ function createWindow () {
   let template = [{
     label: 'Application',
     submenu: [
-      { label: 'About Bulk Reviewer', selector: 'orderFrontStandardAboutPanel:' },
+      { label: 'About Bulk Reviewer', click () { shell.openExternal('https://github.com/bulk-reviewer/bulk-reviewer') } },
       { type: 'separator' },
       { label: 'Quit', accelerator: 'Command+Q', click: function () { app.quit() } }
     ]}, {
