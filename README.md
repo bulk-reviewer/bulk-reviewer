@@ -1,4 +1,6 @@
-# Bulk Reviewer
+![Bulk Reviewer logo](https://github.com/bulk-reviewer/bulk-reviewer/blob/master/full-logo.png)
+
+## Identify, review, and remove sensitive files
 
 [![Build Status](https://travis-ci.org/bulk-reviewer/bulk-reviewer.svg?branch=master)](https://travis-ci.org/bulk-reviewer/bulk-reviewer)
 
@@ -43,7 +45,59 @@ Bulk Reviewer requires that the following programs are installed on the same com
 
 For Bulk Reviewer to be able to handle Encase/E01 disk images, bulk_extractor and The Sleuth Kit must be built with [libewf](https://github.com/libyal/libewf/).
 
-These dependencies should already be installed in the [BitCurator Environment](https://confluence.educopia.org/display/BC/BitCurator+Environment) (unless you need to scan for Canadian SINs, in which case bulk_extractor will need to be rebuilt from source.)
+These dependencies should already be installed in the [BitCurator Environment](https://confluence.educopia.org/display/BC/BitCurator+Environment) (unless you need to scan for Canadian SINs, in which case bulk_extractor will need to be rebuilt from source).
+
+Scripts for installing system dependencies for macOS and Ubuntu 18.04 are included in this repository. See Installation below.
+
+## Installation
+
+### BitCurator
+
+1. Download the `BulkReviewer-x.x.x-x86_64.AppImage` [AppImage](https://appimage.org/) from the [latest Bulk Reviewer release](https://github.com/bulk-reviewer/bulk-reviewer/releases).
+
+2. Move the AppImage to the "Forensics and Reporting" folder on the BitCurator desktop.
+
+3. Make the `BulkReviewer-x.x.x-x86_64.AppImage` executable (`chmod a+x FILE` in terminal or by right-clicking the AppImage, selecting Properties, and then selecting "Allow executing file as program" under the Permissions tab)
+
+4. Double-click the `BulkReviewer-x.x.x-x86_64.AppImage`. A prompt will ask if you want to integrate Bulk Reviewer with your system. Choose "Yes" to install Bulk Reviewer.
+
+From this point forward, Bulk Reviewer can be launched by selecting it from the Applications menu or double-clicking on the AppImage file in the "Forensics and Reporting" folder.
+
+### Ubuntu 18.04
+
+1. Install dependencies in a terminal:
+
+``` bash
+wget "https://github.com/bulk-reviewer/bulk-reviewer/blob/master/install_ubuntu18.sh"
+chmod a+x install_ubuntu18.sh
+./install_ubuntu18.sh
+```
+
+2. Download the Bulk Reviewer [AppImage](https://appimage.org/) `BulkReviewer-x.x.x-x86_64.AppImage` from the [latest Bulk Reviewer release](https://github.com/bulk-reviewer/bulk-reviewer/releases).
+
+3. Move the AppImage to your home directory or desktop and make the file executable.
+
+4. Double-click the `BulkReviewer-x.x.x-x86_64.AppImage`. A prompt will ask if you want to integrate Bulk Reviewer with your system. Choose "Yes" to install Bulk Reviewer.
+
+From this point forward, Bulk Reviewer can be launched by selecting it from the Applications menu or double-clicking on the AppImage file.
+
+### macOS
+
+1. Make sure you have [Homebrew](https://brew.sh/) and [XCode](https://developer.apple.com/xcode/) installed.
+
+2. Download `install_mac.sh` script from this repository.
+
+3. In a terminal, change directory to where you saved the `install_mac.sh` script and install dependencies:
+
+``` bash
+brew install libewf afflib sleuthkit
+chmod a+x install_mac.sh
+./install_mac.sh
+```
+
+4. Download the `BulkReviewer-x.x.x.dmg` from the [latest Bulk Reviewer release](https://github.com/bulk-reviewer/bulk-reviewer/releases).
+
+5. Double-click the dmg to open the Bulk Reviewer installer. Drag the Bulk Reviewer icon to the Applications folder to install.
 
 ## Development
 
