@@ -1,7 +1,6 @@
 'use strict'
 
 import { app, BrowserWindow, Menu, shell } from 'electron'
-const path = require('path')
 
 /**
  * Set `__static` path to static files in production
@@ -20,23 +19,11 @@ function createWindow () {
   /**
    * Initial window options
    */
-
-  let mainWindow
-
-  if (process.platform === 'darwin') {
-    mainWindow = new BrowserWindow({
-      height: 700,
-      useContentSize: true,
-      width: 1100
-    })
-  } else {
-    mainWindow = new BrowserWindow({
-      height: 700,
-      useContentSize: true,
-      width: 1100,
-      icon: path.join(__dirname, '/icon/256x256.png')
-    })
-  }
+  mainWindow = new BrowserWindow({
+    height: 700,
+    useContentSize: true,
+    width: 1100
+  })
 
   mainWindow.loadURL(winURL)
 
