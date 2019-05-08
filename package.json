@@ -50,14 +50,14 @@
       ]
     },
     "mac": {
-      "icon": "build/icons/icon.icns",
+      "icon": "build/icons/512x512.png",
       "target": "dmg"
     },
     "win": {
-      "icon": "build/icons/icon.ico"
+      "icon": "build/icons/512x512.png"
     },
     "linux": {
-      "icon": "build/icons",
+      "icon": "build/icons/512x512.png",
       "target": "AppImage"
     }
   },
