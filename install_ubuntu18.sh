@@ -17,7 +17,7 @@ apt-get update && apt-get install -y \
     libboost-dev \
     libicu-dev \
     libtool \
-    sleuthkit
+    sleuthkit \
 && rm -rf /var/lib/apt/lists/*
 
 # Install bulk_extractor 1.6.0-dev from fork
