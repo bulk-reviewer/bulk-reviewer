@@ -667,8 +667,16 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
 
             # Parse tab-separated lines
             try:
-                (offset, feature, context, filepath,
-                 blockhash) = line.split('\t')
+
+                # Assume 5 values in annotated line
+                try:
+                    (offset, feature, context, filepath,
+                        blockhash) = line.split('\t')
+
+                # Catch ValueError when line only has 3
+                except ValueError:
+                    (offset, feature, context) = line.split('\t')
+                    filepath = "<unallocated space>"
 
                 # Try to find matching file
                 try:
@@ -680,14 +688,14 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
                 # If matching file doesn't exist, match to placeholder
                 except NoResultFound:
 
-                    # Check if placeholder already exists
+                    # Use placeholder if it already exists
                     try:
                         matching_file = session.query(File).filter_by(
                             filepath="<unallocated space>",
                             session=br_session_id
                         ).one()
 
-                    # Create placeholder if one doesn't already exist
+                    # Create and use placeholder if it doesn't already exist
                     except NoResultFound:
                         unallocated_placeholder = File(
                             filepath="<unallocated space>",
@@ -712,7 +720,7 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
                     feature_type=feature_type,
                     offset=offset,
                     feature=feature,
-                    context=context,
+                    context=context.rstrip(),
                     dismissed=False,
                     file=matching_file.id
                 )
