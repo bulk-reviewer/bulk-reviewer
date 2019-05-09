@@ -70,7 +70,7 @@ From this point forward, Bulk Reviewer can be launched by selecting it from the 
 ``` bash
 wget "https://github.com/bulk-reviewer/bulk-reviewer/blob/master/install_ubuntu18.sh"
 chmod a+x install_ubuntu18.sh
-./install_ubuntu18.sh
+sudo ./install_ubuntu18.sh
 ```
 
 2. Download the Bulk Reviewer [AppImage](https://appimage.org/) `BulkReviewer-x.x.x-x86_64.AppImage` from the [latest Bulk Reviewer release](https://github.com/bulk-reviewer/bulk-reviewer/releases).
