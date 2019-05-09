@@ -675,7 +675,7 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
                     matching_file = session.query(File).filter_by(
                         filepath=filepath,
                         session=br_session_id
-                    ).first()
+                    ).one()
 
                 # If matching file doesn't exist, match to placeholder
                 except NoResultFound:
@@ -685,7 +685,7 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
                         matching_file = session.query(File).filter_by(
                             filepath="<unallocated space>",
                             session=br_session_id
-                        ).first()
+                        ).one()
 
                     # Create placeholder if one doesn't already exist
                     except NoResultFound:
@@ -700,7 +700,7 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
                         matching_file = session.query(File).filter_by(
                             filepath="<unallocated space>",
                             session=br_session_id
-                        ).first()
+                        ).one()
 
                 # Set feature type
                 ff_basename = os.path.basename(feature_file).\
