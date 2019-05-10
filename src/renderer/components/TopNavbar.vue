@@ -2,14 +2,32 @@
   <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <router-link class="navbar-item" to="/">
-        <h4 class="title is-4" style="color: white;">Bulk Reviewer</h4>
+        <h1 class="title is-4" style="color: white;">Bulk Reviewer</h1>
+      </router-link>
+      <router-link class="navbar-item" to="/new-session">
+        <span style="color: white; margin-left: 5px; margin-right: 5px;">New</span>
+      </router-link>
+      <router-link class="navbar-item" to="/new-session">
+        <span style="color: white; margin-left: 5px; margin-right: 5px;" @click="loadFromFile">Load</span>
       </router-link>
     </div>
   </nav>
 </template>
 
 <script>
+const remote = require('electron').remote
+const dialog = remote.dialog
+
 export default {
-  name: 'TopNavbar'
+  name: 'TopNavbar',
+  methods: {
+    loadFromFile () {
+      dialog.showOpenDialog({ properties: ['openFile'] }, (filename) => {
+        let jsonFile = filename.toString()
+        this.$store.dispatch('loadFromJSON', jsonFile)
+        this.$router.push('review')
+      })
+    }
+  }
 }
 </script>
