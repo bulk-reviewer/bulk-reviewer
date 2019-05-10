@@ -973,12 +973,15 @@ def export_files(json_path, dest_path, args):
         for f in files_without_pii:
             # Build path for destination file
             file_dest = os.path.join(dest_path, f)
-            # Create intermediate dirs if necessary
-            os.makedirs(os.path.dirname(file_dest), exist_ok=True)
             # Get file information
             filtered_files = [x for x in files if x['filepath'] == f]
             file_info = filtered_files[0]
-            # TODO: CHECK IF FILE IS ALLOCATED
+            # Skip unallocated files unless args.unallocated is True
+            if args.unallocated is not True:
+                if file_info['allocated'] is False:
+                    continue
+            # Create intermediate dirs if necessary
+            os.makedirs(os.path.dirname(file_dest), exist_ok=True)
             # Carve file from disk image
             carve_success = carve_file(f,
                                        int(file_info['fs_offset']),
@@ -1002,9 +1005,12 @@ def export_files(json_path, dest_path, args):
         # ID to filename to prevent filepath collisions
         file_basename = str(file_info['id']) + '_' + os.path.basename(f)
         file_dest = os.path.join(dest_path, file_basename)
+        # Skip unallocated files unless args.unallocated is True
+        if args.unallocated is not True:
+            if file_info['allocated'] is False:
+                continue
         # Create intermediate dirs if necessary
         os.makedirs(os.path.dirname(file_dest), exist_ok=True)
-        # TODO: CHECK IF FILE IS ALLOCATED
         # Carve file from disk image
         carve_success = carve_file(f,
                                    int(file_info['fs_offset']),
@@ -1074,6 +1080,10 @@ def _make_parser():
                         action="store_true")
     parser.add_argument("--pii",
                         help="Export files with PII. \
+                            Used in tandem with --export flag",
+                        action="store_true")
+    parser.add_argument("--unallocated",
+                        help="Export unallocated files. \
                             Used in tandem with --export flag",
                         action="store_true")
     parser.add_argument("source",
