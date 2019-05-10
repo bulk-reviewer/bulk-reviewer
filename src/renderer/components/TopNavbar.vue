@@ -7,9 +7,9 @@
       <router-link class="navbar-item" to="/new-session">
         <span style="color: white; margin-left: 5px; margin-right: 5px;">New</span>
       </router-link>
-      <router-link class="navbar-item" to="/new-session">
+      <div class="navbar-item">
         <span style="color: white; margin-left: 5px; margin-right: 5px;" @click="loadFromFile">Load</span>
-      </router-link>
+      </div>
     </div>
   </nav>
 </template>
