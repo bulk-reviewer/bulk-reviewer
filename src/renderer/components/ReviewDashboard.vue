@@ -24,17 +24,25 @@
 
     <div class="container-fluid">
       
-      <!-- Checkbox for disk image file exports -->
-      <b-checkbox
-        style="margin-top: 15px;"
-        size="is-small"
-        type="is-info"
-        v-model="exportUnallocatedFiles"
-        v-show="brSession.disk_image === true">
-        Include unallocated files in file exports
-      </b-checkbox>
-      
-      <br>
+      <!-- Checkbox for disk image export options -->
+      <div style="margin-bottom: 15px;"
+        <b-checkbox
+          style="margin-top: 15px;"
+          size="is-small"
+          type="is-info"
+          v-model="restoreDates"
+          v-show="brSession.disk_image === true">
+          Restore modified dates for exported files
+        </b-checkbox>
+        <br>
+        <b-checkbox
+          size="is-small"
+          type="is-info"
+          v-model="exportUnallocatedFiles"
+          v-show="brSession.disk_image === true">
+          Include unallocated files in file exports
+        </b-checkbox>
+      </div>
 
       <!-- Actions -->
       <b-dropdown aria-role="list" style="margin-bottom: 15px;">
@@ -190,7 +198,8 @@ export default {
       currentPage: 1,
       perPage: 5,
       showFileSelector: false,
-      exportUnallocatedFiles: false
+      exportUnallocatedFiles: false,
+      restoreDates: false
     }
   },
   methods: {
@@ -329,6 +338,9 @@ export default {
         }
         if (this.exportUnallocatedFiles === true) {
           scriptParameters.splice(1, 0, '--unallocated')
+        }
+        if (this.restoreDates === true) {
+          scriptParameters.splice(1, 0, '--restore_dates')
         }
         if (this.brSession.disk_image === true) {
           scriptParameters.splice(1, 0, '-d')

@@ -873,8 +873,8 @@ def restore_modified_date(file_dest, date_modified, date_created):
                         file_dest, e)
 
 
-def write_export_readme(dest_path, session_dict,
-                        export_type, files_with_pii):
+def write_export_readme(dest_path, session_dict, export_type,
+                        files_with_pii, args):
     """
     Write README file in output directory for file export.
     Include metadata about the session and export.
@@ -901,6 +901,12 @@ filepaths and corresponding features using the Bulk Reviewer CSV export.
             f.write('\nDate: {}'.format(time_of_export))
             f.write('\nSource: {}'.format(session_dict['source_path']))
             f.write('\nSource type: {}'.format(source_type))
+            # Include disk image file export options
+            if source_type == 'Disk image':
+                dates = str(args.restore_dates)
+                unalloc = str(args.unallocated)
+                f.write('\nModified dates restored: {}'.format(dates))
+                f.write('\nUnallocated files included: {}'.format(unalloc))
 
             # For cleared export, write list of excluded files
             if export_type == 'Cleared files (no PII)':
@@ -971,7 +977,7 @@ def export_files(json_path, dest_path, args):
                     return False
             write_export_readme(dest_path, session_dict,
                                 'Cleared files (no PII)',
-                                files_with_pii)
+                                files_with_pii, args)
             logging.info('Files without PII copied to %s', dest_path)
             return True
 
@@ -993,7 +999,7 @@ def export_files(json_path, dest_path, args):
                 logging.error('Error copying file %s: %s', file_src, e)
                 return False
         write_export_readme(dest_path, session_dict, 'Private files',
-                            files_with_pii)
+                            files_with_pii, args)
         logging.info('Files with PII copied to %s', dest_path)
         return True
 
@@ -1026,7 +1032,7 @@ def export_files(json_path, dest_path, args):
                 restore_modified_date(file_dest, file_info['date_modified'],
                                       file_info['date_created'])
         write_export_readme(dest_path, session_dict, 'Cleared files (no PII)',
-                            files_with_pii)
+                            files_with_pii, args)
         logging.info('Files without PII copied to %s', dest_path)
         return True
 
@@ -1058,7 +1064,7 @@ def export_files(json_path, dest_path, args):
             restore_modified_date(file_dest, file_info['date_modified'],
                                   file_info['date_created'])
     write_export_readme(dest_path, session_dict, 'Private files',
-                        files_with_pii)
+                        files_with_pii, args)
     logging.info('Files with PII copied to %s', dest_path)
     return True
 
