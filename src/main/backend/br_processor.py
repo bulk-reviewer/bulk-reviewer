@@ -842,7 +842,8 @@ def carve_file(filepath, fs_offset, disk_image, inode, file_dest):
         return False
 
 
-def write_export_readme(dest_path, session_dict, export_type):
+def write_export_readme(dest_path, session_dict,
+                        export_type, files_with_pii):
     """
     Write README file in output directory for file export.
     Include metadata about the session and export.
@@ -869,6 +870,12 @@ filepaths and corresponding features using the Bulk Reviewer CSV export.
             f.write('\nDate: {}'.format(time_of_export))
             f.write('\nSource: {}'.format(session_dict['source_path']))
             f.write('\nSource type: {}'.format(source_type))
+
+            # For cleared export, write list of excluded files
+            if export_type == 'Cleared files (no PII)':
+                f.write("\n\nFiles excluded from export for containing PII:")
+                for pii_file in files_with_pii:
+                    f.write("\n{}".format(pii_file))
 
             # For private export, write description of file IDs
             if export_type == 'Private files':
@@ -932,7 +939,8 @@ def export_files(json_path, dest_path, args):
                     logging.error('Error copying file %s: %s', file_src, e)
                     return False
             write_export_readme(dest_path, session_dict,
-                                'Cleared files (no PII)')
+                                'Cleared files (no PII)',
+                                files_with_pii)
             logging.info('Files without PII copied to %s', dest_path)
             return True
 
@@ -953,7 +961,8 @@ def export_files(json_path, dest_path, args):
             except OSError as e:
                 logging.error('Error copying file %s: %s', file_src, e)
                 return False
-        write_export_readme(dest_path, session_dict, 'Private files')
+        write_export_readme(dest_path, session_dict, 'Private files',
+                            files_with_pii)
         logging.info('Files with PII copied to %s', dest_path)
         return True
 
@@ -979,7 +988,8 @@ def export_files(json_path, dest_path, args):
             if carve_success is False:
                 return False
             # TODO: RESTORE FS DATES FROM VALUES RECORDED IN DFXML
-        write_export_readme(dest_path, session_dict, 'Cleared files (no PII)')
+        write_export_readme(dest_path, session_dict, 'Cleared files (no PII)',
+                            files_with_pii)
         logging.info('Files without PII copied to %s', dest_path)
         return True
 
@@ -1004,7 +1014,8 @@ def export_files(json_path, dest_path, args):
         if carve_success is False:
             return False
         # TODO: RESTORE FS DATES FROM VALUES RECORDED IN DFXML
-    write_export_readme(dest_path, session_dict, 'Private files')
+    write_export_readme(dest_path, session_dict, 'Private files',
+                        files_with_pii)
     logging.info('Files with PII copied to %s', dest_path)
     return True
 
