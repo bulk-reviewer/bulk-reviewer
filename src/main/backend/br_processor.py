@@ -842,6 +842,37 @@ def carve_file(filepath, fs_offset, disk_image, inode, file_dest):
         return False
 
 
+def time_to_int(str_time):
+    """
+    Convert datetime in format YYYY-MM-DDTHH:MM:SS
+    to integer representing Unix time.
+    """
+    dt = time.mktime(datetime.strptime(str_time,
+                     "%Y-%m-%dT%H:%M:%S").timetuple())
+    return dt
+
+
+def restore_modified_date(file_dest, date_modified, date_created):
+    """
+    Rewrite last modified date of file. Use modified date if
+    available, otherwise use created date.
+    """
+    if len(date_modified) > 0:
+        int_time = time_to_int(date_modified[:19])
+    elif len(date_created) > 0:
+        int_time = time_to_int(date_created[:19])
+    else:
+        logging.warning("No date to restore from recorded for file %s",
+                        file_dest)
+        return
+
+    try:
+        os.utime(file_dest, (int_time, int_time))
+    except OSError as e:
+        logging.warning("Error modifying modified date for %s. Error: %s",
+                        file_dest, e)
+
+
 def write_export_readme(dest_path, session_dict,
                         export_type, files_with_pii):
     """
@@ -990,7 +1021,10 @@ def export_files(json_path, dest_path, args):
                                        file_dest)
             if carve_success is False:
                 return False
-            # TODO: RESTORE FS DATES FROM VALUES RECORDED IN DFXML
+            # Set modified date to modified or created value from DFXML
+            if args.restore_dates:
+                restore_modified_date(file_dest, file_info['date_modified'],
+                                      file_info['date_created'])
         write_export_readme(dest_path, session_dict, 'Cleared files (no PII)',
                             files_with_pii)
         logging.info('Files without PII copied to %s', dest_path)
@@ -1019,7 +1053,10 @@ def export_files(json_path, dest_path, args):
                                    file_dest)
         if carve_success is False:
             return False
-        # TODO: RESTORE FS DATES FROM VALUES RECORDED IN DFXML
+        # Set modified date to modified or created value from DFXML
+        if args.restore_dates:
+            restore_modified_date(file_dest, file_info['date_modified'],
+                                  file_info['date_created'])
     write_export_readme(dest_path, session_dict, 'Private files',
                         files_with_pii)
     logging.info('Files with PII copied to %s', dest_path)
@@ -1080,6 +1117,10 @@ def _make_parser():
                         action="store_true")
     parser.add_argument("--pii",
                         help="Export files with PII. \
+                            Used in tandem with --export flag",
+                        action="store_true")
+    parser.add_argument("--restore_dates",
+                        help="Restore modified dates for exported files to values in DFXML. \
                             Used in tandem with --export flag",
                         action="store_true")
     parser.add_argument("--unallocated",
