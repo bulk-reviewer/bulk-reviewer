@@ -20,14 +20,22 @@
           </b-tooltip>
         </span>
       </h2>
-      <!-- <p>Files: {{ fileCount }}</p>
-      <p>Features: {{ featureCount }}</p> -->
+
+      <!-- Checkbox for disk image file exports -->
+      <b-checkbox
+        size="is-small"
+        type="is-info"
+        v-model="exportUnallocatedFiles"
+        v-show="brSession.disk_image === true">
+        Include unallocated files in file exports
+      </b-checkbox>
+      <br>
 
       <!-- Actions -->
       <b-dropdown aria-role="list">
         <button class="button is-light" slot="trigger">
-            <span>Actions</span>
-            <b-icon icon="caret-down"></b-icon>
+          <span>Actions</span>
+          <b-icon icon="caret-down"></b-icon>
         </button>
 
         <b-dropdown-item
@@ -55,7 +63,7 @@
         </b-dropdown-item>
       </b-dropdown>
     </div>
-      
+
     <!-- File selector -->
     <button
       v-if="showFileSelector"
@@ -176,7 +184,8 @@ export default {
       isPaginated: true,
       currentPage: 1,
       perPage: 5,
-      showFileSelector: false
+      showFileSelector: false,
+      exportUnallocatedFiles: false
     }
   },
   methods: {
@@ -312,6 +321,9 @@ export default {
         ]
         if (piiBoolean === true) {
           scriptParameters.splice(1, 0, '--pii')
+        }
+        if (this.exportUnallocatedFiles === true) {
+          scriptParameters.splice(1, 0, '--unallocated')
         }
         if (this.brSession.disk_image === true) {
           scriptParameters.splice(1, 0, '-d')
