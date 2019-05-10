@@ -1,7 +1,7 @@
 <template>
   <section class="padded">
     <!-- Header -->
-    <div class="container-fluid" style="padding-bottom: 15px;">
+    <div class="container-fluid">
       <h1 class="title is-4">Session: {{ brSession.name }}</h1>
       <h2 class="subtitle is-6">
         Source: {{ brSession.source_path }}
@@ -20,19 +20,24 @@
           </b-tooltip>
         </span>
       </h2>
+    </div>
 
+    <div class="container-fluid">
+      
       <!-- Checkbox for disk image file exports -->
       <b-checkbox
+        style="margin-top: 15px;"
         size="is-small"
         type="is-info"
         v-model="exportUnallocatedFiles"
         v-show="brSession.disk_image === true">
         Include unallocated files in file exports
       </b-checkbox>
+      
       <br>
 
       <!-- Actions -->
-      <b-dropdown aria-role="list">
+      <b-dropdown aria-role="list" style="margin-bottom: 15px;">
         <button class="button is-light" slot="trigger">
           <span>Actions</span>
           <b-icon icon="caret-down"></b-icon>
