@@ -45,51 +45,56 @@
       </div>
 
       <!-- Actions -->
-      <b-dropdown aria-role="list" style="margin-bottom: 15px;">
-        <button class="button is-light" slot="trigger">
-          <span>Actions</span>
-          <b-icon icon="caret-down"></b-icon>
+      <div class="container-fluid"
+        <b-dropdown aria-role="list" style="margin-bottom: 15px;">
+          <button class="button is-light" slot="trigger">
+            <span>Actions</span>
+            <b-icon icon="caret-down"></b-icon>
+          </button>
+
+          <b-dropdown-item
+            aria-role="listitem"
+            @click="openSaveFileDialog">
+            Save
+          </b-dropdown-item>
+
+          <b-dropdown-item
+            aria-role="listitem"
+            @click="exportFiles(false)">
+            Export cleared files (no PII)
+          </b-dropdown-item>
+
+          <b-dropdown-item
+            aria-role="listitem"
+            @click="exportFiles(true)">
+            Export private files
+          </b-dropdown-item>
+
+          <b-dropdown-item
+            aria-role="listitem"
+            @click="downloadCSVFeaturesReport">
+            Download CSV report
+          </b-dropdown-item>
+        </b-dropdown>
+      </div>
+
+      <!-- File selector -->
+      <div>
+        <button
+          v-if="showFileSelector"
+          class="button"
+          @click="toggleFileSelector">
+          - Hide file selector
         </button>
-
-        <b-dropdown-item
-          aria-role="listitem"
-          @click="openSaveFileDialog">
-          Save
-        </b-dropdown-item>
-
-        <b-dropdown-item
-          aria-role="listitem"
-          @click="exportFiles(false)">
-          Export cleared files (no PII)
-        </b-dropdown-item>
-
-        <b-dropdown-item
-          aria-role="listitem"
-          @click="exportFiles(true)">
-          Export private files
-        </b-dropdown-item>
-
-        <b-dropdown-item
-          aria-role="listitem"
-          @click="downloadCSVFeaturesReport">
-          Download CSV report
-        </b-dropdown-item>
-      </b-dropdown>
+        <button
+          v-else
+          class="button is-primary"
+          @click="toggleFileSelector">
+          + Show file selector
+        </button>
+      </div>
+      
     </div>
-
-    <!-- File selector -->
-    <button
-      v-if="showFileSelector"
-      class="button"
-      @click="toggleFileSelector">
-      - Hide file selector
-    </button>
-    <button
-      v-else
-      class="button is-primary"
-      @click="toggleFileSelector">
-      + Show file selector
-    </button>
     
     <div 
       class="container-fluid"
