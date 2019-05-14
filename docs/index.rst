@@ -41,10 +41,3 @@ Scanners planned but not yet implemented include:
 * Additional lexicons (like those developed by the ePADD project team)
 
 The application is designed to aid archivists and librarians in processing and providing access to digital collections but may be useful in other domains as well. Bulk Reviewer has been made possible in part by the generous support of a `Harvard Library Innovation Lab <https://lil.law.harvard.edu/>`_ summer fellowship and a `Concordia University Library <https://library.concordia.ca>`_ Research Grant.
-
-------------------
-Indices and tables
-------------------
-
-* :ref:`genindex`
-* :ref:`search`
