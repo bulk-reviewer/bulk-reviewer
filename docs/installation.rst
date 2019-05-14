@@ -15,11 +15,11 @@ These dependencies should already be installed in the `BitCurator Environment <h
 Installation in BitCurator
 --------------------------
 
-1. Download the `BulkReviewer-x.x.x-x86_64.AppImage` `AppImage <https://appimage.org/>`_ from the `latest Bulk Reviewer release <https://github.com/bulk-reviewer/bulk-reviewer/releases/>`_.
+1. Download the ``BulkReviewer-x.x.x-x86_64.AppImage`` `AppImage <https://appimage.org/>`_ from the `latest Bulk Reviewer release <https://github.com/bulk-reviewer/bulk-reviewer/releases/>`_.
 
 2. Move the AppImage to the "Forensics and Reporting" folder on the BitCurator desktop.
 
-3. Make the Bulk Reviewer AppImage executable (with `chmod a+x FILE` in terminal or by right-clicking the AppImage, selecting Properties, and then selecting "Allow executing file as program" under the Permissions tab).
+3. Make the Bulk Reviewer AppImage executable (with ``chmod a+x FILE`` in terminal or by right-clicking the AppImage, selecting Properties, and then selecting "Allow executing file as program" under the Permissions tab).
 
 4. Double-click the AppImage. A prompt will ask if you want to integrate Bulk Reviewer with your system. Choose "Yes" to install Bulk Reviewer.
 
@@ -30,13 +30,13 @@ Installation in Ubuntu 18.04
 
 1. Install dependencies in a terminal:
 
-``` bash
-wget "https://github.com/bulk-reviewer/bulk-reviewer/blob/master/install_ubuntu18.sh"
-chmod a+x install_ubuntu18.sh
-sudo ./install_ubuntu18.sh
-```
+.. code-block::
 
-2. Download the `BulkReviewer-x.x.x-x86_64.AppImage` `AppImage <https://appimage.org/>`_ from the `latest Bulk Reviewer release <https://github.com/bulk-reviewer/bulk-reviewer/releases/>`_.
+    wget "https://github.com/bulk-reviewer/bulk-reviewer/blob/master/install_ubuntu18.sh"
+    chmod a+x install_ubuntu18.sh
+    sudo ./install_ubuntu18.sh
+
+2. Download the ``BulkReviewer-x.x.x-x86_64.AppImage`` `AppImage <https://appimage.org/>`_ from the `latest Bulk Reviewer release <https://github.com/bulk-reviewer/bulk-reviewer/releases/>`_.
 
 3. Move the AppImage to your home directory or desktop and make the file executable.
 
@@ -49,15 +49,15 @@ Installation in macOS
 
 1. Make sure you have `Homebrew <https://brew.sh/>`_ and `XCode <https://developer.apple.com/xcode/>`_ installed.
 
-2. Download the `install_mac.sh` script from the Bulk Reviewer Github repository.
+2. Download the ``install_mac.sh`` script from the Bulk Reviewer Github repository.
 
 3. In a terminal, change directory to where you saved the `install_mac.sh` script and install dependencies:
 
-``` bash
-brew install libewf afflib sleuthkit
-chmod a+x install_mac.sh
-./install_mac.sh
-```
+.. code-block::
+
+    brew install libewf afflib sleuthkit
+    chmod a+x install_mac.sh
+    ./install_mac.sh
 
 4. Download the `BulkReviewer-x.x.x.dmg` from the `latest Bulk Reviewer release <https://github.com/bulk-reviewer/bulk-reviewer/releases/>`_.
 
