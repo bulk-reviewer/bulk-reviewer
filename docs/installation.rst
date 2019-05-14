@@ -30,7 +30,7 @@ Installation in Ubuntu 18.04
 
 1. Install dependencies in a terminal:
 
-.. code-block::
+.. code-block:: none
 
     wget "https://github.com/bulk-reviewer/bulk-reviewer/blob/master/install_ubuntu18.sh"
     chmod a+x install_ubuntu18.sh
@@ -53,7 +53,7 @@ Installation in macOS
 
 3. In a terminal, change directory to where you saved the `install_mac.sh` script and install dependencies:
 
-.. code-block::
+.. code-block:: none
 
     brew install libewf afflib sleuthkit
     chmod a+x install_mac.sh
