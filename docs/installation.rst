@@ -19,7 +19,7 @@ Installation in BitCurator
 
 2. Move the AppImage to the "Forensics and Reporting" folder on the BitCurator desktop.
 
-3. Make the Bulk Reviewer AppImage executable (with ``chmod a+x FILE`` in terminal or by right-clicking the AppImage, selecting Properties, and then selecting "Allow executing file as program" under the Permissions tab).
+3. Make the Bulk Reviewer AppImage executable (right-click on the AppImage file, select Properties, and then select "Allow executing file as program" under the Permissions tab; or change the file permissions with ``chmod u+x`` in a terminal).
 
 4. Double-click the AppImage. A prompt will ask if you want to integrate Bulk Reviewer with your system. Choose "Yes" to install Bulk Reviewer.
 
@@ -38,7 +38,7 @@ Installation in Ubuntu 18.04
 
 2. Download the ``BulkReviewer-x.x.x-x86_64.AppImage`` `AppImage <https://appimage.org/>`_ from the `latest Bulk Reviewer release <https://github.com/bulk-reviewer/bulk-reviewer/releases/>`_.
 
-3. Move the AppImage to your home directory or desktop and make the file executable.
+3. Move the AppImage to your home directory or desktop and make the file executable (right-click on the AppImage file, select Properties, and then select "Allow executing file as program" under the Permissions tab; or change the file permissions with ``chmod u+x`` in a terminal).
 
 4. Double-click the AppImage. A prompt will ask if you want to integrate Bulk Reviewer with your system. Choose "Yes" to install Bulk Reviewer.
 
