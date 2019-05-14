@@ -1,21 +1,21 @@
 Installation
-==========================
+=============
 
 Dependencies
 ------------
 Bulk Reviewer requires that the following programs are installed on the same computer and that their command line interfaces are available on the system path:
 
-* `bulk_extractor <https://github.com/simsong/bulk_extractor/>_` Bulk Reviewer is compatible with bulk_extractor 1.5.5+. Scanning for Canadian Social Insurance Numbers (SINs) requires bulk_extractor version 1.6.0-dev, built from commit `f4ac85d <https://github.com/simsong/bulk_extractor/commit/f4ac85d84c5d5d5aee868234acee527695727344/>`_ or later.
+* `bulk_extractor <https://github.com/simsong/bulk_extractor/>`_ Bulk Reviewer is compatible with bulk_extractor 1.5.5+. Scanning for Canadian Social Insurance Numbers (SINs) requires bulk_extractor version 1.6.0-dev, built from commit `f4ac85d <https://github.com/simsong/bulk_extractor/commit/f4ac85d84c5d5d5aee868234acee527695727344/>`_ or later.
 * `The Sleuth Kit (TSK) <https://github.com/sleuthkit/sleuthkit/>_`
 
-For Bulk Reviewer to be able to handle Encase/E01 disk images, bulk_extractor and The Sleuth Kit must be built with `libewf <https://github.com/libyal/libewf/>_`.
+For Bulk Reviewer to be able to handle Encase/E01 disk images, bulk_extractor and The Sleuth Kit must be built with `libewf <https://github.com/libyal/libewf/>`_.
 
-These dependencies should already be installed in the `BitCurator Environment <https://confluence.educopia.org/display/BC/BitCurator+Environment/>_` (unless you need to scan for Canadian SINs, in which case bulk_extractor will need to be rebuilt from source).
+These dependencies should already be installed in the `BitCurator Environment <https://confluence.educopia.org/display/BC/BitCurator+Environment/>`_ (unless you need to scan for Canadian SINs, in which case bulk_extractor will need to be rebuilt from source).
 
 Installation in BitCurator
 --------------------------
 
-1. Download the `BulkReviewer-x.x.x-x86_64.AppImage` `AppImage <https://appimage.org/>_` from the `latest Bulk Reviewer release <https://github.com/bulk-reviewer/bulk-reviewer/releases/>_`.
+1. Download the `BulkReviewer-x.x.x-x86_64.AppImage` `AppImage <https://appimage.org/>`_ from the `latest Bulk Reviewer release <https://github.com/bulk-reviewer/bulk-reviewer/releases/>`_.
 
 2. Move the AppImage to the "Forensics and Reporting" folder on the BitCurator desktop.
 
@@ -36,7 +36,7 @@ chmod a+x install_ubuntu18.sh
 sudo ./install_ubuntu18.sh
 ```
 
-2. Download the `BulkReviewer-x.x.x-x86_64.AppImage` `AppImage <https://appimage.org/>_` from the `latest Bulk Reviewer release <https://github.com/bulk-reviewer/bulk-reviewer/releases/>_`.
+2. Download the `BulkReviewer-x.x.x-x86_64.AppImage` `AppImage <https://appimage.org/>`_ from the `latest Bulk Reviewer release <https://github.com/bulk-reviewer/bulk-reviewer/releases/>`_.
 
 3. Move the AppImage to your home directory or desktop and make the file executable.
 
@@ -47,7 +47,7 @@ From this point forward, Bulk Reviewer can be launched by selecting it from the 
 Installation in macOS
 ---------------------
 
-1. Make sure you have `Homebrew <https://brew.sh/>_` and `XCode <https://developer.apple.com/xcode/>_` installed.
+1. Make sure you have `Homebrew <https://brew.sh/>`_ and `XCode <https://developer.apple.com/xcode/>`_ installed.
 
 2. Download the `install_mac.sh` script from the Bulk Reviewer Github repository.
 
@@ -59,6 +59,6 @@ chmod a+x install_mac.sh
 ./install_mac.sh
 ```
 
-4. Download the `BulkReviewer-x.x.x.dmg` from the `latest Bulk Reviewer release <https://github.com/bulk-reviewer/bulk-reviewer/releases/>_`.
+4. Download the `BulkReviewer-x.x.x.dmg` from the `latest Bulk Reviewer release <https://github.com/bulk-reviewer/bulk-reviewer/releases/>`_.
 
 5. Double-click the dmg to open the Bulk Reviewer installer. Drag the Bulk Reviewer icon to the Applications folder to install.

@@ -10,7 +10,7 @@ Welcome to Bulk Reviewer's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-Bulk Reviewer is an Electron desktop application that aids in identification, review, and removal of sensitive files in directories and disk images. Bulk Reviewer scans directories and disk images for personally identifiable information (PII) and other sensitive information using bulk_extractor, a best-in-class digital forensics tool. The desktop application enables users to configure, start, and review scans; generate CSV reports of features found; and export sets of files (either those free of sensitive information, or those with PII that should be restricted or run though redaction software).
+Bulk Reviewer is an Electron desktop application that aids in identification, review, and removal of sensitive files in directories and disk images. Bulk Reviewer scans directories and disk images for personally identifiable information (PII) and other sensitive information using `bulk_extractor <https://github.com/simsong/bulk_extractor>`_, a best-in-class digital forensics tool. The desktop application enables users to configure, start, and review scans; generate CSV reports of features found; and export sets of files (either those free of sensitive information, or those with PII that should be restricted or run though redaction software).
 
 Currently, Bulk Reviewer can scan directories and disk images for:
 
@@ -34,7 +34,7 @@ Scanners planned but not yet implemented include:
 * Facebook and Outlook data
 * Additional lexicons (like those developed by the ePADD project team)
 
-The application is designed to aid archivists and librarians in processing and providing access to digital collections but may be useful in other domains as well. Bulk Reviewer has been made possible in part by the generous support of a Harvard Library Innovation Lab summer fellowship and a Concordia University Library Research Grant.
+The application is designed to aid archivists and librarians in processing and providing access to digital collections but may be useful in other domains as well. Bulk Reviewer has been made possible in part by the generous support of a `Harvard Library Innovation Lab <https://lil.law.harvard.edu/>`_ summer fellowship and a `Concordia University Library <https://library.concordia.ca>`_ Research Grant.
 
 ------------------
 Indices and tables
