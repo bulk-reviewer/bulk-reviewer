@@ -16,3 +16,4 @@ src/main/backend_dist/
 src/main/br_processor.spec
 src/main/build/
 env/
+docs/_build/
