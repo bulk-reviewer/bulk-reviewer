@@ -20,13 +20,13 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Bulk Reviewer'
-copyright = '2018 Tim Walsh'
+copyright = '2019 Tim Walsh'
 author = 'Tim Walsh'
 
 # The short X.Y version
-version = ''
+version = '0.1'
 # The full version, including alpha/beta/rc tags
-release = ''
+release = '0.1.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -82,7 +82,7 @@ html_theme = 'alabaster'
 #
 html_theme_options = {
     'logo': 'full-logo.png',
-    'github_user': 'timothyryanwalsh',
+    'github_user': 'bulk-reviewer',
     'github_repo': 'bulk-reviewer'
 }
 
