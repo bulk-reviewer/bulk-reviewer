@@ -9,31 +9,31 @@ Bulk Reviewer's Review Dashboard is the primary screen for reviewing potentially
 
 The Review Dashboard will be loaded automatically upon completion of processing for new scans. It can also be accessed by loading an existing Bulk Reviewer JSON file by using the "Load from JSON file" button from the home screen or by selecting "Load" from the top navigational menu. This functionality can be used to load previously saved sessions, which enables persisting notes and dismissed features between sessions.
 
-Using the File Selector
+Using the file selector
 -----------------------
-Features displayed in the Feature Table can be filtered by their source file using the File Selector. To display the File Selector, click the "+ Show File Selector" button. 
+Features displayed in the Feature Table can be filtered by their source file using the file selector. To display the file selector, click the "+ Show file selector" button. 
 
 .. image:: images/FileSelectorButton.png
   :width: 150
-  :alt: Image of Show File Selector button
+  :alt: Image of Show file selector button
 
-The File Selector displays the relative filepath, a last modified or last created timestamp, and the number of features for each file associated with features found by Bulk Reviewer during processing. This table can be sorted on any of the columns.
+The file selector displays the relative filepath, a last modified or last created timestamp, and the number of features for each file associated with features found by Bulk Reviewer during processing. This table can be sorted on any of the columns.
 
 .. image:: images/FileSelector.png
   :width: 600
-  :alt: Image of Bulk Reviewer File Selector
+  :alt: Image of Bulk Reviewer file selector
 
-Selecting a file from the File Selector filters the feature table below to include only the features found within that particular file. For directory sources, an "Open" button will also appear which will attempt to open the file using your computer's default application for that filetype to enable closer review. File selection can be cleared using the "X Clear selected" button in the File Selector or the "x Return to all files" button in the Feature Table.
+Selecting a file from the file selector filters the feature table below to include only the features found within that particular file. For directory sources, an "Open" button will also appear which will attempt to open the file using your computer's default application for that filetype to enable closer review. File selection can be cleared using the "X Clear selected" button in the file selector or the "x Return to all files" button in the Feature Table.
 
 .. image:: images/FileSelected.png
   :width: 600
   :alt: Image of Bulk Reviewer Review Dashboard with file selected
 
-Each row in the File Selector additionally includes a "Verify" or "Unverify" button, which can be used to toggle the Verified status for a file. When a file is Verified, a green checkmark will appear next to the file name. This is intended to be used only in keeping track of which files have already been reviewed and does not have an impact on other functionality such as file exports.
+Each row in the file selector additionally includes a "Verify" or "Unverify" button, which can be used to toggle the Verified status for a file. When a file is Verified, a green checkmark will appear next to the file name. This is intended to be used only in keeping track of which files have already been reviewed and does not have an impact on other functionality such as file exports.
 
 Displaying feature details
 ---------------------------
-By default, the feature table displays all features found in the source directory or disk image. The feature table can be filtered using the File Selector or by using the Feature type dropdown menu to filter by type, and can be sorted on any of the columns.
+By default, the feature table displays all features found in the source directory or disk image. The feature table can be filtered using the file selector or by using the Feature type dropdown menu to filter by type, and can be sorted on any of the columns.
 
 .. image:: images/FeatureTypeFilter.png
   :width: 300
