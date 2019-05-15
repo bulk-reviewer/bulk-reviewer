@@ -58,7 +58,7 @@ Clicking on a feature row or toggling the "Show details" switch on will display 
 
 Dismissing features
 -------------------
-The Dismissed status is a key piece of information for each feature. Marking a feature dismissed is equivalent to saying to Bulk Reviewer "ignore this feature moving forward". Dismissed features are not counted when determining whether a file qualifies as Cleared or Private for file exports.
+The Dismissed status is a key piece of information for each feature. Marking a feature dismissed is equivalent to saying to Bulk Reviewer "ignore this feature moving forward". Dismissed features are not counted when determining whether a file qualifies as Private (i.e. containing PII) for file exports.
 
 The "x Dismiss all" and "Undo all" buttons can be used to dismiss or un-dismiss all features currently displayed in the feature table. This can be used to selectively dismiss entire categories of features. For example, to quickly dismiss all phone numbers found by Bulk Reviewer, first select "Phone number" from the Feature type dropdown filter and then click the "x Dismiss all" button. This will change the status of all features of the "Phone number" type to dismissed without affecting features of other types.
 
