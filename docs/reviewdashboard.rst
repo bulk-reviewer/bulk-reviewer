@@ -3,6 +3,10 @@ Using the Review Dashboard
 
 Bulk Reviewer's Review Dashboard is the primary screen for reviewing potentially sensitive information found in a source directory or disk image, dismissing false positives, adding notes, and generating reports and file exports.
 
+.. image:: images/ReviewDashboard.png
+  :width: 600
+  :alt: Image of Bulk Reviewer Review Dashboard
+
 The Review Dashboard will be loaded automatically upon completion of processing for new scans. It can also be accessed by loading an existing Bulk Reviewer JSON file by using the "Load from JSON file" button from the home screen or by selecting "Load" from the top navigational menu. This functionality can be used to load previously saved sessions, which enables persisting notes and dismissed features between sessions.
 
 Using the File Selector
