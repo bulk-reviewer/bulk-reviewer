@@ -32,5 +32,5 @@ Outputs
 
 In addition to the ``bulk-reviewer.log`` file, Bulk Reviewer writes two outputs to the ``bulk-reviewer`` home directory for each scan:
 
-* A ``[name].json`` file including contextual metadata about the scan, detailed information on all files in the direcotry or disk image, and detailed information for each feature found (including its source file).
+* A ``[name].json`` file including contextual metadata about the scan, detailed information for each file in the directory or disk image, and detailed information for each feature found (including its source file).
 * A ``[name]_reports`` directory containing bulk_extractor output files. For disk images, this directory will additionally contain annotated bulk_extractor feature files and a `fiwalk <https://forensicswiki.org/wiki/Fiwalk>`_-generated `DFXML <https://forensicswiki.org/wiki/Category:Digital_Forensics_XML>`_ representation of the source disk image.
