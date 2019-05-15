@@ -3,6 +3,10 @@ Scanning a new directory or disk image
 
 To scan a new directory or disk image for sensitive information, first click on the "Scan new directory or disk image" button from the home screen or select "New" from the top navigational menu.
 
+.. image:: images/NewSession.png
+  :width: 600
+  :alt: Image of Bulk Reviewer New session form
+
 Processing options
 ------------------
 
