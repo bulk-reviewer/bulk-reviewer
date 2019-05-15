@@ -7,7 +7,6 @@ Bulk Reviewer documentation
 ===========================
 
 .. toctree::
-    :caption: Table of Contents
     :maxdepth: 2
 
     overview
