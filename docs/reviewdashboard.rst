@@ -14,7 +14,7 @@ Using the File Selector
 Features displayed in the Feature Table can be filtered by their source file using the File Selector. To display the File Selector, click the "+ Show File Selector" button. 
 
 .. image:: images/FileSelectorButton.png
-  :width: 200
+  :width: 150
   :alt: Image of Show File Selector button
 
 The File Selector displays the relative filepath, a last modified or last created timestamp, and the number of features for each file associated with features found by Bulk Reviewer during processing. This table can be sorted on any of the columns.
@@ -36,7 +36,7 @@ Displaying feature details
 By default, the feature table displays all features found in the source directory or disk image. The feature table can be filtered using the File Selector or by using the Feature type dropdown menu to filter by type, and can be sorted on any of the columns.
 
 .. image:: images/FeatureTypeFilter.png
-  :width: 250
+  :width: 300
   :alt: Image of the feature type dropdown filter
 
 Each row in the feature table displays by default the following:
