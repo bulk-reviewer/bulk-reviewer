@@ -32,7 +32,7 @@ Displaying feature details
 By default, the feature table displays all features found in the source directory or disk image. The feature table can be filtered using the File Selector or by using the Feature type dropdown menu to filter by type, and can be sorted on any of the columns.
 
 .. image:: images/FeatureTypeFilter.png
-  :width: 600
+  :width: 250
   :alt: Image of the feature type dropdown filter
 
 Each row in the feature table displays by default the following:
@@ -77,7 +77,7 @@ Bulk Reviewer supports two types of file exports: Cleared and Private.
 For disk image sources, two checkboxes located directory above the Actions dropdown menu enable users to indicate whether exported files should have their last modified dates restored from values recorded in the DFXML for the disk image and whether to include unallocated files (e.g. deleted files) in exports. These options apply to both Cleared and Private exports.
 
 .. image:: images/ActionsDiskImage.png
-  :width: 200
+  :width: 250
   :alt: Image of Actions dropdown with disk image options
 
 Downloading CSV reports
