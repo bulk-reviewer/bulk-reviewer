@@ -90,7 +90,7 @@ Bulk Reviewer supports two types of file exports: Cleared and Private.
 
 **Private files** are files associated with at least one un-dismissed feature. To export private files, choose "Export private files" from the Actions dropdown menu and then select an empty directory to write the new files to. Bulk Reviewer will copy (or, for disk image sources, carve) each private file to this new directory. For Private exports, all files are written to a flat directory and renamed to include their unique Bulk Reviewer ID. This is done in order to support redaction workflows in tandem with the Bulk Reviewer CSV export. The resulting directory will also include a ``_BulkReviewer_README.txt`` file containing contextual information about the source and file export.
 
-For disk image sources, two checkboxes located directory above the Actions dropdown menu enable users to indicate whether exported files should have their last modified dates restored from values recorded in the DFXML for the disk image and whether to include unallocated files (e.g. deleted files) in exports. These options apply to both Cleared and Private exports.
+For **disk image sources**, two checkboxes located directly above the Actions dropdown menu enable users to indicate whether exported files should have their last modified dates restored from values recorded in the DFXML for the disk image and whether to include unallocated files (e.g. deleted files) in exports. These options apply to both Cleared and Private exports.
 
 .. image:: images/ActionsDiskImage.png
   :width: 250
