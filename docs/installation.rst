@@ -14,7 +14,7 @@ These dependencies should already be installed in the `BitCurator Environment <h
 
 Recommended hardware specs
 --------------------------
-bulk_extractor is a computationally intensive tool which scales linearly to the number of processor cores available to it. Although Bulk Reviewer will work on most systems, it may be prohibitively slow on computers with fewer than four cores. Bulk Reviewer has been developed and primarily tested on a 2015 Macbook Pro with a quad-core i5 and 16 GB RAM.
+bulk_extractor is a computationally intensive tool which scales linearly to the number of processor cores available to it. Although Bulk Reviewer will work on most systems, it may be prohibitively slow on computers with fewer than four cores. Bulk Reviewer has been developed and primarily tested on a 2015 Macbook Pro with a quad-core i5 CPU and 16 GB RAM.
 
 For production systems, a recent CPU with 4+ cores and at least 8 GB of RAM is recommended.
 
