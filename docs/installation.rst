@@ -16,7 +16,7 @@ Recommended hardware specs
 --------------------------
 bulk_extractor is a computationally intensive tool which scales linearly to the number of processing cores available to it. Although Bulk Reviewer will work on most systems, it may be prohibitively slow on computers with fewer than four cores. Bulk Reviewer has been developed and primarily tested on a 2015 Macbook Pro with a quad-core i5 and 16 GB RAM.
 
-For production systems, a recent i7 or Xeon processor and at least 16 GB of RAM is recommended.
+For production systems, a recent processor with 4+ cores and at least 8 GB of RAM is recommended.
 
 
 Installation in BitCurator
