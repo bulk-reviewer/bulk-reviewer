@@ -10,7 +10,10 @@ Bulk Reviewer documentation
     :caption: Table of Contents
     :maxdepth: 2
 
+    technicalinfo
     installation
+    newscan
+    
 
 
 Overview

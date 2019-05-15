@@ -1,0 +1,6 @@
+Technical information
+=====================
+
+Bulk Reviewer is an `Electron <https://electronjs.org/>`_ (Node.js + Chromium) desktop application with a in `Vue.js <https://vuejs.org/>`_ frontend built using the `electron-vue <https://github.com/SimulatedGREG/electron-vue>`_ boilerplate.
+
+Backend functionality is provided by a Python 3 script ``br_processor.py`` which is packaged and included in the built application. This backend script handles calling `bulk_extractor <https://github.com/simsong/bulk_extractor>`_ and `Sleuth Kit <https://www.sleuthkit.org/>`_ as subprocesses, post-processing bulk_extractor feature files and associating features with their respective source files, and creating Bulk Reviewer JSON output files, as well as managing exports of clear (not containing PII) and private (containing PII) files. The backend script includes modified code from the public domain `bulk_extractor <https://github.com/simsong/bulk_extractor>`_ and `DFXML <https://github.com/simsong/dfxml>`_ codebases, including code written by Simson Garfinkel and Alex Nelson, to manage post-processing of bulk_extractor feature files.
