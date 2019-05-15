@@ -1,0 +1,5 @@
+ns.adobe.com*
+purl.org*
+schemas.openxmlformats.org*
+schemas.microsoft.com*
+w3.org*
