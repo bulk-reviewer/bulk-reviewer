@@ -10,7 +10,7 @@ Using the File Selector
 Features displayed in the Feature Table can be filtered by their source file using the File Selector. To display the File Selector, click the "+ Show File Selector" button. 
 
 .. image:: images/FileSelectorButton.png
-  :width: 300
+  :width: 100
   :alt: Image of Show File Selector button
 
 The File Selector displays the relative filepath, a last modified or last created timestamp, and the number of features for each file associated with features found by Bulk Reviewer during processing. This table can be sorted on any of the columns.
@@ -57,7 +57,7 @@ Saving sessions
 To save the current state of your session, choose "Save" from the Actions dropdown menu. Sessions are saved as a JSON file and include all relevant data, including notes and Dismissed status for features and Verified status for files. The resulting dialog will prompt you to choose a location and filename for the save file.
 
 .. image:: images/Actions.png
-  :width: 300
+  :width: 150
   :alt: Image of Actions dropdown
 
 At any time later, you can re-load your session from the resulting saved file. For file exports to work properly, the source directory or disk image must be available at the same filepath as recorded.
@@ -67,7 +67,7 @@ Exporting files
 Bulk Reviewer supports two types of file exports: Cleared and Private.
 
 .. image:: images/Actions.png
-  :width: 300
+  :width: 150
   :alt: Image of Actions dropdown
 
 **Cleared files** are files associated with no un-dismissed features. This includes files for which bulk_extractor found no private information and files for which all associated features were dismissed during the review process. To export cleared files, choose "Export cleared files (no PII)" from the Actions dropdown menu and then select an empty directory to write the new files to. Bulk Reviewer will copy (or, for disk image sources, carve) each cleared file to this new directory, retaining the original directory structure. The resulting directory will also include a ``_BulkReviewer_README.txt`` file containing contextual information about the source and file export and a list of files excluded from the export for containing PII.
@@ -77,7 +77,7 @@ Bulk Reviewer supports two types of file exports: Cleared and Private.
 For disk image sources, two checkboxes located directory above the Actions dropdown menu enable users to indicate whether exported files should have their last modified dates restored from values recorded in the DFXML for the disk image and whether to include unallocated files (e.g. deleted files) in exports. These options apply to both Cleared and Private exports.
 
 .. image:: images/ActionsDiskImage.png
-  :width: 300
+  :width: 200
   :alt: Image of Actions dropdown with disk image options
 
 Downloading CSV reports
@@ -85,6 +85,6 @@ Downloading CSV reports
 To download a CSV representation of the feature data for a Bulk Reviewer session, choose "Download CSV report" from the Actions dropdown menu. The resulting dialog will prompt you to choose a location and filename for the save file. These reports may be particularly helpful in supporting redaction workflows in tandem with Private file exports.
 
 .. image:: images/Actions.png
-  :width: 300
+  :width: 150
   :alt: Image of Actions dropdown
 
