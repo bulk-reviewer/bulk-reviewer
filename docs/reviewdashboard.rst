@@ -37,9 +37,9 @@ By default, the feature table displays all features found in the source director
 
 Each row in the feature table displays by default the following:
 
-* **Feature**: The offending text found by bulk_extractor
-* **Type**: A human-readable feature type label
-* **Note**: An optional note field for use in review and documentation
+* **Feature**: The feature (in other words, matching text) identified by bulk_extractor.
+* **Type**: A human-readable feature type label.
+* **Note**: An optional note field for use in review and documentation.
 * **Dismiss**: If undismissed, a button to dismiss (ignore) that particular feature. If dismissed, indication of this and an Undo button.
 
 Clicking on a feature row or toggling the "Show details" switch on will display additional details for each feature, including:
