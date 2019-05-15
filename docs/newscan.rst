@@ -21,7 +21,7 @@ Processing options
 Starting a scan
 ---------------
 
-Once you have selected the appropriate options, click the "Start scan" button to begin processing. Bulk Reviewer will show a loading icon while processing. Depending on the size of the source and options selected, processing may take a significant amoutn of time (up to several hours for directories and disk images > 100GB). Because bulk_extractor scales linearly with the number of processing cores available to it, processing will be significantly faster on more powerful multi-core machines.
+Once you have selected the appropriate options, click the "Start scan" button to begin processing. Bulk Reviewer will show a loading icon while processing. Depending on the size of the source and options selected, processing may take a significant amount of time (up to several hours for directories and disk images > 100GB). Because bulk_extractor scales linearly with the number of processing cores available to it, processing will be significantly faster on more powerful multi-core machines.
 
 On each run, Bulk Reviewer will use or create a ``bulk-reviewer`` directory in the user's home directory to save output files. The current status of an in-progress Bulk Reviewer scan can be determined by opening the ``bulk-reviewer.log`` file found in this directory. This log file can also be used to verify that there were no issues in processing and for debugging unexpected results.
 
