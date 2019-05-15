@@ -11,7 +11,7 @@ The Review Dashboard will be loaded automatically upon completion of processing 
 
 Using the file selector
 -----------------------
-Features displayed in the Feature Table can be filtered by their source file using the file selector. To display the file selector, click the "+ Show file selector" button. 
+Features displayed in the feature table can be filtered by their source file using the file selector. To display the file selector, click the "+ Show file selector" button. 
 
 .. image:: images/FileSelectorButton.png
   :width: 150
@@ -23,7 +23,7 @@ The file selector displays the relative filepath, a last modified or last create
   :width: 600
   :alt: Image of Bulk Reviewer file selector
 
-Selecting a file from the file selector filters the feature table below to include only the features found within that particular file. For directory sources, an "Open" button will also appear which will attempt to open the file using your computer's default application for that filetype to enable closer review. File selection can be cleared using the "X Clear selected" button in the file selector or the "x Return to all files" button in the Feature Table.
+Selecting a file from the file selector filters the feature table below to include only the features found within that particular file. For directory sources, an "Open" button will also appear which will attempt to open the file using your computer's default application for that filetype to enable closer review. File selection can be cleared using the "Clear selected" button in the file selector or the "Return to all files" button in the feature table.
 
 .. image:: images/FileSelected.png
   :width: 600
@@ -60,7 +60,7 @@ Dismissing features
 -------------------
 The Dismissed status is a key piece of information for each feature. Marking a feature dismissed is equivalent to saying to Bulk Reviewer "ignore this feature moving forward". Dismissed features are not counted when determining whether a file qualifies as Private (i.e. containing PII) for file exports.
 
-The "x Dismiss all" and "Undo all" buttons can be used to dismiss or un-dismiss all features currently displayed in the feature table. This can be used to selectively dismiss entire categories of features. For example, to quickly dismiss all phone numbers found by Bulk Reviewer, first select "Phone number" from the Feature type dropdown filter and then click the "x Dismiss all" button. This will change the status of all features of the "Phone number" type to dismissed without affecting features of other types.
+The "Dismiss all" and "Undo all" buttons can be used to dismiss or un-dismiss all features currently displayed in the feature table. This can be used to selectively dismiss entire categories of features. For example, to quickly dismiss all phone numbers found by Bulk Reviewer, first select "Phone number" from the Feature type dropdown filter and then click the "Dismiss all" button. This will change the status of all features of the "Phone number" type to dismissed without affecting features of other types.
 
 .. image:: images/DismissAllPhoneNumbers.png
   :width: 600
