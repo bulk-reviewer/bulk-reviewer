@@ -12,6 +12,13 @@ For Bulk Reviewer to be able to handle Encase/E01 disk images, bulk_extractor an
 
 These dependencies should already be installed in the `BitCurator Environment <https://confluence.educopia.org/display/BC/BitCurator+Environment/>`_ (unless you need to scan for Canadian SINs, in which case bulk_extractor will need to be rebuilt from source).
 
+Recommended hardware specs
+--------------------------
+bulk_extractor is a computationally intensive tool which scales linearly to the number of processing cores available to it. Although Bulk Reviewer will work on most systems, it may be prohibitively slow on computers with less than 4 available cores. Bulk Reviewer has been developed and primarily tested on a 2015 Macbook Pro with a quad-core i5 and 16 GB RAM.
+
+For production systems, a recent i7 or Xeon processor and at least 16 GB of RAM is recommended.
+
+
 Installation in BitCurator
 --------------------------
 
