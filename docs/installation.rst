@@ -1,5 +1,6 @@
 Installation
 =============
+Bulk Reviewer is currently available for Linux and mac OS.
 
 Dependencies
 ------------
@@ -21,7 +22,6 @@ For production systems, a recent CPU with 4+ cores and at least 8 GB of RAM is r
 
 Installation in BitCurator
 --------------------------
-
 1. Download the ``BulkReviewer-x.x.x-x86_64.AppImage`` `AppImage <https://appimage.org/>`_ from the `latest Bulk Reviewer release <https://github.com/bulk-reviewer/bulk-reviewer/releases/>`_.
 
 2. Move the AppImage to the "Forensics and Reporting" folder on the BitCurator desktop.
@@ -34,7 +34,6 @@ From this point forward, Bulk Reviewer can be launched by selecting it from the 
 
 Installation in Ubuntu 18.04
 ----------------------------
-
 1. Install dependencies in a terminal:
 
 .. code-block:: none
@@ -53,7 +52,6 @@ From this point forward, Bulk Reviewer can be launched by selecting it from the 
 
 Installation in macOS
 ---------------------
-
 1. Make sure you have `Homebrew <https://brew.sh/>`_ and `XCode <https://developer.apple.com/xcode/>`_ installed.
 
 2. Download the ``install_mac.sh`` script from the Bulk Reviewer Github repository.
