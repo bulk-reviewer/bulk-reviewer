@@ -13,7 +13,7 @@ Bulk Reviewer documentation
     technicalinfo
     installation
     newscan
-    
+    reviewdashboard
 
 
 Overview
