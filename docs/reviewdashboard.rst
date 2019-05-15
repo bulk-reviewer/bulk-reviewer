@@ -5,16 +5,16 @@ Bulk Reviewer's Review Dashboard is the primary screen for reviewing potentially
 
 The Review Dashboard will be loaded automatically upon completion of processing for new scans. It can also be accessed by loading an existing Bulk Reviewer JSON file by using the "Load from JSON file" button from the home screen or by selecting "Load" from the top navigational menu. This functionality can be used to load previously saved sessions, which enables persisting notes and dismissed features between sessions.
 
-File selector
--------------
+Using the file selector
+-----------------------
 lorem ipsum
 
-Feature table
--------------
+Using the feature table
+-----------------------
 lorem ipsum
 
-Feature details
----------------
+Understanding feature details
+-----------------------------
 lorem ipsum
 
 Adding and editing notes
