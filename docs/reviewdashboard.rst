@@ -52,6 +52,16 @@ Clicking on a feature row or toggling the "Show details" switch on will display 
   :width: 600
   :alt: Image of the feature type detailed view
 
+Dismissing features
+-------------------
+The Dismissed status is a key piece of information for each feature. Marking a feature dismissed is equivalent to saying to Bulk Reviewer "ignore this feature moving forward". Dismissed features are not counted when determining whether a file qualifies as Cleared or Private for file exports.
+
+The "x Dismiss all" and "Undo all" buttons can be used to dismiss or un-dismiss all features currently displayed in the feature table. This can be used to selectively dismiss entire categories of features. For example, to quickly dismiss all phone numbers found by Bulk Reviewer, first select "Phone number" from the Feature type dropdown filter and then click the "x Dismiss all" button. This will change the status of all features of the "Phone number" type to dismissed without affecting features of other types.
+
+.. image:: images/DismissAllPhoneNumbers.png
+  :width: 600
+  :alt: Image showing the results of using the Dismiss All button with phone numbers
+
 Saving sessions
 ---------------
 To save the current state of your session, choose "Save" from the Actions dropdown menu. Sessions are saved as a JSON file and include all relevant data, including notes and Dismissed status for features and Verified status for files. The resulting dialog will prompt you to choose a location and filename for the save file.
