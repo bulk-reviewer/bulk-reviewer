@@ -29,7 +29,7 @@ Selecting a file from the File Selector filters the feature table below to inclu
   :width: 600
   :alt: Image of Bulk Reviewer Review Dashboard with file selected
 
-Each row in the File Selector additionally includes a "Verify" or "Unverify" button, which can be used to toggle the Verified status for a file. When a file is Verified, a green checkmark will appear next to the file name. This is intended to be used only in keeping track of which files have already been reviewed and does not have any affect on other functionality such as file exports.
+Each row in the File Selector additionally includes a "Verify" or "Unverify" button, which can be used to toggle the Verified status for a file. When a file is Verified, a green checkmark will appear next to the file name. This is intended to be used only in keeping track of which files have already been reviewed and does not have an impact on other functionality such as file exports.
 
 Displaying feature details
 ---------------------------
