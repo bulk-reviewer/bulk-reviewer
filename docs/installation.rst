@@ -1,6 +1,6 @@
 Installation
 =============
-Bulk Reviewer is currently available for Linux and mac OS.
+Bulk Reviewer is currently available for Linux and macOS.
 
 Dependencies
 ------------
