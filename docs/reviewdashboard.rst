@@ -66,6 +66,8 @@ The "x Dismiss all" and "Undo all" buttons can be used to dismiss or un-dismiss 
   :width: 600
   :alt: Image showing the results of using the Dismiss All button with phone numbers
 
+Features that are mistakenly dismissed can be un-dismissed using the "Undo" or "Undo all" buttons.
+
 Saving sessions
 ---------------
 To save the current state of your session, choose "Save" from the Actions dropdown menu. Sessions are saved as a JSON file and include all relevant data, including notes and Dismissed status for features and Verified status for files. The resulting dialog will prompt you to choose a location and filename for the save file.
