@@ -4,8 +4,6 @@
 
 [![Build Status](https://travis-ci.org/bulk-reviewer/bulk-reviewer.svg?branch=master)](https://travis-ci.org/bulk-reviewer/bulk-reviewer)
 
-**Note: This project is under active development. A first release is expected in summer 2019.**
-
 For detailed installation and use instructions, see the [documentation](https://bulk-reviewer.readthedocs.io/en/latest/index.html).
 
 Bulk Reviewer is an Electron desktop application that aids in identification, review, and removal of sensitive files in directories and disk images. Bulk Reviewer scans directories and disk images for personally identifiable information (PII) and other sensitive information using [bulk_extractor](https://github.com/simsong/bulk_extractor), a best-in-class digital forensics tool. The desktop application enables users to configure, start, and review scans; generate CSV reports of features found; and export sets of files (either those free of sensitive information, or those with PII that should be restricted or run though redaction software).
@@ -25,9 +23,8 @@ Currently, Bulk Reviewer can scan directories and disk images for:
 Scanners planned but not yet implemented include:
 
 * Personal names
-* Names of nationalities, religions, and political affiliations
 * Other national identifiers
-* Banking information (e.g. IBAN and SWIFT account numbers)
+* Banking information (e.g. IBAN and SWIFT account numbers, ABA numbers)
 * Personal health information
 * Facebook and Outlook data
 * Additional lexicons (like [those developed by the ePADD project team](https://library.stanford.edu/projects/epadd/community/lexicon-working-group))
