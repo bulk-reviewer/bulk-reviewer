@@ -41,6 +41,10 @@
           Credit card number 
           ({{ featureCountByType(ccnFilter) }})
         </option>
+        <option value="pname">
+          Personal name 
+          ({{ featureCountByType(pnameFilter) }})
+        </option>
         <option value="phone">
           Phone number 
           ({{ featureCountByType(phoneFilter) }})
@@ -375,6 +379,8 @@ export default {
           return this.sinFilter
         case 'ccn':
           return this.ccnFilter
+        case 'pname':
+          return this.pnameFilter
         case 'phone':
           return this.phoneFilter
         case 'email':
@@ -403,6 +409,9 @@ export default {
     },
     ccnFilter () {
       return this.tableData.filter(f => f.feature_type === 'Credit card number')
+    },
+    pnameFilter () {
+      return this.tableData.filter(f => f.feature_type === 'Personal name')
     },
     phoneFilter () {
       return this.tableData.filter(f => f.feature_type === 'Phone number')
