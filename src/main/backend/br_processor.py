@@ -27,6 +27,7 @@ import logging
 import os
 import re
 import shutil
+import spacy
 import sqlite3
 import subprocess
 import sys
@@ -733,6 +734,44 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
                     """, feature_file, line)
 
 
+def extract_named_entities(src, br_session_id, session):
+    # Load NLP model
+    nlp = spacy.load('en')
+    # Iterate through files
+    files = session.query(File).all()
+    for f in files:
+        f_abspath = os.path.join(src, f.filepath)
+        try:
+            # Extract text with textract
+            extracted_text = textract.process(f_abspath)
+            # Extract named entities with spaCy
+            doc = nlp(str(extracted_text))
+            # Loop through entities and write personal names to db
+            for ent in doc.ents:
+                # Clean up string
+                cleaned_text = ent.text.strip()
+                # Skip if blank
+                if cleaned_text == '':
+                    continue
+                # Filter named entities by type
+                types_to_save = ('PERSON')
+                # Write feature to database
+                if ent.label_ in types_to_save:
+                    new_feature = Feature(
+                        feature_type='Personal name',
+                        forensic_path='',
+                        feature=cleaned_text,
+                        context='',
+                        dismissed=False,
+                        file=f.id
+                    )
+                    session.add(new_feature)
+                    session.commit()
+        except Exception:
+            logging.warning("Unable to extract names from file %s",
+                            f_abspath)
+
+
 def dict_factory(cursor, row):
     d = {}
     for idx, col in enumerate(cursor.description):
@@ -1289,6 +1328,9 @@ def main():
         )
 
     # TODO : Get named entities (directories only)
+    if not args.diskimage:
+        if args.named_entity_extraction:
+            extract_named_entities(src, br_session_id, session)
 
     # Create JSON output
     json_path = os.path.join(dest, args.filename + '.json')
