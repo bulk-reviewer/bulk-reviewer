@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 
 """
-Creates Bulk Reviewer JSON file and DFXML
-and bulk_extractor output directories for input
-directory or disk image.
+Python backend for Bulk Reviewer. The Bulk Reviewer build
+process uses PyInstaller to create an executable, for inclusion
+in the Electron Bulk Reviewer application.
+
+Creates Bulk Reviewer JSON file and DFXML and bulk_extractor
+output directories for input directory or disk image.
+
+When run with --export flag, generates file exports of
+private or non-sensitive files, copying files from source
+directory or carving from disk image as appropriate.
 
 Tim Walsh, 2019
 https://bitarchivist.net
