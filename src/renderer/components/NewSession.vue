@@ -112,6 +112,9 @@
     <b-field label="Scanner options">
       <section>
         <div class="field">
+          <b-checkbox v-model="extractNames">Extract personal names</b-checkbox>
+        </div>
+        <div class="field">
           <b-checkbox v-model="includeExifResults">Include EXIF metadata in results</b-checkbox>
         </div>
         <div class="field">
@@ -157,6 +160,7 @@ export default {
       stoplistDirPath: '',
       ssnMode: '0',
       loading: false,
+      extractNames: false,
       includeExifResults: false,
       includeNetworkResults: false
     }
@@ -199,6 +203,7 @@ export default {
       this.regexFilePath = ''
       this.stoplistDirPath = ''
       this.ssnMode = '0'
+      this.extractNames = false
       this.includeExifResults = false
       this.includeNetworkResults = false
     },
@@ -261,6 +266,9 @@ export default {
       ]
       if (this.sourceType === 'diskImage') {
         sessionParameters.splice(1, 0, '-d')
+      }
+      if (this.extractNames === true) {
+        sessionParameters.splice(1, 0, '-n')
       }
       if (this.includeExifResults === true) {
         sessionParameters.splice(1, 0, '--include_exif')
