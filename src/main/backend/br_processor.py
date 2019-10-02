@@ -743,7 +743,7 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
 
 def extract_named_entities(src, br_session_id, session):
     # Load NLP model
-    nlp = spacy.load('en')
+    nlp = spacy.load('en_core_web_sm')
     # Iterate through files
     files = session.query(File).all()
     for f in files:
