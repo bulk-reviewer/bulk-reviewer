@@ -300,7 +300,7 @@ export default {
         const PY_DIST_FOLDER = path.join(__dirname, '../../main/', 'backend_dist')
         const PY_FOLDER = path.join(__dirname, '../../main/', 'backend')
         const PY_MODULE = 'br_processor'
-        if (!this.guessPyPackaged()) {
+        if (!this.guessPackaged()) {
           return path.join(PY_FOLDER, PY_MODULE + '.py')
         }
         if (process.platform === 'win32') {
