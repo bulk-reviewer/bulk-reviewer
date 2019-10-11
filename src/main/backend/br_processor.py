@@ -615,7 +615,10 @@ def parse_feature_file(feature_file, br_session_id, session):
 
                 # Set feature type
                 ff_basename = os.path.basename(feature_file)
-                feature_type = FEATURE_LABELS[ff_basename]
+                try:
+                    feature_type = FEATURE_LABELS[ff_basename]
+                except KeyError:
+                    feature_type = ff_basename
 
                 # Write feature to database
                 postprocessed_feature = Feature(
@@ -695,7 +698,10 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
                 # Set feature type
                 ff_basename = os.path.basename(feature_file).\
                     replace('annotated_', '')
-                feature_type = FEATURE_LABELS[ff_basename]
+                try:
+                    feature_type = FEATURE_LABELS[ff_basename]
+                except KeyError:
+                    feature_type = ff_basename
 
                 # Write feature to database
                 postprocessed_feature = Feature(
