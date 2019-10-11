@@ -416,6 +416,8 @@ def user_friendly_feature_type(feature_file):
         return 'GPS data'
     elif feature_file == 'exif.txt':
         return 'EXIF metadata'
+    elif feature_file == 'vcard.txt':
+        return 'vCard (Virtual Contact File)'
     else:
         return feature_file
 
