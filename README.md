@@ -15,6 +15,7 @@ Currently, Bulk Reviewer can scan directories and disk images for:
 * Credit card numbers
 * Email addresses
 * Phone numbers
+* vCards (Virtual Contact Files)
 * URLs, web domains, RFC822 headers, and HTTP logs
 * GPS data
 * EXIF metadata
