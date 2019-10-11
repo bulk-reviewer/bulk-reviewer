@@ -947,6 +947,9 @@ def export_files(json_path, dest_path, args):
         if f['filepath'] not in files_with_pii:
             files_without_pii.append(f['filepath'])
 
+    # Create list of files not successfully copied/carved
+    files_not_copied = []
+
     # Export files from directory
     if not args.diskimage:
 
@@ -962,12 +965,12 @@ def export_files(json_path, dest_path, args):
                     shutil.copy2(file_src, file_dest)
                 except OSError as e:
                     logging.error('Error copying file %s: %s', file_src, e)
-                    return False
+                    files_not_copied.append(file_src)
             write_export_readme(dest_path, session_dict,
                                 'Cleared files (no PII)',
                                 files_with_pii, args)
             logging.info('Files without PII copied to %s', dest_path)
-            return True
+            return files_not_copied
 
         # Export files with PII to flat directory
         for f in files_with_pii:
@@ -985,11 +988,11 @@ def export_files(json_path, dest_path, args):
                 shutil.copy2(file_src, file_dest)
             except OSError as e:
                 logging.error('Error copying file %s: %s', file_src, e)
-                return False
+                files_not_copied.append(file_src)
         write_export_readme(dest_path, session_dict, 'Private files',
                             files_with_pii, args)
         logging.info('Files with PII copied to %s', dest_path)
-        return True
+        return files_not_copied
 
     # Export files from disk image
 
@@ -1014,7 +1017,7 @@ def export_files(json_path, dest_path, args):
                                        int(file_info['inode']),
                                        file_dest)
             if carve_success is False:
-                return False
+                files_not_copied.append(file_dest)
             # Set modified date to modified or created value from DFXML
             if args.restore_dates:
                 restore_modified_date(file_dest, file_info['date_modified'],
@@ -1022,7 +1025,7 @@ def export_files(json_path, dest_path, args):
         write_export_readme(dest_path, session_dict, 'Cleared files (no PII)',
                             files_with_pii, args)
         logging.info('Files without PII copied to %s', dest_path)
-        return True
+        return files_not_copied
 
     # Export files with PII to flat directory
     for f in files_with_pii:
@@ -1046,7 +1049,7 @@ def export_files(json_path, dest_path, args):
                                    int(file_info['inode']),
                                    file_dest)
         if carve_success is False:
-            return False
+            files_not_copied.append(file_dest)
         # Set modified date to modified or created value from DFXML
         if args.restore_dates:
             restore_modified_date(file_dest, file_info['date_modified'],
@@ -1054,7 +1057,7 @@ def export_files(json_path, dest_path, args):
     write_export_readme(dest_path, session_dict, 'Private files',
                         files_with_pii, args)
     logging.info('Files with PII copied to %s', dest_path)
-    return True
+    return files_not_copied
 
 
 def print_to_stderr_and_exit():
@@ -1170,14 +1173,30 @@ def main():
     if args.export:
         logging.info("""Running script in file export mode. JSON file: %s. Destination: %s.\
             """, src, dest)
-        export_success = export_files(src, dest, args)
-        if export_success is False:
-            print_to_stderr_and_exit()
+        files_not_copied = export_files(src, dest, args)
+        
+        # Print success message if all files copied/carved successfully
+        if not files_not_copied:
+            if args.pii:
+                print('Private files successfully exported to directory', dest)
+            else:
+                print('Cleared files successfully exported to directory', dest)
+            return
+
+        # If errors with copying/carving files, print list of specific files
         if args.pii:
-            print('Private files successfully exported to directory', dest)
+            print("""
+                Private files exported to directory {}. The following files encountered 
+                errors: {}. See Bulk Reviewer log for details.
+            """.strip(), dest, ', '.join(files_not_copied))
         else:
-            print('Cleared files successfully exported to directory', dest)
+            print("""
+                Cleared files exported to directory {}. The following files encountered 
+                errors: {}. See Bulk Reviewer log for details.
+            """.strip(), dest, ', '.join(files_not_copied))
         return
+
+
 
     # Otherwise, log starting message and continue
     logging.info("""Running script in processing mode. Name: %s. Source: %s.\
