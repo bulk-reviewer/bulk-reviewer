@@ -44,3 +44,4 @@ script:
 branches:
   only:
   - master
+  - prerelease
