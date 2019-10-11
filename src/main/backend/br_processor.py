@@ -1070,7 +1070,7 @@ def _configure_logging(bulk_reviewer_dir):
     root_logger.setLevel(logging.INFO)
     handler = logging.FileHandler(os.path.join(bulk_reviewer_dir,
                                   'bulk-reviewer.log'),
-                                  'w', 'utf-8')
+                                  'a', 'utf-8')
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     handler.setFormatter(formatter)
     root_logger.addHandler(handler)
