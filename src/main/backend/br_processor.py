@@ -545,7 +545,7 @@ def read_features_to_db(feature_files_dir, br_session_id, session, args):
         if not os.path.getsize(ff_abspath) > 0:
             continue
         # Skip directories
-        if os.path.isdir(feature_file):
+        if os.path.isdir(ff_abspath):
             continue
         # Skip bulk_extractor report
         if "report.xml" in feature_file:
