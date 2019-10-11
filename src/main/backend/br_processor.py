@@ -37,6 +37,22 @@ import Objects
 Base = declarative_base()
 xor_re = re.compile(b"^(\\d+)\\-XOR\\-(\\d+)")
 
+FEATURE_LABELS = {
+    'pii.txt': 'Social Security Number (USA)',
+    'sin.txt': 'Social Insurance Number (Canada)',
+    'ccn.txt': 'Credit card number',
+    'telephone.txt': 'Phone number',
+    'email.txt': 'Email address',
+    'find.txt': 'Regular expression',
+    'url.txt': 'URL',
+    'domain.txt': 'Domain',
+    'rfc822.txt': 'Email/HTTP header (RFC822)',
+    'httplogs.txt': 'HTTP log',
+    'gps.txt': 'GPS data',
+    'exif.txt': 'EXIF metadata',
+    'vcard.txt': 'vCard (Virtual Contact File)'
+}
+
 
 class BRSession(Base):
     __tablename__ = 'session'
@@ -386,40 +402,6 @@ def write_filesystem_metadata_to_db(session, br_session_id, src):
                               rel_fpath, e)
 
 
-def user_friendly_feature_type(feature_file):
-    """
-    Return user-friendly feature type value for
-    corresponding feature file. If no such label
-    exists, return name of feature file.
-    """
-    if feature_file == 'pii.txt':
-        return 'Social Security Number (USA)'
-    elif feature_file == 'sin.txt':
-        return 'Social Insurance Number (Canada)'
-    elif feature_file == 'ccn.txt':
-        return 'Credit card number'
-    elif feature_file == 'telephone.txt':
-        return 'Phone number'
-    elif feature_file == 'email.txt':
-        return 'Email address'
-    elif feature_file == 'find.txt':
-        return 'Regular expression'
-    elif feature_file == 'url.txt':
-        return 'URL'
-    elif feature_file == 'domain.txt':
-        return 'Domain'
-    elif feature_file == 'rfc822.txt':
-        return 'Email/HTTP header (RFC822)'
-    elif feature_file == 'httplogs.txt':
-        return 'HTTP log'
-    elif feature_file == 'gps.txt':
-        return 'GPS data'
-    elif feature_file == 'exif.txt':
-        return 'EXIF metadata'
-    else:
-        return feature_file
-
-
 def process_featurefile2(rundb, infile, outfile):
     """
     Returns features from infile, determines the file for each,
@@ -545,7 +527,7 @@ def read_features_to_db(feature_files_dir, br_session_id, session, args):
         if not os.path.getsize(ff_abspath) > 0:
             continue
         # Skip directories
-        if os.path.isdir(feature_file):
+        if os.path.isdir(ff_abspath):
             continue
         # Skip bulk_extractor report
         if "report.xml" in feature_file:
@@ -633,7 +615,10 @@ def parse_feature_file(feature_file, br_session_id, session):
 
                 # Set feature type
                 ff_basename = os.path.basename(feature_file)
-                feature_type = user_friendly_feature_type(ff_basename)
+                try:
+                    feature_type = FEATURE_LABELS[ff_basename]
+                except KeyError:
+                    feature_type = ff_basename
 
                 # Write feature to database
                 postprocessed_feature = Feature(
@@ -713,7 +698,10 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
                 # Set feature type
                 ff_basename = os.path.basename(feature_file).\
                     replace('annotated_', '')
-                feature_type = user_friendly_feature_type(ff_basename)
+                try:
+                    feature_type = FEATURE_LABELS[ff_basename]
+                except KeyError:
+                    feature_type = ff_basename
 
                 # Write feature to database
                 postprocessed_feature = Feature(
@@ -959,6 +947,9 @@ def export_files(json_path, dest_path, args):
         if f['filepath'] not in files_with_pii:
             files_without_pii.append(f['filepath'])
 
+    # Create list of files not successfully copied/carved
+    files_not_copied = []
+
     # Export files from directory
     if not args.diskimage:
 
@@ -974,12 +965,12 @@ def export_files(json_path, dest_path, args):
                     shutil.copy2(file_src, file_dest)
                 except OSError as e:
                     logging.error('Error copying file %s: %s', file_src, e)
-                    return False
+                    files_not_copied.append(file_src)
             write_export_readme(dest_path, session_dict,
                                 'Cleared files (no PII)',
                                 files_with_pii, args)
             logging.info('Files without PII copied to %s', dest_path)
-            return True
+            return files_not_copied
 
         # Export files with PII to flat directory
         for f in files_with_pii:
@@ -997,11 +988,11 @@ def export_files(json_path, dest_path, args):
                 shutil.copy2(file_src, file_dest)
             except OSError as e:
                 logging.error('Error copying file %s: %s', file_src, e)
-                return False
+                files_not_copied.append(file_src)
         write_export_readme(dest_path, session_dict, 'Private files',
                             files_with_pii, args)
         logging.info('Files with PII copied to %s', dest_path)
-        return True
+        return files_not_copied
 
     # Export files from disk image
 
@@ -1026,7 +1017,7 @@ def export_files(json_path, dest_path, args):
                                        int(file_info['inode']),
                                        file_dest)
             if carve_success is False:
-                return False
+                files_not_copied.append(file_dest)
             # Set modified date to modified or created value from DFXML
             if args.restore_dates:
                 restore_modified_date(file_dest, file_info['date_modified'],
@@ -1034,7 +1025,7 @@ def export_files(json_path, dest_path, args):
         write_export_readme(dest_path, session_dict, 'Cleared files (no PII)',
                             files_with_pii, args)
         logging.info('Files without PII copied to %s', dest_path)
-        return True
+        return files_not_copied
 
     # Export files with PII to flat directory
     for f in files_with_pii:
@@ -1058,7 +1049,7 @@ def export_files(json_path, dest_path, args):
                                    int(file_info['inode']),
                                    file_dest)
         if carve_success is False:
-            return False
+            files_not_copied.append(file_dest)
         # Set modified date to modified or created value from DFXML
         if args.restore_dates:
             restore_modified_date(file_dest, file_info['date_modified'],
@@ -1066,7 +1057,7 @@ def export_files(json_path, dest_path, args):
     write_export_readme(dest_path, session_dict, 'Private files',
                         files_with_pii, args)
     logging.info('Files with PII copied to %s', dest_path)
-    return True
+    return files_not_copied
 
 
 def print_to_stderr_and_exit():
@@ -1082,7 +1073,7 @@ def _configure_logging(bulk_reviewer_dir):
     root_logger.setLevel(logging.INFO)
     handler = logging.FileHandler(os.path.join(bulk_reviewer_dir,
                                   'bulk-reviewer.log'),
-                                  'w', 'utf-8')
+                                  'a', 'utf-8')
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     handler.setFormatter(formatter)
     root_logger.addHandler(handler)
@@ -1107,6 +1098,9 @@ def _make_parser():
     parser.add_argument("--include_network",
                         help="Include domains/URLs/RFC822/httplogs in results",
                         action="store_true")
+    parser.add_argument("--be_reports",
+                        help="Specify path to existing bulk_extractor reports directory",
+                        action="store")
     parser.add_argument("--regex",
                         help="Specify path to regex file",
                         action="store")
@@ -1155,13 +1149,17 @@ def main():
     db_path = os.path.join(temp_dir, args.filename + '.brv')
     reports_path = os.path.join(dest, args.filename + '_reports')
     dfxml_path = os.path.join(reports_path, 'dfxml.xml')
-    bulk_extractor_path = os.path.join(reports_path, 'bulk_extractor')
     annotated_feature_path = os.path.join(
         reports_path,
         'bulk_extractor_annotated'
     )
     user_home_dir = os.path.abspath(os.path.expanduser('~'))
     bulk_reviewer_dir = os.path.join(user_home_dir, 'bulk-reviewer')
+
+    if args.be_reports:
+        bulk_extractor_path = os.path.abspath(args.be_reports)
+    else:
+        bulk_extractor_path = os.path.join(reports_path, 'bulk_extractor')
 
     # Make bulk_reviewer_dir if doesn't already exist
     if not os.path.exists(bulk_reviewer_dir):
@@ -1175,14 +1173,30 @@ def main():
     if args.export:
         logging.info("""Running script in file export mode. JSON file: %s. Destination: %s.\
             """, src, dest)
-        export_success = export_files(src, dest, args)
-        if export_success is False:
-            print_to_stderr_and_exit()
+        files_not_copied = export_files(src, dest, args)
+        
+        # Print success message if all files copied/carved successfully
+        if not files_not_copied:
+            if args.pii:
+                print('Private files successfully exported to directory', dest)
+            else:
+                print('Cleared files successfully exported to directory', dest)
+            return
+
+        # If errors with copying/carving files, print list of specific files
         if args.pii:
-            print('Private files successfully exported to directory', dest)
+            print("""
+                Private files exported to directory {}. The following files encountered 
+                errors: {}. See Bulk Reviewer log for details.
+            """.strip(), dest, ', '.join(files_not_copied))
         else:
-            print('Cleared files successfully exported to directory', dest)
+            print("""
+                Cleared files exported to directory {}. The following files encountered 
+                errors: {}. See Bulk Reviewer log for details.
+            """.strip(), dest, ', '.join(files_not_copied))
         return
+
+
 
     # Otherwise, log starting message and continue
     logging.info("""Running script in processing mode. Name: %s. Source: %s.\
@@ -1247,19 +1261,20 @@ def main():
         logging.info('Writing source file metadata to database')
         write_filesystem_metadata_to_db(session, br_session_id, src)
 
-    # Run bulk_extractor
-    logging.info('Running bulk_extractor')
-    stoplist_dir = ''
-    if args.stoplists:
-        stoplist_dir = os.path.abspath(args.stoplists)
-    bulk_extractor_success = run_bulk_extractor(
-        src, bulk_extractor_path,
-        stoplist_dir,
-        ssn_mode,
-        args
-    )
-    if bulk_extractor_success is False:
-        print_to_stderr_and_exit()
+    # Run bulk_extractor if reports aren't already provided
+    if not args.be_reports:
+        logging.info('Running bulk_extractor')
+        stoplist_dir = ''
+        if args.stoplists:
+            stoplist_dir = os.path.abspath(args.stoplists)
+        bulk_extractor_success = run_bulk_extractor(
+            src, bulk_extractor_path,
+            stoplist_dir,
+            ssn_mode,
+            args
+        )
+        if bulk_extractor_success is False:
+            print_to_stderr_and_exit()
 
     if args.diskimage:
         # Disk image source: Annotate feature files and read into database
