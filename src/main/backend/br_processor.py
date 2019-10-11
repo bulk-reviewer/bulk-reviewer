@@ -37,6 +37,22 @@ import Objects
 Base = declarative_base()
 xor_re = re.compile(b"^(\\d+)\\-XOR\\-(\\d+)")
 
+FEATURE_LABELS = {
+    'pii.txt': 'Social Security Number (USA)',
+    'sin.txt': 'Social Insurance Number (Canada)',
+    'ccn.txt': 'Credit card number',
+    'telephone.txt': 'Phone number',
+    'email.txt': 'Email address',
+    'find.txt': 'Regular expression',
+    'url.txt': 'URL',
+    'domain.txt': 'Domain',
+    'rfc822.txt': 'Email/HTTP header (RFC822)',
+    'httplogs.txt': 'HTTP log',
+    'gps.txt': 'GPS data',
+    'exif.txt': 'EXIF metadata',
+    'vcard.txt': 'vCard (Virtual Contact File)'
+}
+
 
 class BRSession(Base):
     __tablename__ = 'session'
@@ -386,42 +402,6 @@ def write_filesystem_metadata_to_db(session, br_session_id, src):
                               rel_fpath, e)
 
 
-def user_friendly_feature_type(feature_file):
-    """
-    Return user-friendly feature type value for
-    corresponding feature file. If no such label
-    exists, return name of feature file.
-    """
-    if feature_file == 'pii.txt':
-        return 'Social Security Number (USA)'
-    elif feature_file == 'sin.txt':
-        return 'Social Insurance Number (Canada)'
-    elif feature_file == 'ccn.txt':
-        return 'Credit card number'
-    elif feature_file == 'telephone.txt':
-        return 'Phone number'
-    elif feature_file == 'email.txt':
-        return 'Email address'
-    elif feature_file == 'find.txt':
-        return 'Regular expression'
-    elif feature_file == 'url.txt':
-        return 'URL'
-    elif feature_file == 'domain.txt':
-        return 'Domain'
-    elif feature_file == 'rfc822.txt':
-        return 'Email/HTTP header (RFC822)'
-    elif feature_file == 'httplogs.txt':
-        return 'HTTP log'
-    elif feature_file == 'gps.txt':
-        return 'GPS data'
-    elif feature_file == 'exif.txt':
-        return 'EXIF metadata'
-    elif feature_file == 'vcard.txt':
-        return 'vCard (Virtual Contact File)'
-    else:
-        return feature_file
-
-
 def process_featurefile2(rundb, infile, outfile):
     """
     Returns features from infile, determines the file for each,
@@ -635,7 +615,7 @@ def parse_feature_file(feature_file, br_session_id, session):
 
                 # Set feature type
                 ff_basename = os.path.basename(feature_file)
-                feature_type = user_friendly_feature_type(ff_basename)
+                feature_type = FEATURE_LABELS[ff_basename]
 
                 # Write feature to database
                 postprocessed_feature = Feature(
@@ -715,7 +695,7 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
                 # Set feature type
                 ff_basename = os.path.basename(feature_file).\
                     replace('annotated_', '')
-                feature_type = user_friendly_feature_type(ff_basename)
+                feature_type = FEATURE_LABELS[ff_basename]
 
                 # Write feature to database
                 postprocessed_feature = Feature(
