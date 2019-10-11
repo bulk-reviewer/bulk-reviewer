@@ -1107,6 +1107,9 @@ def _make_parser():
     parser.add_argument("--include_network",
                         help="Include domains/URLs/RFC822/httplogs in results",
                         action="store_true")
+    parser.add_argument("--be_reports",
+                        help="Specify path to existing bulk_extractor reports directory",
+                        action="store")
     parser.add_argument("--regex",
                         help="Specify path to regex file",
                         action="store")
@@ -1155,13 +1158,17 @@ def main():
     db_path = os.path.join(temp_dir, args.filename + '.brv')
     reports_path = os.path.join(dest, args.filename + '_reports')
     dfxml_path = os.path.join(reports_path, 'dfxml.xml')
-    bulk_extractor_path = os.path.join(reports_path, 'bulk_extractor')
     annotated_feature_path = os.path.join(
         reports_path,
         'bulk_extractor_annotated'
     )
     user_home_dir = os.path.abspath(os.path.expanduser('~'))
     bulk_reviewer_dir = os.path.join(user_home_dir, 'bulk-reviewer')
+
+    if args.be_reports:
+        bulk_extractor_path = os.path.abspath(args.be_reports)
+    else:
+        bulk_extractor_path = os.path.join(reports_path, 'bulk_extractor')
 
     # Make bulk_reviewer_dir if doesn't already exist
     if not os.path.exists(bulk_reviewer_dir):
@@ -1247,19 +1254,20 @@ def main():
         logging.info('Writing source file metadata to database')
         write_filesystem_metadata_to_db(session, br_session_id, src)
 
-    # Run bulk_extractor
-    logging.info('Running bulk_extractor')
-    stoplist_dir = ''
-    if args.stoplists:
-        stoplist_dir = os.path.abspath(args.stoplists)
-    bulk_extractor_success = run_bulk_extractor(
-        src, bulk_extractor_path,
-        stoplist_dir,
-        ssn_mode,
-        args
-    )
-    if bulk_extractor_success is False:
-        print_to_stderr_and_exit()
+    # Run bulk_extractor if reports aren't already provided
+    if not args.be_reports:
+        logging.info('Running bulk_extractor')
+        stoplist_dir = ''
+        if args.stoplists:
+            stoplist_dir = os.path.abspath(args.stoplists)
+        bulk_extractor_success = run_bulk_extractor(
+            src, bulk_extractor_path,
+            stoplist_dir,
+            ssn_mode,
+            args
+        )
+        if bulk_extractor_success is False:
+            print_to_stderr_and_exit()
 
     if args.diskimage:
         # Disk image source: Annotate feature files and read into database
