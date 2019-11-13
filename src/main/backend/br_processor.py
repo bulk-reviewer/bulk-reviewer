@@ -598,8 +598,8 @@ def parse_feature_file(feature_file, br_session_id, session):
                 # Make filepath relative to match DFXML filename
                 source_path = session.query(BRSession).get(br_session_id).\
                     source_path
-                substr = source_path + '/'
-                filepath = filepath.replace('//', '/').split(substr)[1]
+                parent_dir = os.path.split(source_path)[1] + '/'
+                filepath = filepath.replace('//', '/').split(parent_dir)[1]
 
                 # Find matching file
                 try:
