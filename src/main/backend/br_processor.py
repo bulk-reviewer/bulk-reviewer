@@ -599,7 +599,7 @@ def parse_feature_file(feature_file, br_session_id, session):
                 source_path = session.query(BRSession).get(br_session_id).\
                     source_path
                 substr = source_path + '/'
-                filepath = filepath.split(substr)[1]
+                filepath = filepath.replace('//', '/').split(substr)[1]
 
                 # Find matching file
                 try:
