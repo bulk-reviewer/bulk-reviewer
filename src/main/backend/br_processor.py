@@ -1215,8 +1215,8 @@ def main():
         if args.pii:
             print(
                 """
-                Private files exported to directory {}. The following files encountered 
-                errors: {}. See Bulk Reviewer log for details.
+                Private files exported to directory %s. The following files encountered 
+                errors: %s. See Bulk Reviewer log for details.
             """.strip(),
                 dest,
                 ", ".join(files_not_copied),
@@ -1224,8 +1224,8 @@ def main():
         else:
             print(
                 """
-                Cleared files exported to directory {}. The following files encountered 
-                errors: {}. See Bulk Reviewer log for details.
+                Cleared files exported to directory %s. The following files encountered 
+                errors: %s. See Bulk Reviewer log for details.
             """.strip(),
                 dest,
                 ", ".join(files_not_copied),
