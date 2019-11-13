@@ -65,11 +65,11 @@ From this point forward, Bulk Reviewer can be launched by selecting it from the 
 
 ### Ubuntu 18.04
 
-1. Install dependencies in a terminal:
+1. Install dependencies in a terminal (you can skip this step if bulk_extractor and Sleuth Kit are already installed):
 
 ``` bash
 wget "https://github.com/bulk-reviewer/bulk-reviewer/blob/master/install_ubuntu18.sh"
-chmod a+x install_ubuntu18.sh
+chmod +x install_ubuntu18.sh
 sudo ./install_ubuntu18.sh
 ```
 
@@ -85,19 +85,17 @@ From this point forward, Bulk Reviewer can be launched by selecting it from the 
 
 1. Make sure you have [Homebrew](https://brew.sh/) and [XCode](https://developer.apple.com/xcode/) installed.
 
-2. Download the `install_mac.sh` script from this repository.
-
-3. In a terminal, change directory to where you saved the `install_mac.sh` script and install dependencies:
+2. Install dependencies in a terminal (you can skip this step if bulk_extractor and Sleuth Kit are already installed):
 
 ``` bash
-brew install libewf afflib sleuthkit
-chmod a+x install_mac.sh
+wget "https://github.com/bulk-reviewer/bulk-reviewer/blob/master/install_mac.sh"
+chmod +x install_mac.sh
 ./install_mac.sh
 ```
 
-4. Download the `BulkReviewer-x.x.x.dmg` from the [latest Bulk Reviewer release](https://github.com/bulk-reviewer/bulk-reviewer/releases).
+3. Download the `BulkReviewer-x.x.x.dmg` from the [latest Bulk Reviewer release](https://github.com/bulk-reviewer/bulk-reviewer/releases).
 
-5. Double-click the dmg to open the Bulk Reviewer installer. Drag the Bulk Reviewer icon to the Applications folder to install.
+4. Double-click the dmg to open the Bulk Reviewer installer. Drag the Bulk Reviewer icon to the Applications folder to install.
 
 ## Development
 
