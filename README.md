@@ -6,7 +6,14 @@
 
 For detailed installation and use instructions, see the [documentation](https://bulk-reviewer.readthedocs.io/en/latest/index.html).
 
-Bulk Reviewer is an Electron desktop application that aids in identification, review, and removal of sensitive files in directories and disk images. Bulk Reviewer scans directories and disk images for personally identifiable information (PII) and other sensitive information using [bulk_extractor](https://github.com/simsong/bulk_extractor), a best-in-class digital forensics tool. The desktop application enables users to configure, start, and review scans; generate CSV reports of features found; and export sets of files (either those free of sensitive information, or those with PII that should be restricted or run though redaction software).
+Bulk Reviewer is an Electron desktop application that aids in identification, review, and removal of sensitive files in directories and disk images. Bulk Reviewer scans directories and disk images for personally identifiable information (PII) and other sensitive information using [bulk_extractor](https://github.com/simsong/bulk_extractor), a best-in-class digital forensics tool. The desktop application enables users to:
+
+* Scan disk images and directories for private information with bulk_extractor (configurable with user-supplied regular expressions and stoplist files)
+* Review features found by type and by file in a user-friendly dashboard that supports annotation and dismissing features as false positives
+* Generate CSV reports of features found
+* Export sets of files
+	* Cleared: Files free of PII
+	* Private: Files with PII that should be restricted or run through redaction software
 
 Currently, Bulk Reviewer can scan directories and disk images for:
 
