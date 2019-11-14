@@ -55,13 +55,13 @@ Scripts for installing system dependencies for macOS and Ubuntu 18.04 are includ
 
 1. Download the `BulkReviewer-x.x.x-x86_64.AppImage` [AppImage](https://appimage.org/) from the [latest Bulk Reviewer release](https://github.com/bulk-reviewer/bulk-reviewer/releases).
 
-2. Move the AppImage to the "Forensics and Reporting" folder on the BitCurator desktop.
+2. Save the AppImage file to location of your choice (e.g. the "Forensics and Reporting" folder on the BitCurator desktop).
 
-3. Make the Bulk Reviewer AppImage executable (with `chmod a+x FILE` in terminal or by right-clicking the AppImage, selecting Properties, and then selecting "Allow executing file as program" under the Permissions tab).
+3. Make the Bulk Reviewer AppImage executable (with `chmod +x FILE` in terminal or by right-clicking the AppImage, selecting Properties, and then selecting "Allow executing file as program" under the Permissions tab).
 
 4. Double-click the AppImage. A prompt will ask if you want to integrate Bulk Reviewer with your system. Choose "Yes" to install Bulk Reviewer.
 
-From this point forward, Bulk Reviewer can be launched by selecting it from the Applications menu or double-clicking on the AppImage file in the "Forensics and Reporting" folder.
+From this point forward, Bulk Reviewer can be launched by selecting it from the Applications menu or double-clicking on the AppImage file.
 
 ### Ubuntu 18.04
 
@@ -75,9 +75,11 @@ sudo ./install_ubuntu18.sh
 
 2. Download the Bulk Reviewer [AppImage](https://appimage.org/) `BulkReviewer-x.x.x-x86_64.AppImage` from the [latest Bulk Reviewer release](https://github.com/bulk-reviewer/bulk-reviewer/releases).
 
-3. Move the AppImage to your home directory or desktop and make the file executable.
+3. Save the AppImage to location of your choice (e.g. your home folder or desktop).
 
-4. Double-click the AppImage. A prompt will ask if you want to integrate Bulk Reviewer with your system. Choose "Yes" to install Bulk Reviewer.
+4. Make the Bulk Reviewer AppImage executable (with `chmod +x FILE` in terminal or by right-clicking the AppImage, selecting Properties, and then selecting "Allow executing file as program" under the Permissions tab).
+
+5. Double-click the AppImage. A prompt will ask if you want to integrate Bulk Reviewer with your system. Choose "Yes" to install Bulk Reviewer.
 
 From this point forward, Bulk Reviewer can be launched by selecting it from the Applications menu or double-clicking on the AppImage file.
 
@@ -99,7 +101,7 @@ chmod +x install_mac.sh
 
 ## Development
 
-Bulk Reviewer is an Electron desktop application with a Python backend. Local development requires Python 3, Node, and npm/yarn (instructions here use yarn).
+Bulk Reviewer is an Electron desktop application with a Python backend. Local development requires Python 3, Node 10, and npm or yarn (instructions here use yarn).
 
 1. Clone this repository
 
@@ -110,6 +112,8 @@ git clone https://github.com/bulk-reviewer/bulk-reviewer
 2. Prepare Python virtual environment
 
 ``` bash
+cd bulk-reviewer/
+
 # First time
 virtualenv -p python3 env
 source env/bin/activate
