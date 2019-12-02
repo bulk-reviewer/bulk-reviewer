@@ -1,6 +1,6 @@
 {
   "name": "BulkReviewer",
-  "version": "0.2.0-rc2",
+  "version": "0.2.0-rc3",
   "author": "Tim Walsh <timothyryanwalsh@gmail.com>",
   "description": "Identify, review, and remove private information",
   "license": "GPL-3.0-only",
