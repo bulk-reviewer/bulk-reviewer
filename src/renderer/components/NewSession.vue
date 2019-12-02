@@ -349,18 +349,20 @@ export default {
         }
       })
 
-      // throw error message or load review dashboard on completion
+      // handle completion
       let self = this
       pyProc.stdout.on('end', function (data) {
-        // catch errors
+        let jsonFile = jsonPath.trim()
+        self.loading = false
+        self.isDisabled = false
+
+        // display errors
         if (pyErrors.length > 0) {
-          self.loading = false
-          self.isDisabled = false
           self.errorMessage(`ERROR: ${pyErrors}`)
-        // if no errors, load review dashboard
-        } else {
-          let jsonFile = jsonPath.trim()
-          self.loading = false
+        }
+
+        // if json path provided by backend, load review dashboard
+        if (jsonFile.length > 0) {
           self.$store.dispatch('loadFromJSON', jsonFile)
           self.$router.push('review')
         }
