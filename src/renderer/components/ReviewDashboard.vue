@@ -1,7 +1,7 @@
 <template>
   <section class="padded">
     <!-- Header -->
-    <div class="container-fluid">
+    <div class="container-fluid" style="margin-bottom: 15px;">
       <h1 class="title is-4">Session: {{ brSession.name }}</h1>
       <h2 class="subtitle is-6">
         Source: {{ brSession.source_path }}
@@ -20,82 +20,123 @@
           </b-tooltip>
         </span>
       </h2>
+      <button class="button" @click="openSaveFileDialog">
+        <b-icon
+          icon="save"
+          size="is-small">
+        </b-icon>
+        <span>Save</span>
+      </button>
+      <button class="button" @click="isExportModalActive = true">
+        <b-icon
+          icon="file-export"
+          size="is-small">
+        </b-icon>
+        <span>Export files</span>
+      </button>
+      <button class="button" @click="downloadCSVFeaturesReport">
+        <b-icon
+          icon="download"
+          size="is-small">
+        </b-icon>
+        <span>Download CSV</span>
+      </button>
     </div>
 
-    <div class="container-fluid">
-      
-      <!-- Checkbox for disk image export options -->
-      <div style="margin-bottom: 15px;"
-        <b-checkbox
-          style="margin-top: 15px;"
-          size="is-small"
-          type="is-info"
-          v-model="restoreDates"
-          v-show="brSession.disk_image === true">
-          Restore modified dates for exported files
-        </b-checkbox>
-        <br>
-        <b-checkbox
-          size="is-small"
-          type="is-info"
-          v-model="exportUnallocatedFiles"
-          v-show="brSession.disk_image === true">
-          Include unallocated files in file exports
-        </b-checkbox>
+    <!-- File export modal -->
+    <b-modal :active.sync="isExportModalActive"
+      has-modal-card
+      trap-focus
+      aria-role="dialog"
+      aria-modal>
+      <div class="modal-card" style="width: auto">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Export files</p>
+        </header>
+        <section class="modal-card-body">
+          <!-- Export type -->
+          <div class="block">
+            <h3><strong>Type</strong></h3>
+            <b-radio v-model="exportType"
+                name="cleared"
+                native-value="cleared">
+                Cleared
+                <b-tooltip label="Files free of undismissed PII"
+                  position="is-right"
+                  type="is-light">
+                  <b-icon
+                    icon="question-circle"
+                    size="is-small">
+                  </b-icon>
+                </b-tooltip>
+            </b-radio>
+            <br>
+            <b-radio v-model="exportType"
+                name="private"
+                native-value="private">
+                Private
+                <b-tooltip label="Files containing PII"
+                  position="is-right"
+                  type="is-light">
+                  <b-icon
+                    icon="question-circle"
+                    size="is-small">
+                  </b-icon>
+                </b-tooltip>
+            </b-radio>
+          </div>
+          <!-- Checkbox options -->
+          <div class="block" v-show="atLeastOneExportOption"> 
+            <h3><strong>Options</strong></h3>
+            <div v-show="exportType === 'private'">
+              <b-checkbox
+                type="is-info"
+                v-model="exportFlat">
+                Export files to flat directory
+              </b-checkbox>
+              <br>
+            </div>
+            <div v-show="brSession.disk_image === true">
+              <b-checkbox
+                type="is-info"
+                v-model="restoreDates"
+                v-show="brSession.disk_image === true">
+                Restore modified/created dates
+              </b-checkbox>
+              <br>
+              <b-checkbox
+                type="is-info"
+                v-model="exportUnallocatedFiles"
+                v-show="brSession.disk_image === true">
+                Include unallocated files
+              </b-checkbox>
+            </div>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <button class="button" @click="isExportModalActive = false">Cancel</button>
+          <button class="button is-primary" @click="exportFiles">Choose destination and export</button>
+        </footer>
       </div>
+    </b-modal>
 
-      <!-- Actions -->
-      <div class="container-fluid"
-        <b-dropdown aria-role="list" style="margin-bottom: 15px;">
-          <button class="button is-light" slot="trigger">
-            <span>Actions</span>
-            <b-icon icon="caret-down"></b-icon>
-          </button>
-
-          <b-dropdown-item
-            aria-role="listitem"
-            @click="openSaveFileDialog">
-            Save
-          </b-dropdown-item>
-
-          <b-dropdown-item
-            aria-role="listitem"
-            @click="exportFiles(false)">
-            Export cleared files (no PII)
-          </b-dropdown-item>
-
-          <b-dropdown-item
-            aria-role="listitem"
-            @click="exportFiles(true)">
-            Export private files
-          </b-dropdown-item>
-
-          <b-dropdown-item
-            aria-role="listitem"
-            @click="downloadCSVFeaturesReport">
-            Download CSV report
-          </b-dropdown-item>
-        </b-dropdown>
-      </div>
-
-      <!-- File selector -->
-      <div>
-        <button
-          v-if="showFileSelector"
-          class="button"
-          @click="toggleFileSelector">
-          - Hide file selector
-        </button>
-        <button
-          v-else
-          class="button is-primary"
-          @click="toggleFileSelector">
-          + Show file selector
-        </button>
-      </div>
-      
+    <!-- File selector button -->
+    <div>
+      <button
+        v-if="showFileSelector"
+        class="button"
+        @click="toggleFileSelector">
+        - Hide file selector
+      </button>
+      <button
+        v-else
+        class="button is-primary"
+        @click="toggleFileSelector">
+        + Show file selector
+      </button>
     </div>
     
+    <!-- File selector -->
     <div 
       class="container-fluid"
       id="fileSelector"
@@ -204,7 +245,10 @@ export default {
       perPage: 5,
       showFileSelector: false,
       exportUnallocatedFiles: false,
-      restoreDates: false
+      restoreDates: false,
+      exportFlat: false,
+      exportType: 'cleared',
+      isExportModalActive: false
     }
   },
   methods: {
@@ -309,10 +353,8 @@ export default {
         return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE)
       }
     },
-    // copy files from source from user-supplied destination
-    // copy files with pii if piiBoolean is true
-    // copy files without pii if piiBoolean is false
-    exportFiles (piiBoolean) {
+    // start file export to user-supplied destination
+    exportFiles () {
       const path = require('path')
       const remote = require('electron').remote
       const app = remote.app
@@ -328,6 +370,9 @@ export default {
         const jsonTempFile = path.join(brDir, this.sessionNameWithoutSpaces + '_temp.json')
         this.saveToJSONFile(jsonTempFile, true)
 
+        // close modal
+        this.isExportModalActive = false
+
         // build script parameters
         let script = this.getScriptPath()
 
@@ -338,7 +383,7 @@ export default {
           outDir,
           'export' // can be any string
         ]
-        if (piiBoolean === true) {
+        if (this.exportType === 'private') {
           scriptParameters.splice(1, 0, '--pii')
         }
         if (this.exportUnallocatedFiles === true) {
@@ -346,6 +391,9 @@ export default {
         }
         if (this.restoreDates === true) {
           scriptParameters.splice(1, 0, '--restore_dates')
+        }
+        if (this.exportFlat === true) {
+          scriptParameters.splice(1, 0, '--flat')
         }
         if (this.brSession.disk_image === true) {
           scriptParameters.splice(1, 0, '-d')
@@ -485,6 +533,10 @@ export default {
     },
     sessionNameWithoutSpaces () {
       return this.brSession.name.replace(/\s/g, '')
+    },
+    atLeastOneExportOption () {
+      // return true if at least one condition for export options is met
+      return this.exportType === 'private' || this.brSession.disk_image === true
     }
   }
 }
