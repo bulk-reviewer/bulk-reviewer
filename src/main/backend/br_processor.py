@@ -37,7 +37,6 @@ import Objects
 from export import FileExport
 
 
-
 Base = declarative_base()
 xor_re = re.compile(b"^(\\d+)\\-XOR\\-(\\d+)")
 
@@ -888,29 +887,29 @@ def _make_parser():
     parser.add_argument(
         "--export",
         help="Use script in export mode (export files based on JSON input)",
-        action="store_true"
+        action="store_true",
     )
     parser.add_argument(
         "--pii",
         help="Export files with PII. Used in tandem with --export flag",
-        action="store_true"
+        action="store_true",
     )
     parser.add_argument(
         "--flat",
         help="Export private files in flat directory. \
               Used in tandem with --export flag",
-        action="store_true"
+        action="store_true",
     )
     parser.add_argument(
         "--restore_dates",
         help="Restore modified dates for exported files to values in DFXML. \
               Used in tandem with --export flag",
-        action="store_true"
+        action="store_true",
     )
     parser.add_argument(
         "--unallocated",
         help="Export unallocated files. Used in tandem with --export flag",
-        action="store_true"
+        action="store_true",
     )
     parser.add_argument("source", help="Path to source directory or disk image")
     parser.add_argument("destination", help="Path to directory to write output files")
@@ -952,7 +951,7 @@ def main():
         logging.info(
             "Running script in file export mode. JSON file: %s. Destination: %s.",
             src,
-            dest
+            dest,
         )
         file_export = FileExport(
             src,
@@ -961,14 +960,15 @@ def main():
             args.pii,
             args.flat,
             args.restore_dates,
-            args.unallocated
+            args.unallocated,
         )
         file_export.export_files()
         return
 
     # Otherwise, log starting message and continue
-    logging.info("""Running script in processing mode. Name: %s. Source: %s.
-        """, args.filename, src)
+    logging.info(
+        "Running script in processing mode. Name: %s. Source: %s.", args.filename, src
+    )
 
     # Create output directories
     for out_dir in dest, reports_path, bulk_extractor_path:

@@ -24,9 +24,7 @@ def time_to_int(str_time):
     """Convert datetime in format YYYY-MM-DDTHH:MM:SS
     to integer representing Unix time.
     """
-    dt = time.mktime(
-        datetime.strptime(str_time, "%Y-%m-%dT%H:%M:%S").timetuple()
-    )
+    dt = time.mktime(datetime.strptime(str_time, "%Y-%m-%dT%H:%M:%S").timetuple())
     return dt
 
 
@@ -34,11 +32,20 @@ class FileExport:
     """Class representing Bulk Reviewer export.
     """
 
-    def __init__(self, json_path, destination, disk_image=False,
-                 private=False, flat=False, restore_dates=False,
-                 export_unallocated=False, session_dict=dict(),
-                 files_with_pii=list(), files_without_pii=list(),
-                 files_not_copied=list()):
+    def __init__(
+        self,
+        json_path,
+        destination,
+        disk_image=False,
+        private=False,
+        flat=False,
+        restore_dates=False,
+        export_unallocated=False,
+        session_dict=dict(),
+        files_with_pii=list(),
+        files_without_pii=list(),
+        files_not_copied=list(),
+    ):
         self.json_path = json_path
         self.destination = destination
         self.disk_image = disk_image
@@ -127,9 +134,7 @@ class FileExport:
             # Set modified date to modified or created value from DFXML
             if self.restore_dates:
                 self._restore_modified_date(
-                    file_dest,
-                    file_info["date_modified"],
-                    file_info["date_created"]
+                    file_dest, file_info["date_modified"], file_info["date_created"]
                 )
         logging.info("Files with PII copied to %s", self.destination)
 
@@ -162,8 +167,7 @@ class FileExport:
             # Set modified date to modified or created value from DFXML
             if self.restore_dates:
                 self._restore_modified_date(
-                    file_dest, file_info["date_modified"],
-                    file_info["date_created"]
+                    file_dest, file_info["date_modified"], file_info["date_created"]
                 )
         logging.info("Files without PII copied to %s", self.destination)
 
@@ -259,9 +263,7 @@ filepaths and corresponding features using the Bulk Reviewer CSV export.
 
         except Exception as e:
             logging.warning(
-                "Unable to create export README file %s. Details: %s",
-                out_file,
-                e
+                "Unable to create export README file %s. Details: %s", out_file, e
             )
 
     def _report_status(self):
@@ -271,17 +273,15 @@ filepaths and corresponding features using the Bulk Reviewer CSV export.
         if applicable.
         """
         #
-        logging.info('Export complete')
+        logging.info("Export complete")
         if not self.files_not_copied:
             if self.private:
                 print(
-                    "Private files successfully exported to directory",
-                    self.destination
+                    "Private files successfully exported to directory", self.destination
                 )
             else:
                 print(
-                    "Cleared files successfully exported to directory",
-                    self.destination
+                    "Cleared files successfully exported to directory", self.destination
                 )
             return
 
@@ -335,17 +335,12 @@ filepaths and corresponding features using the Bulk Reviewer CSV export.
         elif len(date_created) > 0:
             int_time = time_to_int(date_created[:19])
         else:
-            logging.warning(
-                "No date to restore from recorded for file %s",
-                file_dest
-            )
+            logging.warning("No date to restore from recorded for file %s", file_dest)
             return
 
         try:
             os.utime(file_dest, (int_time, int_time))
         except OSError as e:
             logging.warning(
-                "Error modifying modified date for %s. Error: %s",
-                file_dest,
-                e
+                "Error modifying modified date for %s. Error: %s", file_dest, e
             )
