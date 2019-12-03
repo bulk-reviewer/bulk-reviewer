@@ -47,6 +47,7 @@ FEATURE_LABELS = {
     "telephone.txt": "Phone number",
     "email.txt": "Email address",
     "find.txt": "Regular expression",
+    "lightgrep.txt": "Regular expression",
     "url.txt": "URL",
     "domain.txt": "Domain",
     "rfc822.txt": "Email/HTTP header (RFC822)",
@@ -515,12 +516,22 @@ def annotate_feature_files(feature_files_dir, annotated_feature_path, dfxml_path
         )
 
 
+def check_for_lightgrep(be_files):
+    """Return True if lightgrep file in bulk_extractor outputs.
+    """
+    filtered_lightgrep = [x for x in be_files if "lightgrep" in x]
+    if filtered_lightgrep:
+        return True
+    return False
+
+
 def read_features_to_db(feature_files_dir, br_session_id, session, args):
     """
     Read information from appropriate feature files
     into database, adding feature type.
     """
-    for feature_file in os.listdir(feature_files_dir):
+    be_files = os.listdir(feature_files_dir)
+    for feature_file in be_files:
         # Absolute path for file
         ff_abspath = os.path.join(feature_files_dir, feature_file)
         # Skip empty files
@@ -549,6 +560,11 @@ def read_features_to_db(feature_files_dir, br_session_id, session, args):
         # Skip stoplist results
         if "_stopped" in feature_file:
             continue
+        # Skip find if lightgrep enabled
+        lightgrep = check_for_lightgrep(be_files)
+        if lightgrep:
+            if "find" in feature_file:
+                continue
         # Skip network/web results unless args specify otherwise
         if not args.include_network:
             if "url" in feature_file:
