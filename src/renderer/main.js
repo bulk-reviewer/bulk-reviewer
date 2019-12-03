@@ -12,8 +12,9 @@ import vSelect from 'vue-select'
 
 import './assets/custom.css'
 
-import '@fortawesome/fontawesome-free-webfonts/css/fa-solid.css'
-import '@fortawesome/fontawesome-free-webfonts/css/fontawesome.css'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { fas } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 import { remote } from 'electron'
 
@@ -29,7 +30,13 @@ if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
 
-Vue.use(Buefy, { defaultIconPack: 'fas' })
+library.add(fas)
+Vue.component('vue-fontawesome', FontAwesomeIcon)
+Vue.use(Buefy, {
+  defaultIconComponent: 'vue-fontawesome',
+  defaultIconPack: 'fas'
+})
+
 Vue.component('v-select', vSelect)
 
 /* eslint-disable no-new */
