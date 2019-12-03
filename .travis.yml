@@ -1,4 +1,4 @@
-osx_image: xcode8.3
+osx_image: xcode10.2
 sudo: required
 dist: trusty
 language: c
@@ -25,7 +25,7 @@ before_install:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" && brew upgrade python; fi
 install:
-- nvm install 8
+- nvm install 10
 - curl -o- -L https://yarnpkg.com/install.sh | bash
 - source ~/.bashrc
 - npm install -g xvfb-maybe
