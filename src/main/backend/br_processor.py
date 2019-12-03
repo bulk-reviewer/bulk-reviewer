@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 """
+Bulk Reviewer
+---
 Creates Bulk Reviewer JSON file and DFXML
 and bulk_extractor output directories for input
 directory or disk image.
@@ -9,7 +11,6 @@ Tim Walsh, 2019
 https://bitarchivist.net
 Licensed under GNU General Public License 3
 https://www.gnu.org/licenses/gpl-3.0.en.html
-
 """
 
 from sqlalchemy import create_engine, Column, ForeignKey, Integer, String, Boolean
@@ -32,6 +33,10 @@ import sys
 import tempfile
 import time
 import Objects
+
+from export import FileExport
+
+
 
 Base = declarative_base()
 xor_re = re.compile(b"^(\\d+)\\-XOR\\-(\\d+)")
@@ -824,259 +829,6 @@ def brv_to_json(brv_path, json_path):
     conn.close()
 
 
-def carve_file(filepath, fs_offset, disk_image, inode, file_dest):
-    """
-    Carve file from disk image using The Sleuth Kit's
-    icat command line utility.
-
-    Return True is successful, False if not.
-    """
-    icat_cmd = 'icat -o {0} "{1}" {2} > "{3}"'.format(
-        fs_offset, disk_image, inode, file_dest
-    )
-    try:
-        subprocess.call(icat_cmd, shell=True)
-        logging.debug("File %s exported from disk image", filepath)
-        return True
-    except subprocess.CalledProcessError as e:
-        logging.error("Error exporting file %s: %s", filepath, e)
-        return False
-
-
-def time_to_int(str_time):
-    """
-    Convert datetime in format YYYY-MM-DDTHH:MM:SS
-    to integer representing Unix time.
-    """
-    dt = time.mktime(datetime.strptime(str_time, "%Y-%m-%dT%H:%M:%S").timetuple())
-    return dt
-
-
-def restore_modified_date(file_dest, date_modified, date_created):
-    """
-    Rewrite last modified date of file. Use modified date if
-    available, otherwise use created date.
-    """
-    if len(date_modified) > 0:
-        int_time = time_to_int(date_modified[:19])
-    elif len(date_created) > 0:
-        int_time = time_to_int(date_created[:19])
-    else:
-        logging.warning("No date to restore from recorded for file %s", file_dest)
-        return
-
-    try:
-        os.utime(file_dest, (int_time, int_time))
-    except OSError as e:
-        logging.warning("Error modifying modified date for %s. Error: %s", file_dest, e)
-
-
-def write_export_readme(dest_path, session_dict, export_type, files_with_pii, args):
-    """
-    Write README file in output directory for file export.
-    Include metadata about the session and export.
-    """
-    out_file = os.path.join(dest_path, "_BulkReviewer_README.txt")
-    time_of_export = str(datetime.now())[:19]
-    source_type = "Directory"
-    if session_dict["disk_image"] is True:
-        source_type = "Disk image"
-    private_faq = """
-\n\nFor private file exports, files are written to a flat directory.
-In order to prevent name collisions and to expedite redaction workflows,
-each file's unique ID (as assigned by Bulk Reviewer) is added to the
-beginning of the filename on export. These IDs can be matched to original
-filepaths and corresponding features using the Bulk Reviewer CSV export.
-    """
-
-    try:
-        with open(out_file, "w") as f:
-            # Write metadata
-            f.write("Files exported from Bulk Reviewer")
-            f.write("\n================================")
-            f.write("\nType: {}".format(export_type))
-            f.write("\nDate: {}".format(time_of_export))
-            f.write("\nSource: {}".format(session_dict["source_path"]))
-            f.write("\nSource type: {}".format(source_type))
-            # Include disk image file export options
-            if source_type == "Disk image":
-                dates = str(args.restore_dates)
-                unalloc = str(args.unallocated)
-                f.write("\nModified dates restored: {}".format(dates))
-                f.write("\nUnallocated files included: {}".format(unalloc))
-
-            # For cleared export, write list of excluded files
-            if export_type == "Cleared files (no PII)":
-                f.write("\n\nFiles excluded from export for containing PII:")
-                for pii_file in files_with_pii:
-                    f.write("\n{}".format(pii_file))
-
-            # For private export, write description of file IDs
-            if export_type == "Private files":
-                f.write(private_faq)
-
-        logging.info("Created export README file %s", out_file)
-
-    except Exception as e:
-        logging.warning(
-            "Unable to create export README file %s. Details: %s", out_file, e
-        )
-
-
-def export_files(json_path, dest_path, args):
-    """Exports files from source directory or disk image.
-
-    Takes Bulk Reviewer JSON as input and based on
-    user-supplied options exports either only files
-    with confirmed PII or only files clear of private
-    or otherwise sensitive information.
-    """
-
-    # Convert input json to dict
-    with open(json_path, "r", encoding="utf-8") as f:
-        session_dict = json.load(f)
-
-    # Delete temp json file
-    try:
-        os.remove(json_path)
-    except OSError:
-        logging.warning("Unable to delete JSON file %s", json_path)
-
-    # Create list of files with PII
-    features = session_dict["features"]
-    files_with_pii = []
-    for f in features:
-        if f["dismissed"] is False:
-            if f["filepath"] not in files_with_pii:
-                files_with_pii.append(f["filepath"])
-
-    # Create list of files without PII
-    files = session_dict["files"]
-    files_without_pii = []
-    for f in files:
-        if f["filepath"] not in files_with_pii:
-            files_without_pii.append(f["filepath"])
-
-    # Create list of files not successfully copied/carved
-    files_not_copied = []
-
-    # Export files from directory
-    if not args.diskimage:
-
-        # Export files without PII, replicating directory structure
-        if not args.pii:
-            for f in files_without_pii:
-                # Build paths for source and dest file
-                file_src = os.path.join(session_dict["source_path"], f)
-                file_dest = os.path.join(dest_path, f)
-                # Copy file, creating dirs if necessary
-                os.makedirs(os.path.dirname(file_dest), exist_ok=True)
-                try:
-                    shutil.copy2(file_src, file_dest)
-                except OSError as e:
-                    logging.error("Error copying file %s: %s", file_src, e)
-                    files_not_copied.append(file_src)
-            write_export_readme(
-                dest_path, session_dict, "Cleared files (no PII)", files_with_pii, args
-            )
-            logging.info("Files without PII copied to %s", dest_path)
-            return files_not_copied
-
-        # Export files with PII to flat directory
-        for f in files_with_pii:
-            # Get file information
-            filtered_files = [x for x in files if x["filepath"] == f]
-            file_info = filtered_files[0]
-            # Build path for source file
-            file_src = os.path.join(session_dict["source_path"], f)
-            # Build path for destination file, appending
-            # ID to filename to prevent filepath collisions
-            file_basename = str(file_info["id"]) + "_" + os.path.basename(f)
-            file_dest = os.path.join(dest_path, file_basename)
-            # Copy file
-            try:
-                shutil.copy2(file_src, file_dest)
-            except OSError as e:
-                logging.error("Error copying file %s: %s", file_src, e)
-                files_not_copied.append(file_src)
-        write_export_readme(
-            dest_path, session_dict, "Private files", files_with_pii, args
-        )
-        logging.info("Files with PII copied to %s", dest_path)
-        return files_not_copied
-
-    # Export files from disk image
-
-    # Export files without PII, replicating directory structure
-    if not args.pii:
-        for f in files_without_pii:
-            # Build path for destination file
-            file_dest = os.path.join(dest_path, f)
-            # Get file information
-            filtered_files = [x for x in files if x["filepath"] == f]
-            file_info = filtered_files[0]
-            # Skip unallocated files unless args.unallocated is True
-            if args.unallocated is not True:
-                if file_info["allocated"] is False:
-                    continue
-            # Create intermediate dirs if necessary
-            os.makedirs(os.path.dirname(file_dest), exist_ok=True)
-            # Carve file from disk image
-            carve_success = carve_file(
-                f,
-                int(file_info["fs_offset"]),
-                session_dict["source_path"],
-                int(file_info["inode"]),
-                file_dest,
-            )
-            if carve_success is False:
-                files_not_copied.append(file_dest)
-            # Set modified date to modified or created value from DFXML
-            if args.restore_dates:
-                restore_modified_date(
-                    file_dest, file_info["date_modified"], file_info["date_created"]
-                )
-        write_export_readme(
-            dest_path, session_dict, "Cleared files (no PII)", files_with_pii, args
-        )
-        logging.info("Files without PII copied to %s", dest_path)
-        return files_not_copied
-
-    # Export files with PII to flat directory
-    for f in files_with_pii:
-        # Get file information
-        filtered_files = [x for x in files if x["filepath"] == f]
-        file_info = filtered_files[0]
-        # Build path for destination file, appending
-        # ID to filename to prevent filepath collisions
-        file_basename = str(file_info["id"]) + "_" + os.path.basename(f)
-        file_dest = os.path.join(dest_path, file_basename)
-        # Skip unallocated files unless args.unallocated is True
-        if args.unallocated is not True:
-            if file_info["allocated"] is False:
-                continue
-        # Create intermediate dirs if necessary
-        os.makedirs(os.path.dirname(file_dest), exist_ok=True)
-        # Carve file from disk image
-        carve_success = carve_file(
-            f,
-            int(file_info["fs_offset"]),
-            session_dict["source_path"],
-            int(file_info["inode"]),
-            file_dest,
-        )
-        if carve_success is False:
-            files_not_copied.append(file_dest)
-        # Set modified date to modified or created value from DFXML
-        if args.restore_dates:
-            restore_modified_date(
-                file_dest, file_info["date_modified"], file_info["date_created"]
-            )
-    write_export_readme(dest_path, session_dict, "Private files", files_with_pii, args)
-    logging.info("Files with PII copied to %s", dest_path)
-    return files_not_copied
-
-
 def print_to_stderr_and_exit():
     """
     Print generic error message to stderr and exit with code 1.
@@ -1135,27 +887,30 @@ def _make_parser():
     )
     parser.add_argument(
         "--export",
-        help="Use script in export mode \
-                            (export files based on JSON input)",
-        action="store_true",
+        help="Use script in export mode (export files based on JSON input)",
+        action="store_true"
     )
     parser.add_argument(
         "--pii",
-        help="Export files with PII. \
-                            Used in tandem with --export flag",
-        action="store_true",
+        help="Export files with PII. Used in tandem with --export flag",
+        action="store_true"
+    )
+    parser.add_argument(
+        "--flat",
+        help="Export private files in flat directory. \
+              Used in tandem with --export flag",
+        action="store_true"
     )
     parser.add_argument(
         "--restore_dates",
         help="Restore modified dates for exported files to values in DFXML. \
-                            Used in tandem with --export flag",
-        action="store_true",
+              Used in tandem with --export flag",
+        action="store_true"
     )
     parser.add_argument(
         "--unallocated",
-        help="Export unallocated files. \
-                            Used in tandem with --export flag",
-        action="store_true",
+        help="Export unallocated files. Used in tandem with --export flag",
+        action="store_true"
     )
     parser.add_argument("source", help="Path to source directory or disk image")
     parser.add_argument("destination", help="Path to directory to write output files")
@@ -1192,53 +947,28 @@ def main():
     # Configure logging
     _configure_logging(bulk_reviewer_dir)
 
-    # Check if script run in export mode
-    # If yes, run export_files and return
+    # If script run in export mode, run file export and return
     if args.export:
         logging.info(
-            """Running script in file export mode. JSON file: %s. Destination: %s.\
-            """,
+            "Running script in file export mode. JSON file: %s. Destination: %s.",
+            src,
+            dest
+        )
+        file_export = FileExport(
             src,
             dest,
+            args.diskimage,
+            args.pii,
+            args.flat,
+            args.restore_dates,
+            args.unallocated
         )
-        files_not_copied = export_files(src, dest, args)
-
-        # Print success message if all files copied/carved successfully
-        if not files_not_copied:
-            if args.pii:
-                print("Private files successfully exported to directory", dest)
-            else:
-                print("Cleared files successfully exported to directory", dest)
-            return
-
-        # If errors with copying/carving files, print list of specific files
-        if args.pii:
-            print(
-                """
-                Private files exported to directory %s. The following files encountered 
-                errors: %s. See Bulk Reviewer log for details.
-            """.strip(),
-                dest,
-                ", ".join(files_not_copied),
-            )
-        else:
-            print(
-                """
-                Cleared files exported to directory %s. The following files encountered 
-                errors: %s. See Bulk Reviewer log for details.
-            """.strip(),
-                dest,
-                ", ".join(files_not_copied),
-            )
+        file_export.export_files()
         return
 
     # Otherwise, log starting message and continue
-    logging.info(
-        """Running script in processing mode. Name: %s. Source: %s.\
-        """,
-        args.filename,
-        src,
-    )
+    logging.info("""Running script in processing mode. Name: %s. Source: %s.
+        """, args.filename, src)
 
     # Create output directories
     for out_dir in dest, reports_path, bulk_extractor_path:
