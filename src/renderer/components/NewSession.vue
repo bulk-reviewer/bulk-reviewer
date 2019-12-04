@@ -358,7 +358,7 @@ export default {
 
         // display errors
         if (pyErrors.length > 0) {
-          self.errorMessage(`ERROR: ${pyErrors}`)
+          self.errorMessage(`${pyErrors}`)
         }
 
         // if json path provided by backend, load review dashboard

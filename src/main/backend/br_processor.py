@@ -13,7 +13,7 @@ Licensed under GNU General Public License 3
 https://www.gnu.org/licenses/gpl-3.0.en.html
 """
 
-from sqlalchemy import create_engine, Column, ForeignKey, Integer, String, Boolean
+from sqlalchemy import create_engine, func, Column, ForeignKey, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm.exc import NoResultFound
@@ -844,11 +844,12 @@ def brv_to_json(brv_path, json_path):
     conn.close()
 
 
-def print_to_stderr_and_exit():
+def print_to_stderr_and_exit(msg):
     """
-    Print generic error message to stderr and exit with code 1.
+    Print error message to stderr and exit with code 1.
     """
-    print("See bulk-reviewer.log for details.", file=sys.stderr)
+    msg += " See bulk-reviewer.log for details."
+    print(msg, file=sys.stderr)
     sys.exit(1)
 
 
@@ -1023,7 +1024,7 @@ def main():
         br_session_id = br_session_find.id
     except Exception:
         logging.error("JSON file with same name already exists. Quitting")
-        print_to_stderr_and_exit()
+        print_to_stderr_and_exit("JSON file with same name already exists.")
 
     # Disk image - Write file info to db
     if args.diskimage:
@@ -1032,7 +1033,7 @@ def main():
         logging.info("Creating DFXML")
         dfxml_success = create_dfxml(src, dfxml_path)
         if dfxml_success is False:
-            print_to_stderr_and_exit()
+            print_to_stderr_and_exit("fiwalk unable to create DFXML.")
 
         # Parse dfxml to db
         logging.info("Parsing DFXML to database")
@@ -1040,7 +1041,15 @@ def main():
             parse_dfxml_to_db(session, br_session_id, dfxml_path)
         except Exception as e:
             logging.error("Error parsing DFXML file %s: %s", dfxml_path, e)
-            print_to_stderr_and_exit()
+            print_to_stderr_and_exit("Error parsing DFXML file.")
+
+        # Write error message and quit if no files found
+        num_files = session.query(func.count(File.id)).scalar()
+        if num_files == 0:
+            logging.error(
+                "No files found. File system may be unsupported by fiwalk. Quitting."
+            )
+            print_to_stderr_and_exit("No files found. File system may be unsupported by fiwalk.")
 
     # Directory - Write file info to db
     else:
@@ -1057,7 +1066,7 @@ def main():
             src, bulk_extractor_path, stoplist_dir, ssn_mode, args
         )
         if bulk_extractor_success is False:
-            print_to_stderr_and_exit()
+            print_to_stderr_and_exit("Error running bulk_extractor.")
 
     if args.diskimage:
         # Disk image source: Annotate feature files and read into database
@@ -1082,7 +1091,7 @@ def main():
         sys.stdout.buffer.write(json_path.encode("utf-8"))
     except Exception as e:
         logging.error("Error creating JSON file %s: %s", json_path, e)
-        print_to_stderr_and_exit()
+        print_to_stderr_and_exit("Error creating JSON file.")
 
     # Delete temp_dir with .brv file
     try:
