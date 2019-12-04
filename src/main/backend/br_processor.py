@@ -1049,7 +1049,9 @@ def main():
             logging.error(
                 "No files found. File system may be unsupported by fiwalk. Quitting."
             )
-            print_to_stderr_and_exit("No files found. File system may be unsupported by fiwalk.")
+            print_to_stderr_and_exit(
+                "No files found. File system may be unsupported by fiwalk."
+            )
 
     # Directory - Write file info to db
     else:
