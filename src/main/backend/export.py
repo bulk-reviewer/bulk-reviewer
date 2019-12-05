@@ -81,7 +81,9 @@ class FileExport:
 
         # If tar option selected, create tar exclude file and exit
         if self.tar_list:
-            self._create_tar_exclude_file()
+            # Skip if disk image
+            if not self.disk_image:
+                self._create_tar_exclude_file()
 
         if self.disk_image:
             if self.private:
@@ -118,7 +120,10 @@ class FileExport:
         try:
             with open(self.destination, "w") as f:
                 for private_file in self.files_with_pii:
-                    f.write(str(private_file) + "\n")
+                    private_filepath = os.path.join(
+                        self.session_dict["source_path"], private_file
+                    )
+                    f.write(private_filepath + "\n")
             logging.info("Created tar exclude file %s", str(self.destination))
             print("Tar exclude file written to {}".format(str(self.destination)))
             sys.exit(0)

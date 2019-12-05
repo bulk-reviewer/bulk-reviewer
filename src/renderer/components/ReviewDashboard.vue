@@ -41,7 +41,10 @@
         </b-icon>
         <span>Download CSV</span>
       </button>
-      <button class="button" @click="downloadTarExcludeFile">
+      <button
+        class="button"
+        @click="downloadTarExcludeFile"
+        v-show="brSession.disk_image === false">
         <b-icon
           icon="download"
           size="is-small">
