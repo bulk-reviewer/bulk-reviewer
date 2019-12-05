@@ -93,8 +93,17 @@ class FileExport:
     def _load_from_json(self):
         """Save Bulk Reviewer JSON data to session_dict.
         """
+        self._clear_data()
         with open(self.json_path, "r", encoding="utf-8") as f:
             self.session_dict = json.load(f)
+
+    def _clear_data(self):
+        """Flush existing data.
+        """
+        self.session_dict = dict()
+        self.files_with_pii = list()
+        self.files_without_pii = list()
+        self.files_not_copied = list()
 
     def _create_tar_exclude_file(self):
         """Create TAR exclude file and exit with code 0.
