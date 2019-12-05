@@ -41,6 +41,13 @@
         </b-icon>
         <span>Download CSV</span>
       </button>
+      <button class="button" @click="downloadTarExcludeFile">
+        <b-icon
+          icon="download"
+          size="is-small">
+        </b-icon>
+        <span>Download tar exclude file</span>
+      </button>
     </div>
 
     <!-- File export modal -->
@@ -353,6 +360,76 @@ export default {
         return path.join(PY_DIST_FOLDER, PY_MODULE, PY_MODULE)
       }
     },
+    // call python backend
+    callBackend (scriptParameters) {
+      const remote = require('electron').remote
+      const app = remote.app
+
+      // fix for mac os to make system PATH available to node
+      const fixPath = require('fix-path')
+      fixPath()
+
+      // run python executable if built
+      if (app.isPackaged) {
+        // spawn command in shell
+        let script = this.getScriptPath()
+        let parametersMinusScript = scriptParameters.slice(1)
+        console.log(`Script: ${script}`)
+        console.log(`Parameters: ${parametersMinusScript}`)
+        let pyProc = require('child_process').spawn(script, parametersMinusScript, { shell: true })
+
+        // show in progress message
+        this.inProgressMessage()
+
+        // collect stdout and stderr
+        let pyOut = ''
+        let pyErr = ''
+        pyProc.stdout.on('data', function (data) {
+          pyOut += data.toString()
+        })
+        pyProc.stderr.on('data', function (data) {
+          pyErr += data.toString()
+        })
+
+        // show user error or success message on completion
+        let self = this
+        pyProc.stdout.on('end', function (data) {
+          if (pyErr.length > 0) {
+            self.errorMessage(pyErr)
+          } else {
+            self.successMessage(pyOut)
+          }
+        })
+      // otherwise, run unbuilt script
+      } else {
+        let pyProc = require('child_process').spawn('python3', scriptParameters)
+        let pyOut = ''
+        let pyErr = ''
+
+        // show in progress message
+        this.inProgressMessage()
+
+        // collect stdout
+        pyProc.stdout.on('data', function (data) {
+          pyOut += data.toString()
+        })
+
+        // collect stderr
+        pyProc.stderr.on('data', function (data) {
+          pyErr += data.toString()
+        })
+
+        // show user error or success message on completion
+        let self = this
+        pyProc.stdout.on('end', function (data) {
+          if (pyErr.length > 0) {
+            self.errorMessage(pyErr)
+          } else {
+            self.successMessage(pyOut)
+          }
+        })
+      }
+    },
     // start file export to user-supplied destination
     exportFiles () {
       const path = require('path')
@@ -399,68 +476,39 @@ export default {
           scriptParameters.splice(1, 0, '-d')
         }
 
-        // run python script/executable
-        if (app.isPackaged) {
-          // fix for mac os to make system PATH available to node
-          const fixPath = require('fix-path')
-          fixPath()
+        // call python backend
+        this.callBackend(scriptParameters)
+      })
+    },
+    // trigger backend to write tar exclude file
+    downloadTarExcludeFile () {
+      const path = require('path')
+      const remote = require('electron').remote
+      const app = remote.app
+      const dialog = remote.dialog
 
-          // spawn command in shell
-          let parametersMinusScript = scriptParameters.slice(1)
-          console.log(`Script: ${script}`)
-          console.log(`Parameters: ${parametersMinusScript}`)
-          let pyProc = require('child_process').spawn(script, parametersMinusScript, { shell: true })
+      // show user dialog to select file to save to
+      let defaultTarExcludeFilename = this.sessionNameWithoutSpaces + '_tar_exclude.txt'
+      dialog.showSaveDialog({ defaultPath: defaultTarExcludeFilename }, (filename) => {
+        const outFile = filename.toString()
+        // create temp JSON file with current state
+        const homeDir = app.getPath('home')
+        const brDir = path.join(homeDir, 'bulk-reviewer')
+        const jsonTempFile = path.join(brDir, this.sessionNameWithoutSpaces + '_temp.json')
+        this.saveToJSONFile(jsonTempFile, true)
 
-          // show in progress message
-          this.inProgressMessage()
+        // build script parameters
+        let scriptParameters = [
+          this.getScriptPath(),
+          '--export',
+          '--tar',
+          jsonTempFile,
+          outFile,
+          'export' // can be any string
+        ]
 
-          // collect stdout and stderr
-          let pyOut = ''
-          let pyErr = ''
-          pyProc.stdout.on('data', function (data) {
-            pyOut += data.toString()
-          })
-          pyProc.stderr.on('data', function (data) {
-            pyErr += data.toString()
-          })
-
-          // show user error or success message on completion
-          let self = this
-          pyProc.stdout.on('end', function (data) {
-            if (pyErr.length > 0) {
-              self.errorMessage(pyErr)
-            } else {
-              self.successMessage(pyOut)
-            }
-          })
-        } else {
-          let pyProc = require('child_process').spawn('python3', scriptParameters)
-          let pyOut = ''
-          let pyErr = ''
-
-          // show in progress message
-          this.inProgressMessage()
-
-          // collect stdout
-          pyProc.stdout.on('data', function (data) {
-            pyOut += data.toString()
-          })
-
-          // collect stderr
-          pyProc.stderr.on('data', function (data) {
-            pyErr += data.toString()
-          })
-
-          // show user error or success message on completion
-          let self = this
-          pyProc.stdout.on('end', function (data) {
-            if (pyErr.length > 0) {
-              self.errorMessage(pyErr)
-            } else {
-              self.successMessage(pyOut)
-            }
-          })
-        }
+        // call python backend
+        this.callBackend(scriptParameters)
       })
     },
     // display in progress message while file export occurs

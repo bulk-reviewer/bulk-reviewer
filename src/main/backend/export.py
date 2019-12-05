@@ -17,7 +17,10 @@ import logging
 import os
 import shutil
 import subprocess
+import sys
 import time
+
+from utils import print_to_stderr_and_exit
 
 
 def time_to_int(str_time):
@@ -41,6 +44,7 @@ class FileExport:
         flat=False,
         restore_dates=False,
         export_unallocated=False,
+        tar_list=False,
         session_dict=dict(),
         files_with_pii=list(),
         files_without_pii=list(),
@@ -53,6 +57,7 @@ class FileExport:
         self.flat = flat
         self.restore_dates = restore_dates
         self.export_unallocated = export_unallocated
+        self.tar_list = tar_list
         self.session_dict = session_dict
         self.files_with_pii = files_with_pii
         self.files_without_pii = files_without_pii
@@ -73,6 +78,10 @@ class FileExport:
         for f in files:
             if f["filepath"] not in self.files_with_pii:
                 self.files_without_pii.append(f["filepath"])
+
+        # If tar option selected, create tar exclude file and exit
+        if self.tar_list:
+            self._create_tar_exclude_file()
 
         if self.disk_image:
             if self.private:
@@ -99,6 +108,29 @@ class FileExport:
             os.remove(self.json_path)
         except OSError:
             logging.warning("Unable to delete JSON file %s", self.json_path)
+
+    def _create_tar_exclude_file(self):
+        """Create TAR exclude file and exit with code 0.
+
+        File includes absolute path to each file containing PII.
+        Each entry is written on its own line.
+        """
+        try:
+            with open(self.destination, "w") as f:
+                for private_file in self.files_with_pii:
+                    f.write(str(private_file) + "\n")
+            logging.info("Created tar exclude file %s", str(self.destination))
+            print("Tar exclude file written to {}".format(str(self.destination)))
+            sys.exit(0)
+        except Exception as e:
+            logging.error(
+                "Unable to create tar exclude file %s. Details: %s",
+                str(self.destination),
+                e,
+            )
+            print_to_stderr_and_exit(
+                "Unable to create tar exclude file %s.", str(self.destination)
+            )
 
     def _export_files_private_diskimage(self):
         """Export private files from disk image.

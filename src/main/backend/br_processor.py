@@ -35,6 +35,7 @@ import time
 import Objects
 
 from export import FileExport
+from utils import print_to_stderr_and_exit
 
 
 Base = declarative_base()
@@ -844,15 +845,6 @@ def brv_to_json(brv_path, json_path):
     conn.close()
 
 
-def print_to_stderr_and_exit(msg):
-    """
-    Print error message to stderr and exit with code 1.
-    """
-    msg += " See bulk-reviewer.log for details."
-    print(msg, file=sys.stderr)
-    sys.exit(1)
-
-
 def _configure_logging(bulk_reviewer_dir):
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
@@ -928,6 +920,11 @@ def _make_parser():
         help="Export unallocated files. Used in tandem with --export flag",
         action="store_true",
     )
+    parser.add_argument(
+        "--tar",
+        help="Generate tar exclude file. Used in tandem with --export flag",
+        action="store_true",
+    )
     parser.add_argument("source", help="Path to source directory or disk image")
     parser.add_argument("destination", help="Path to directory to write output files")
     parser.add_argument("filename", help="Filename for output file (no extension)")
@@ -978,6 +975,7 @@ def main():
             args.flat,
             args.restore_dates,
             args.unallocated,
+            args.tar,
         )
         file_export.export_files()
         return
