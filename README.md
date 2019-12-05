@@ -80,7 +80,7 @@ chmod +x install_ubuntu18.sh
 sudo ./install_ubuntu18.sh
 ```
 
-2. Download the Bulk Reviewer [AppImage](https://appimage.org/) `BulkReviewer-x.x.x-x86_64.AppImage` from the [latest Bulk Reviewer release](https://github.com/bulk-reviewer/bulk-reviewer/releases).
+2. Download the Bulk Reviewer [AppImage](https://appimage.org/) `BulkReviewer-x.x.x.AppImage` from the [latest Bulk Reviewer release](https://github.com/bulk-reviewer/bulk-reviewer/releases).
 
 3. Save the AppImage to location of your choice (e.g. your home folder or desktop).
 
