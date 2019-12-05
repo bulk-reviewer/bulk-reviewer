@@ -15,5 +15,6 @@ src/main/backend/stoplists/
 src/main/backend_dist/
 src/main/br_processor.spec
 src/main/build/
+br_processor.spec
 env/
 docs/_build/

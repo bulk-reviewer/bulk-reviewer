@@ -149,19 +149,14 @@ yarn run dev
 2. Package Python script as executable
 
 ``` bash
-cd src/main
-pyinstaller backend/br_processor.py --distpath backend_dist
-rm -rf br_processor.spec
-rm -rf build
+./build-backend.sh
 ```
+
+(If build-backend script is not executable, make it executable with `chmod +x build-backend.sh`)
 
 3. Build Electron application for production
 
 ``` bash
-# Return to main bulk-reviewer directory
-cd ../..
-
-# Run build command
 yarn run build
 ```
 
