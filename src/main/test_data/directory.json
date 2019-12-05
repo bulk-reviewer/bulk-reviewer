@@ -1,0 +1,93 @@
+{
+  "id": 1,
+  "name": "directory",
+  "source_path": "<to replace in tests>",
+  "disk_image": false,
+  "named_entity_extraction": false,
+  "regex_file": null,
+  "ssn_mode": 0,
+  "files": [
+    {
+      "id": 1,
+      "filename": "file1_ssn.txt",
+      "filepath": "file1_ssn.txt",
+      "date_modified": "2019-12-05T17:34:00.961845",
+      "date_created": "",
+      "note": null,
+      "allocated": true,
+      "verified": false,
+      "inode": "",
+      "fs_offset": "",
+      "session": 1,
+      "feature_count": 1
+    },
+    {
+      "id": 2,
+      "filename": "file2_nothing.txt",
+      "filepath": "file2_nothing.txt",
+      "date_modified": "2019-12-05T17:35:17.320688",
+      "date_created": "",
+      "note": null,
+      "allocated": true,
+      "verified": false,
+      "inode": "",
+      "fs_offset": "",
+      "session": 1,
+      "feature_count": 0
+    },
+    {
+      "id": 3,
+      "filename": "file4_nothing.txt",
+      "filepath": "subdir/file4_nothing.txt",
+      "date_modified": "2019-12-05T17:35:53.998331",
+      "date_created": "",
+      "note": null,
+      "allocated": true,
+      "verified": false,
+      "inode": "",
+      "fs_offset": "",
+      "session": 1,
+      "feature_count": 0
+    },
+    {
+      "id": 4,
+      "filename": "file3_email.txt",
+      "filepath": "subdir/file3_email.txt",
+      "date_modified": "2019-12-05T17:35:39.404614",
+      "date_created": "",
+      "note": null,
+      "allocated": true,
+      "verified": false,
+      "inode": "",
+      "fs_offset": "",
+      "session": 1,
+      "feature_count": 1
+    }
+  ],
+  "features": [
+    {
+      "id": 1,
+      "feature_type": "Social Security Number (USA)",
+      "forensic_path": "/Users/twalsh/Documents/6-Software/Github_repos/bulk-reviewer/src/main/test-data/source_directory/file1_ssn.txt􀀜-0",
+      "offset": null,
+      "feature": "SSN: 123-45-6789",
+      "context": "SSN: 123-45-6789\\x0A",
+      "note": null,
+      "dismissed": false,
+      "file": 1,
+      "filepath": "file1_ssn.txt"
+    },
+    {
+      "id": 2,
+      "feature_type": "Email address",
+      "forensic_path": "/Users/twalsh/Documents/6-Software/Github_repos/bulk-reviewer/src/main/test-data/source_directory/subdir/file3_email.txt􀀜-0",
+      "offset": null,
+      "feature": "tim@bitarchivist.net",
+      "context": "tim@bitarchivist.net\\x0A",
+      "note": null,
+      "dismissed": false,
+      "file": 4,
+      "filepath": "subdir/file3_email.txt"
+    }
+  ]
+}

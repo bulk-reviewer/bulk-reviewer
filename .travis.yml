@@ -19,8 +19,14 @@ addons:
     - libgnome-keyring-dev
     - icnsutils
 before_install:
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils; fi
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" && brew upgrade python; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 
+    sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils;
+    chmod +x install_ubuntu18.sh && sudo ./install_ubuntu18.sh;
+  fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" && brew upgrade python;
+    chmod +x install_mac.sh && ./install_mac.sh;
+  fi
 install:
 - nvm install 10
 - curl -o- -L https://yarnpkg.com/install.sh | bash
@@ -29,8 +35,9 @@ install:
 - sudo pip install --upgrade virtualenv && virtualenv -p python3 env
 - source env/bin/activate && cd src/main && pip install -r backend/requirements.txt && pyinstaller backend/br_processor.py --distpath backend_dist
 - yarn install
-script:
 - yarn run build
+script:
+- python backend/test.py
 branches:
   only:
   - master
