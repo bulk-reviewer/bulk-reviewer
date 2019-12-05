@@ -92,15 +92,9 @@ class FileExport:
 
     def _load_from_json(self):
         """Save Bulk Reviewer JSON data to session_dict.
-
-        Attempt to delete temp JSON file after read.
         """
         with open(self.json_path, "r", encoding="utf-8") as f:
             self.session_dict = json.load(f)
-        try:
-            os.remove(self.json_path)
-        except OSError:
-            logging.warning("Unable to delete JSON file %s", self.json_path)
 
     def _create_tar_exclude_file(self):
         """Create TAR exclude file and exit with code 0.
@@ -317,12 +311,12 @@ filepaths and corresponding features using the Bulk Reviewer CSV export.
         if self.private:
             print(
                 """
-                Private files exported to directory %s.
-                The following files encountered errors: %s.
+                Private files exported to directory {}.
+                The following files encountered errors: {}.
                 See Bulk Reviewer log for details.
-                """.strip(),
-                self.destination,
-                ", ".join(self.files_not_copied),
+                """.format(
+                    self.destination, ", ".join([x for x in self.files_not_copied])
+                )
             )
         else:
             print(
@@ -330,9 +324,9 @@ filepaths and corresponding features using the Bulk Reviewer CSV export.
                 Cleared files exported to directory %s.
                 The following files encountered errors: %s.
                 See Bulk Reviewer log for details.
-                """.strip(),
-                self.destination,
-                ", ".join(self.files_not_copied),
+                """.format(
+                    self.destination, ", ".join(self.files_not_copied)
+                )
             )
 
     @staticmethod
