@@ -18,17 +18,8 @@ import os
 import shutil
 import subprocess
 import sys
-import time
 
-from utils import print_to_stderr_and_exit
-
-
-def time_to_int(str_time):
-    """Convert datetime in format YYYY-MM-DDTHH:MM:SS
-    to integer representing Unix time.
-    """
-    dt = time.mktime(datetime.strptime(str_time, "%Y-%m-%dT%H:%M:%S").timetuple())
-    return dt
+from utils import print_to_stderr_and_exit, time_to_int
 
 
 class FileExport:
