@@ -29,4 +29,4 @@ def time_to_int(str_time):
     to integer representing Unix time.
     """
     dt = time.mktime(datetime.strptime(str_time, "%Y-%m-%dT%H:%M:%S").timetuple())
-    return dt
+    return int(dt)
