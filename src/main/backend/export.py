@@ -75,6 +75,7 @@ class FileExport:
             # Skip if disk image
             if not self.disk_image:
                 self._create_tar_exclude_file()
+            return
 
         if self.disk_image:
             if self.private:
@@ -120,7 +121,6 @@ class FileExport:
                     f.write(private_filepath + "\n")
             logging.info("Created tar exclude file %s", str(self.destination))
             print("Tar exclude file written to {}".format(str(self.destination)))
-            sys.exit(0)
         except Exception as e:
             logging.error(
                 "Unable to create tar exclude file %s. Details: %s",
