@@ -72,14 +72,10 @@ class TestIntegrationExportDirectory(SelfCleaningTestCase):
     def _setup_directory_test(self):
         """Set up directory integration test and return path to updated JSON.
         """
-        # Copy source files to tempdir
         source_dir = j(self.test_data_dir, "source_directory")
-        test_source_dir = j(self.tmpdir, "source_directory")
-        shutil.copytree(source_dir, test_source_dir)
-        # Write new directory.json with updated source path
         json_path = j(self.test_data_dir, "directory.json")
         new_json = j(self.tmpdir, "directory.json")
-        write_updated_json(json_path, new_json, test_source_dir)
+        write_updated_json(json_path, new_json, source_dir)
         return new_json
 
     def test_export_directory_cleared(self):
@@ -152,14 +148,14 @@ class TestIntegrationExportDirectory(SelfCleaningTestCase):
         # Verify tar exclude list created
         self.assertTrue(is_non_zero_file(exclude_file))
         # Verify private abspaths and no cleared paths were written to file
-        test_source_dir = j(self.tmpdir, "source_directory")
+        source_dir = j(self.test_data_dir, "source_directory")
         private = [
-            j(test_source_dir, "file1_ssn.txt"),
-            j(test_source_dir, "subdir/file3_email.txt"),
+            j(source_dir, "file1_ssn.txt"),
+            j(source_dir, "subdir/file3_email.txt"),
         ]
         cleared = [
-            j(test_source_dir, "file2_nothing.txt"),
-            j(test_source_dir, "subdir/file4_nothing.txt"),
+            j(source_dir, "file2_nothing.txt"),
+            j(source_dir, "subdir/file4_nothing.txt"),
         ]
         with open(exclude_file, "r") as f:
             for line in f:
@@ -178,12 +174,9 @@ class TestIntegrationExportDiskImage(SelfCleaningTestCase):
         """
         # Copy source files to tempdir
         source_disk = j(self.test_data_dir, "source_diskimage", "practical.floppy.dd")
-        test_source_disk = j(self.tmpdir, "practical.floppy.dd")
-        shutil.copy(source_disk, test_source_disk)
-        # Write new directory.json with updated source path
         json_path = j(self.test_data_dir, "diskimage.json")
         new_json = j(self.tmpdir, "diskimage.json")
-        write_updated_json(json_path, new_json, test_source_disk)
+        write_updated_json(json_path, new_json, source_disk)
         return new_json
 
     def test_export_diskimage_cleared(self):
