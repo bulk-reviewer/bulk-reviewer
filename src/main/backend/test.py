@@ -3,6 +3,7 @@
 import json
 import os
 import shutil
+import subprocess
 import tempfile
 import unittest
 
@@ -61,6 +62,104 @@ class SelfCleaningTestCase(unittest.TestCase):
             shutil.rmtree(self.tmpdir)
 
         super(SelfCleaningTestCase, self).tearDown()
+
+
+class TestIntegrationProcessor(SelfCleaningTestCase):
+    """Main Bulk Reviewer backend integration tests.
+    """
+
+    test_data_dir = os.path.abspath(j(os.path.dirname(__file__), "..", "test_data"))
+
+    def test_directory_default(self):
+        """Test default settings for directory.
+        """
+        br_processor_path = os.path.abspath(
+            j(os.path.dirname(__file__), "br_processor.py")
+        )
+        source_dir = j(self.test_data_dir, "source_directory")
+        # out_dir = j(self.tmpdir, "out")
+        out_dir = "/Users/twalsh/bulk-reviewer/"
+        cmd = ["python", br_processor_path, source_dir, out_dir, "test"]
+        result = subprocess.check_output(cmd)
+        # Verify stdout
+        json_path = j(out_dir, "test.json")
+        self.assertEqual(result.decode("utf-8"), json_path)
+        # Verify output dirs and files
+        output_dirs = [
+            j(out_dir, "test_reports"),
+            j(out_dir, "test_reports", "bulk_extractor"),
+        ]
+        for d in output_dirs:
+            self.assertTrue(os.path.isdir(d))
+        output_files = [
+            json_path,
+            j(out_dir, "test_reports", "bulk_extractor", "report.xml"),
+            j(out_dir, "test_reports", "bulk_extractor", "pii.txt"),
+            j(out_dir, "test_reports", "bulk_extractor", "email.txt"),
+        ]
+        for f in output_files:
+            self.assertTrue(is_non_zero_file(f))
+        # Verify contents of JSON match sample
+        with open(json_path, "r", encoding="utf-8") as test:
+            sample_path = j(self.test_data_dir, "directory.json")
+            with open(sample_path, "r", encoding="utf-8") as sample:
+                test_dict = json.load(test)
+                sample_dict = json.load(sample)
+            # Compare file and feature counts against sample
+            self.assertEqual(len(test_dict["files"]), len(sample_dict["files"]))
+            self.assertEqual(len(test_dict["features"]), len(sample_dict["features"]))
+
+    def test_diskimage_default(self):
+        """Test default settings for directory.
+        """
+        br_processor_path = os.path.abspath(
+            j(os.path.dirname(__file__), "br_processor.py")
+        )
+        source_disk = j(self.test_data_dir, "source_diskimage", "practical.floppy.dd")
+        out_dir = j(self.tmpdir, "out")
+        cmd = ["python", br_processor_path, "-d", source_disk, out_dir, "test"]
+        result = subprocess.check_output(cmd)
+        # Verify stdout
+        json_path = j(out_dir, "test.json")
+        self.assertEqual(result.decode("utf-8"), json_path)
+        # Verify output dirs and files
+        output_dirs = [
+            j(out_dir, "test_reports"),
+            j(out_dir, "test_reports", "bulk_extractor"),
+            j(out_dir, "test_reports", "bulk_extractor_annotated"),
+        ]
+        for d in output_dirs:
+            self.assertTrue(os.path.isdir(d))
+        output_files = [
+            json_path,
+            j(out_dir, "test_reports", "dfxml.xml"),
+            j(out_dir, "test_reports", "bulk_extractor", "report.xml"),
+            j(out_dir, "test_reports", "bulk_extractor", "email.txt"),
+            j(
+                out_dir,
+                "test_reports",
+                "bulk_extractor_annotated",
+                "annotated_domain.txt",
+            ),
+            j(
+                out_dir,
+                "test_reports",
+                "bulk_extractor_annotated",
+                "annotated_email.txt",
+            ),
+            j(out_dir, "test_reports", "bulk_extractor_annotated", "annotated_url.txt"),
+        ]
+        for f in output_files:
+            self.assertTrue(is_non_zero_file(f))
+        # Verify contents of JSON match sample
+        with open(json_path, "r", encoding="utf-8") as test:
+            sample_path = j(self.test_data_dir, "diskimage.json")
+            with open(sample_path, "r", encoding="utf-8") as sample:
+                test_dict = json.load(test)
+                sample_dict = json.load(sample)
+            # Compare files and features against sample
+            self.assertEqual(test_dict["files"], sample_dict["files"])
+            self.assertEqual(test_dict["features"], sample_dict["features"])
 
 
 class TestIntegrationExportDirectory(SelfCleaningTestCase):
