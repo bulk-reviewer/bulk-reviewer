@@ -1,31 +1,42 @@
 sudo: required
 language: c
+compiler: gcc
 matrix:
   include:
     - os: linux
-      dist: trusty
-      env: CC=clang CXX=clang++ npm_config_clang=1
-      compiler: clang
+      dist: bionic
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+            - libgnome-keyring-dev
+            - icnsutils
+            - graphicsmagick
+            - xz-utils
+            - libewf-dev
+            - libssl-dev
+            - libsqlite3-dev
+            - libboost-dev
+            - libicu-dev
+            - libtool
+            - sleuthkit
     - os: osx
       osx_image: xcode10.2
-cache:
-  directories:
-  - node_modules
-  - "$HOME/.electron"
-  - "$HOME/.cache"
-addons:
-  apt:
-    packages:
-    - libgnome-keyring-dev
-    - icnsutils
 before_install:
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 
-    sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils && chmod +x install_ubuntu18.sh && sudo ./install_ubuntu18.sh;
-  fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" && brew upgrade python && chmod +x install_mac.sh && ./install_mac.sh;
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)";
+    brew upgrade python;
+    brew install libewf afflib sleuthkit;
   fi
 install:
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+    export LDFLAGS="-L/usr/local/opt/openssl/lib -L/usr/local/lib -L/usr/local/opt/expat/lib";
+    export CFLAGS="-I/usr/local/opt/openssl/include/ -I/usr/local/include -I/usr/local/opt/expat/include";
+    export CPPFLAGS="-I/usr/local/opt/openssl/include/ -I/usr/local/include -I/usr/local/opt/expat/include";
+  fi
+- git clone --recursive https://github.com/timothyryanwalsh/bulk_extractor && cd bulk_extractor && chmod 755 bootstrap.sh && ./bootstrap.sh && ./configure && make && sudo make install && cd ..
 - nvm install 10
 - curl -o- -L https://yarnpkg.com/install.sh | bash
 - source ~/.bashrc

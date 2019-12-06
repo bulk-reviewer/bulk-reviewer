@@ -162,6 +162,16 @@ yarn run build
 
 The resulting built application can be found in the `build` directory.
 
+## Test
+
+1. Follow Development steps 1-2 above
+
+2. Run backend tests
+
+``` bash
+python src/main/backend/test.py
+```
+
 ## Logo design
 [Bailey McGinn](https://baileymcginn.com/)
 

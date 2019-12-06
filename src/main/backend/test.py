@@ -77,8 +77,7 @@ class TestIntegrationProcessor(SelfCleaningTestCase):
             j(os.path.dirname(__file__), "br_processor.py")
         )
         source_dir = j(self.test_data_dir, "source_directory")
-        # out_dir = j(self.tmpdir, "out")
-        out_dir = "/Users/twalsh/bulk-reviewer/"
+        out_dir = j(self.tmpdir, "out")
         cmd = ["python", br_processor_path, source_dir, out_dir, "test"]
         result = subprocess.check_output(cmd)
         # Verify stdout
