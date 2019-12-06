@@ -20,12 +20,10 @@ addons:
     - icnsutils
 before_install:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 
-    sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils;
-    chmod +x install_ubuntu18.sh && sudo ./install_ubuntu18.sh;
+    sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils && chmod +x install_ubuntu18.sh && sudo ./install_ubuntu18.sh;
   fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" && brew upgrade python;
-    chmod +x install_mac.sh && ./install_mac.sh;
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" && brew upgrade python && chmod +x install_mac.sh && ./install_mac.sh;
   fi
 install:
 - nvm install 10
