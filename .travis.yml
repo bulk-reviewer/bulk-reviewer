@@ -35,9 +35,8 @@ install:
 - sudo pip install --upgrade virtualenv && virtualenv -p python3 env
 - source env/bin/activate && cd src/main && pip install -r backend/requirements.txt && pyinstaller backend/br_processor.py --distpath backend_dist
 - yarn install
-- yarn run build
 script:
-- python backend/test.py
+- python backend/test.py && yarn run build
 branches:
   only:
   - master
