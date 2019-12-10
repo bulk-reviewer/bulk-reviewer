@@ -23,29 +23,25 @@ matrix:
             - libtool
             - sleuthkit
     - os: osx
-      osx_image: xcode10.2
-before_install:
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)";
-    brew upgrade python;
-    brew install libewf afflib sleuthkit;
-  fi
+      osx_image: xcode11
+      addons:
+        homebrew:
+          packages:
+            - libewf
+            - afflib
+            - sleuthkit
+            - bulk_extractor
 install:
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-    export LDFLAGS="-L/usr/local/opt/openssl/lib -L/usr/local/lib -L/usr/local/opt/expat/lib";
-    export CFLAGS="-I/usr/local/opt/openssl/include/ -I/usr/local/include -I/usr/local/opt/expat/include";
-    export CPPFLAGS="-I/usr/local/opt/openssl/include/ -I/usr/local/include -I/usr/local/opt/expat/include";
-  fi
-- git clone --recursive https://github.com/timothyryanwalsh/bulk_extractor && cd bulk_extractor && chmod 755 bootstrap.sh && ./bootstrap.sh && ./configure && make && sudo make install && cd ..
-- nvm install 10
-- curl -o- -L https://yarnpkg.com/install.sh | bash
-- source ~/.bashrc
-- npm install -g xvfb-maybe
-- sudo pip install --upgrade virtualenv && virtualenv -p python3 env
-- source env/bin/activate && cd src/main && pip install -r backend/requirements.txt && pyinstaller backend/br_processor.py --distpath backend_dist
-- yarn install
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then git clone --recursive https://github.com/timothyryanwalsh/bulk_extractor && cd bulk_extractor && chmod 755 bootstrap.sh && ./bootstrap.sh && ./configure && make && sudo make install && cd ..; fi
+  - nvm install 10
+  - curl -o- -L https://yarnpkg.com/install.sh | bash
+  - source ~/.bashrc
+  - npm install -g xvfb-maybe
+  - sudo pip install --upgrade virtualenv && virtualenv -p python3 env
+  - source env/bin/activate && cd src/main && pip install -r backend/requirements.txt && pyinstaller backend/br_processor.py --distpath backend_dist
+  - yarn install
 script:
-- python backend/test.py && yarn run build
+  - python backend/test.py && yarn run build
 branches:
   only:
   - master
