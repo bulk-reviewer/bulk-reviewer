@@ -156,9 +156,9 @@ class TestIntegrationProcessor(SelfCleaningTestCase):
             with open(sample_path, "r", encoding="utf-8") as sample:
                 test_dict = json.load(test)
                 sample_dict = json.load(sample)
-            # Compare files and features against sample
-            self.assertEqual(test_dict["files"], sample_dict["files"])
-            self.assertEqual(test_dict["features"], sample_dict["features"])
+            # Compare file and feature counts against sample
+            self.assertEqual(len(test_dict["files"]), len(sample_dict["files"]))
+            self.assertEqual(len(test_dict["features"]), len(sample_dict["features"]))
 
 
 class TestIntegrationExportDirectory(SelfCleaningTestCase):
