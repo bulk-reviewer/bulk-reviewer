@@ -70,37 +70,41 @@ Features that are mistakenly dismissed can be un-dismissed using the "Undo" or "
 
 Saving sessions
 ---------------
-To save the current state of your session, choose "Save" from the Actions dropdown menu. Sessions are saved as a JSON file and include all relevant data, including notes and Dismissed status for features and Verified status for files. The resulting dialog will prompt you to choose a location and filename for the save file.
+To save the current state of your session, click the "Save" button, located near the top of the screen. Sessions are saved as a JSON file and include all relevant data, including notes and Dismissed status for features and Verified status for files. The resulting dialog will prompt you to choose a location and filename for the save file.
 
 .. image:: images/Actions.png
   :width: 250
-  :alt: Image of Actions dropdown
+  :alt: Image of Actions buttons
 
 At any time later, you can re-load your session from the resulting saved file. For file exports to work properly, the source directory or disk image must be available at the same filepath as recorded.
 
 Exporting files
 ----------------
-Bulk Reviewer supports two types of file exports: Cleared and Private.
+Bulk Reviewer supports two main types of file exports: Cleared and Private. To create a file export, first click the "Export files" button, located near the top of the screen. This will open the Export files dialog, where you can select the parameters for and start your export.
 
-.. image:: images/Actions.png
+.. image:: images/ExportDialog.png
   :width: 250
-  :alt: Image of Actions dropdown
+  :alt: Image of file export dialog
 
-**Cleared files** are files associated with no un-dismissed features. This includes files for which bulk_extractor found no private information and files for which all associated features were dismissed during the review process. To export cleared files, choose "Export cleared files (no PII)" from the Actions dropdown menu and then select an empty directory to write the new files to. Bulk Reviewer will copy (or, for disk image sources, carve) each cleared file to this new directory, retaining the original directory structure. The resulting directory will also include a ``_BulkReviewer_README.txt`` file containing contextual information about the source and file export and a list of files excluded from the export for containing PII.
+**Cleared files** are files associated with no un-dismissed features. This includes files for which bulk_extractor found no private information and files for which all associated features were dismissed during the review process. To export cleared files, choose the "Cleared" file export type. When you are ready to start the export, click the "Choose destination and export" button and then select an empty directory to write the new files to. Bulk Reviewer will copy (or, for disk image sources, carve) each cleared file to this new directory, retaining the original directory structure. The resulting directory will also include a ``_BulkReviewer_README.txt`` file containing contextual information about the source and file export and a list of files excluded from the export for containing PII.
 
-**Private files** are files associated with at least one un-dismissed feature. To export private files, choose "Export private files" from the Actions dropdown menu and then select an empty directory to write the new files to. Bulk Reviewer will copy (or, for disk image sources, carve) each private file to this new directory. For Private exports, all files are written to a flat directory and renamed to include their unique Bulk Reviewer ID. This is done in order to support redaction workflows in tandem with the Bulk Reviewer CSV export. The resulting directory will also include a ``_BulkReviewer_README.txt`` file containing contextual information about the source and file export.
+**Private files** are files associated with at least one un-dismissed feature. To export private files, choose the "Private" file export type. When you are ready to start the export, click the "Choose destination and export" button and then select an empty directory to write the new files to. Bulk Reviewer will copy (or, for disk image sources, carve) each private file to this new directory. By default, Bulk Reviewer will retain the original directory structure in Private file exports. If you choose the "Export files to flat directory" option, Bulk Reviewer will instead write the private files to a flat directory. This option is intended to support manual redaction workflows in tandem with the Bulk Reviewer CSV export. In flat exports, files are renamed to include their unique Bulk Reviewer IDs to prevent filename collisions. The resulting directory will also include a ``_BulkReviewer_README.txt`` file containing contextual information about the source and file export.
 
-For **disk image sources**, two checkboxes located directly above the Actions dropdown menu enable users to indicate whether exported files should have their last modified dates restored from values recorded in the DFXML for the disk image and whether to include unallocated files (e.g. deleted files) in exports. These options apply to both Cleared and Private exports.
-
-.. image:: images/ActionsDiskImage.png
-  :width: 250
-  :alt: Image of Actions dropdown with disk image options
+For **disk image sources**, two additional checkbox options enable users to indicate whether exported files should have their last modified dates restored from values recorded in the DFXML for the disk image and whether to include unallocated files (e.g. deleted files) in exports. These options apply to both Cleared and Private exports.
 
 Downloading CSV reports
 -----------------------
-To download a CSV representation of the feature data for a Bulk Reviewer session, choose "Download CSV report" from the Actions dropdown menu. The resulting dialog will prompt you to choose a location and filename for the save file. These reports may be particularly helpful in supporting redaction workflows in tandem with Private file exports.
+To download a CSV representation of the feature data for a Bulk Reviewer session, click the "Download CSV" button, located near the top of the screen. The resulting dialog will prompt you to choose a location and filename for the CSV file. These reports may be particularly helpful in supporting redaction workflows in tandem with flattened Private file exports.
 
 .. image:: images/Actions.png
   :width: 250
-  :alt: Image of Actions dropdown
+  :alt: Image of Actions buttons
+
+Downloading TAR exclude file
+-----------------------
+To download a TAR exclude file containing the absolute filepath for each file containing PII in a Bulk Reviewer session, click the "Download tar exclude file" button, located near the top of the screen. The resulting dialog will prompt you to choose a location and filename for the tar exclude file. This file can be used in tandem with the ``tar`` utility to create a tarball containing all of the files from the source directory except those containing undismissed PII.
+
+.. image:: images/Actions.png
+  :width: 250
+  :alt: Image of Actions buttons
 

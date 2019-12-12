@@ -13,7 +13,7 @@
       </b-field>
 
       <!-- Disk image? -->
-      <b-field label="Source type">
+      <b-field label="Source directory/disk image">
         <b-select
           placeholder="Select type"
           v-model="sourceType"
@@ -50,6 +50,31 @@
             </span>
           </div>
         </section>
+    </b-field>
+
+    <b-field label="Use existing bulk_extractor reports">
+      <section>
+        <div class="field">
+          <b-checkbox v-model="useExistingBEReports">Use existing bulk_extractor reports directory</b-checkbox>
+        </div>
+        <button
+          class="button is-light"
+          @click.prevent="chooseBEReportsDir">
+          Choose directory
+        </button>
+        <div style="margin: 5px;">
+          <span v-if="bulkextractorReportsDirPath">
+            {{ bulkextractorReportsDirPath }}
+            <!-- button to reset sourcePath -->
+            <button class="button is-light is-small" @click="resetBEReportsFilePath">
+              <b-icon icon="times"></b-icon>
+            </button>
+          </span>
+          <span v-else>
+            None selected.
+          </span>
+        </div>
+      </section>
     </b-field>
 
     <!-- Named entity extraction -->
@@ -153,12 +178,14 @@ export default {
       name: '',
       sourceType: 'directory',
       sourcePath: '',
+      bulkextractorReportsDirPath: '',
       regexFilePath: '',
       stoplistDirPath: '',
       ssnMode: '0',
       loading: false,
       includeExifResults: false,
-      includeNetworkResults: false
+      includeNetworkResults: false,
+      useExistingBEReports: false
     }
   },
   methods: {
@@ -170,6 +197,11 @@ export default {
     chooseFile () {
       dialog.showOpenDialog({ properties: ['openFile'] }, (filename) => {
         this.sourcePath = filename.toString()
+      })
+    },
+    chooseBEReportsDir () {
+      dialog.showOpenDialog({ properties: ['openDirectory'] }, (dirName) => {
+        this.bulkextractorReportsDirPath = dirName.toString()
       })
     },
     chooseRegexFile () {
@@ -185,6 +217,9 @@ export default {
     resetSourcePath () {
       this.sourcePath = ''
     },
+    resetBEReportsFilePath () {
+      this.bulkextractorReportsDirPath = ''
+    },
     resetRegexFilePath () {
       this.regexFilePath = ''
     },
@@ -196,11 +231,13 @@ export default {
       this.name = ''
       this.sourceType = 'directory'
       this.sourcePath = ''
+      this.bulkextractorReportsDirPath = ''
       this.regexFilePath = ''
       this.stoplistDirPath = ''
       this.ssnMode = '0'
       this.includeExifResults = false
       this.includeNetworkResults = false
+      this.useExistingBEReports = false
     },
     // determine if python is packaged as executable by checking
     // for presence of backend_dist directory
@@ -268,6 +305,10 @@ export default {
       if (this.includeNetworkResults === true) {
         sessionParameters.splice(1, 0, '--include_network')
       }
+      if (this.useExistingBEReports === true) {
+        sessionParameters.splice(1, 0, '--be_reports')
+        sessionParameters.splice(2, 0, this.bulkextractorReportsDirPath)
+      }
       if (this.regexFilePath.length > 0) {
         sessionParameters.splice(1, 0, '--regex')
         sessionParameters.splice(2, 0, this.regexFilePath)
@@ -308,18 +349,20 @@ export default {
         }
       })
 
-      // throw error message or load review dashboard on completion
+      // handle completion
       let self = this
       pyProc.stdout.on('end', function (data) {
-        // catch errors
+        let jsonFile = jsonPath.trim()
+        self.loading = false
+        self.isDisabled = false
+
+        // display errors
         if (pyErrors.length > 0) {
-          self.loading = false
-          self.isDisabled = false
-          self.errorMessage(`ERROR: ${pyErrors}`)
-        // if no errors, load review dashboard
-        } else {
-          let jsonFile = jsonPath.trim()
-          self.loading = false
+          self.errorMessage(`${pyErrors}`)
+        }
+
+        // if json path provided by backend, load review dashboard
+        if (jsonFile.length > 0) {
           self.$store.dispatch('loadFromJSON', jsonFile)
           self.$router.push('review')
         }

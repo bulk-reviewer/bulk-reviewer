@@ -31,11 +31,12 @@ function createWindow () {
     mainWindow = null
   })
 
+  const appVersion = app.getVersion()
   // Create the main menu, enable shortcuts
   let template = [{
     label: 'Application',
     submenu: [
-      { label: 'About Bulk Reviewer', click () { shell.openExternal('https://github.com/bulk-reviewer/bulk-reviewer') } },
+      { label: `About Bulk Reviewer ${appVersion}`, click () { shell.openExternal('https://github.com/bulk-reviewer/bulk-reviewer') } },
       { type: 'separator' },
       { label: 'Quit', accelerator: 'Command+Q', click: function () { app.quit() } }
     ]}, {

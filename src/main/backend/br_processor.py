@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 """
+Bulk Reviewer
+---
 Creates Bulk Reviewer JSON file and DFXML
 and bulk_extractor output directories for input
 directory or disk image.
@@ -9,11 +11,9 @@ Tim Walsh, 2019
 https://bitarchivist.net
 Licensed under GNU General Public License 3
 https://www.gnu.org/licenses/gpl-3.0.en.html
-
 """
 
-from sqlalchemy import create_engine, Column, ForeignKey, \
-                       Integer, String, Boolean
+from sqlalchemy import create_engine, func, Column, ForeignKey, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm.exc import NoResultFound
@@ -34,12 +34,33 @@ import tempfile
 import time
 import Objects
 
+from export import FileExport
+from utils import print_to_stderr_and_exit
+
+
 Base = declarative_base()
 xor_re = re.compile(b"^(\\d+)\\-XOR\\-(\\d+)")
 
+FEATURE_LABELS = {
+    "pii.txt": "Social Security Number (USA)",
+    "sin.txt": "Social Insurance Number (Canada)",
+    "ccn.txt": "Credit card number",
+    "telephone.txt": "Phone number",
+    "email.txt": "Email address",
+    "find.txt": "Regular expression",
+    "lightgrep.txt": "Regular expression",
+    "url.txt": "URL",
+    "domain.txt": "Domain",
+    "rfc822.txt": "Email/HTTP header (RFC822)",
+    "httplogs.txt": "HTTP log",
+    "gps.txt": "GPS data",
+    "exif.txt": "EXIF metadata",
+    "vcard.txt": "vCard (Virtual Contact File)",
+}
+
 
 class BRSession(Base):
-    __tablename__ = 'session'
+    __tablename__ = "session"
     id = Column(Integer, primary_key=True)
     name = Column(String)
     source_path = Column(String)
@@ -50,7 +71,7 @@ class BRSession(Base):
 
 
 class File(Base):
-    __tablename__ = 'file'
+    __tablename__ = "file"
     id = Column(Integer, primary_key=True)
     filename = Column(String)
     filepath = Column(String)
@@ -61,11 +82,11 @@ class File(Base):
     verified = Column(Boolean)
     inode = Column(String, nullable=True)
     fs_offset = Column(String, nullable=True)
-    session = Column(Integer, ForeignKey('session.id'))
+    session = Column(Integer, ForeignKey("session.id"))
 
 
 class Feature(Base):
-    __tablename__ = 'feature'
+    __tablename__ = "feature"
     id = Column(Integer, primary_key=True)
     feature_type = Column(String(50))
     forensic_path = Column(String, nullable=True)
@@ -74,7 +95,7 @@ class Feature(Base):
     context = Column(String, nullable=True)
     note = Column(String, nullable=True)
     dismissed = Column(Boolean)
-    file = Column(Integer, ForeignKey('file.id'))
+    file = Column(Integer, ForeignKey("file.id"))
 
 
 class byterundb:
@@ -87,9 +108,10 @@ class byterundb:
     https://github.com/bulk-reviewer/bulk-reviewer/blob/
     master/scripts/identify_filenames.py
     """
+
     def __init__(self):
-        self.rary = []          # each element is (runstart,runend,(fileinfo))
-        self.sorted = True      # whether or not sorted
+        self.rary = []  # each element is (runstart,runend,(fileinfo))
+        self.sorted = True  # whether or not sorted
 
     def __iter__(self):
         return self.rary.__iter__()
@@ -133,28 +155,30 @@ class byterundb:
         # Look at the byte extent whose origin is to the left
         # of pos. If the extent includes pos, return it, otherwise
         # return None
-        if self.rary[p-1][0] <= pos < self.rary[p-1][1]:
-            return self.rary[p-1]
+        if self.rary[p - 1][0] <= pos < self.rary[p - 1][1]:
+            return self.rary[p - 1]
 
         return None
 
     def process_fi(self, fi):
         """Read an XML file and add each byte run to this database"""
+
         def gval(x):
             """Always return X as bytes"""
             if x is None:
-                return b''
+                return b""
             if type(x) == bytes:
                 return x
             if type(x) != str:
                 x = str(x)
-            return x.encode('utf-8')
+            return x.encode("utf-8")
+
         for run in fi.byte_runs():
             try:
                 fname = gval(fi.filename())
                 md5val = gval(fi.md5())
                 if not fi.allocated():
-                    fname = b'*' + fname
+                    fname = b"*" + fname
                 fileinfo = (fname, md5val)
                 self.add_extent(run.img_offset, run.len, fileinfo)
             except TypeError as e:
@@ -170,6 +194,7 @@ class byterundb2:
     https://github.com/bulk-reviewer/bulk-reviewer/blob/
     master/scripts/identify_filenames.py
     """
+
     def __init__(self):
         self.allocated = byterundb()
         self.unallocated = byterundb()
@@ -189,18 +214,19 @@ class byterundb2:
 
     def read_xmlfile(self, fname):
         # print("Reading file map from XML file {}".format(fname))
-        fiwalk.fiwalk_using_sax(xmlfile=open(fname, 'rb'),
-                                callback=self.process)
+        fiwalk.fiwalk_using_sax(xmlfile=open(fname, "rb"), callback=self.process)
 
     def read_imagefile(self, fname):
         fiwalk_args = "-zM"
         # print("Reading file map by running fiwalk on {}".format(fname))
-        fiwalk.fiwalk_using_sax(imagefile=open(fname, 'rb'),
-                                callback=self.process,
-                                fiwalk_args=fiwalk_args)
+        fiwalk.fiwalk_using_sax(
+            imagefile=open(fname, "rb"), callback=self.process, fiwalk_args=fiwalk_args
+        )
 
     def search_offset(self, offset):
-        """First search the allocated. If there is nothing, search unallocated"""
+        """
+        First search the allocated. If there is nothing, search unallocated
+        """
         r = self.allocated.search_offset(offset)
         if not r:
             r = self.unallocated.search_offset(offset)
@@ -212,7 +238,7 @@ class byterundb2:
         value of the offset."""
         m = xor_re.search(offset)
         if m:
-            return int(m.group(1))+int(m.group(2))
+            return int(m.group(1)) + int(m.group(2))
         negloc = offset.find(b"-")
         if negloc == -1:
             return int(offset)
@@ -234,57 +260,55 @@ def create_dfxml(src, dfxml_path):
     and save to destination directory. Return True is successful,
     False if unsuccessful.
     """
-    cmd = ['fiwalk',
-           '-X',
-           dfxml_path,
-           src]
+    cmd = ["fiwalk", "-X", dfxml_path, src]
     try:
         subprocess.check_output(cmd)
         return True
     except subprocess.CalledProcessError as e:
-        logging.error('Error creating DFXML with fiwalk: %s', e)
+        logging.error("Error creating DFXML with fiwalk: %s", e)
         return False
 
 
-def run_bulk_extractor(src, bulk_extractor_path, stoplist_dir,
-                       ssn_mode, args):
+def run_bulk_extractor(src, bulk_extractor_path, stoplist_dir, ssn_mode, args):
     """
     Create and run bulk_extractor subprocess command.
     """
-    cmd = ['bulk_extractor',
-           '-o',
-           bulk_extractor_path,
-           '-x',
-           'windirs',
-           '-x',
-           'winpe',
-           '-x',
-           'winlnk',
-           '-x',
-           'winprefetch',
-           '-S',
-           'ssn_mode={}'.format(str(ssn_mode)),
-           '-S',
-           'jpeg_carve_mode=0',
-           src]
+    cmd = [
+        "bulk_extractor",
+        "-o",
+        bulk_extractor_path,
+        "-x",
+        "windirs",
+        "-x",
+        "winpe",
+        "-x",
+        "winlnk",
+        "-x",
+        "winprefetch",
+        "-S",
+        "ssn_mode={}".format(str(ssn_mode)),
+        "-S",
+        "jpeg_carve_mode=0",
+        src,
+    ]
     if not args.diskimage:
-        cmd.insert(15, '-R')
+        cmd.insert(15, "-R")
     if args.regex:
-        cmd.insert(1, '-F')
+        cmd.insert(1, "-F")
         cmd.insert(2, args.regex)
     if args.stoplists:
         # Add each .txt file found in stoplist dir to cmd
         stoplist_files = os.listdir(stoplist_dir)
         for f in stoplist_files:
-            if f.endswith('.txt'):
-                cmd.insert(5, '-w')
+            if f.endswith(".txt"):
+                cmd.insert(5, "-w")
                 cmd.insert(6, os.path.join(stoplist_dir, f))
 
     try:
         subprocess.check_output(cmd)
         return True
     except subprocess.CalledProcessError as e:
-        logging.error('Error running bulk_extractor: %s', e)
+        logging.error("Error running bulk_extractor: %s", e)
         return False
 
 
@@ -307,10 +331,10 @@ def parse_dfxml_to_db(session, br_session_id, dfxml_path):
                 continue
 
         # Gather file metadata
-        date_modified = ''
+        date_modified = ""
         if obj.mtime:
             date_modified = str(obj.mtime)
-        date_created = ''
+        date_created = ""
         if obj.crtime:
             date_created = str(obj.crtime)
         if obj.ctime:
@@ -319,10 +343,10 @@ def parse_dfxml_to_db(session, br_session_id, dfxml_path):
         if obj.unalloc:
             if obj.unalloc == 1:
                 allocated = False
-        inode = ''
+        inode = ""
         if obj.inode:
             inode = str(obj.inode)
-        fs_offset = ''
+        fs_offset = ""
         if obj.volume_object:
             fs_offset = obj.volume_object.partition_offset
 
@@ -338,7 +362,7 @@ def parse_dfxml_to_db(session, br_session_id, dfxml_path):
             allocated=allocated,
             inode=inode,
             fs_offset=fs_offset,
-            verified=False
+            verified=False,
         )
         try:
             session.add(new_file)
@@ -361,10 +385,11 @@ def write_filesystem_metadata_to_db(session, br_session_id, src):
 
             # Modified date
             file_info = os.stat(abs_fpath)
-            date_modified = ''
+            date_modified = ""
             if file_info.st_mtime:
-                date_modified = datetime.utcfromtimestamp(file_info.st_mtime).\
-                    isoformat()
+                date_modified = datetime.utcfromtimestamp(
+                    file_info.st_mtime
+                ).isoformat()
 
             # Save file metadata to model
             new_file = File(
@@ -372,52 +397,17 @@ def write_filesystem_metadata_to_db(session, br_session_id, src):
                 filename=f,
                 session=br_session_id,
                 date_modified=date_modified,
-                date_created='',
+                date_created="",
                 allocated=True,
-                inode='',
-                fs_offset='',
-                verified=False
+                inode="",
+                fs_offset="",
+                verified=False,
             )
             try:
                 session.add(new_file)
                 session.commit()
             except Exception as e:
-                logging.error("File %s not written to database: %s",
-                              rel_fpath, e)
-
-
-def user_friendly_feature_type(feature_file):
-    """
-    Return user-friendly feature type value for
-    corresponding feature file. If no such label
-    exists, return name of feature file.
-    """
-    if feature_file == 'pii.txt':
-        return 'Social Security Number (USA)'
-    elif feature_file == 'sin.txt':
-        return 'Social Insurance Number (Canada)'
-    elif feature_file == 'ccn.txt':
-        return 'Credit card number'
-    elif feature_file == 'telephone.txt':
-        return 'Phone number'
-    elif feature_file == 'email.txt':
-        return 'Email address'
-    elif feature_file == 'find.txt':
-        return 'Regular expression'
-    elif feature_file == 'url.txt':
-        return 'URL'
-    elif feature_file == 'domain.txt':
-        return 'Domain'
-    elif feature_file == 'rfc822.txt':
-        return 'Email/HTTP header (RFC822)'
-    elif feature_file == 'httplogs.txt':
-        return 'HTTP log'
-    elif feature_file == 'gps.txt':
-        return 'GPS data'
-    elif feature_file == 'exif.txt':
-        return 'EXIF metadata'
-    else:
-        return feature_file
+                logging.error("File %s not written to database: %s", rel_fpath, e)
 
 
 def process_featurefile2(rundb, infile, outfile):
@@ -447,10 +437,10 @@ def process_featurefile2(rundb, infile, outfile):
             outfile.write(line)
             continue
         try:
-            (path, feature, context) = line[:-1].split(b'\t')
+            (path, feature, context) = line[:-1].split(b"\t")
         except ValueError as e:
-            logging.error('Error annotating feature file: %s', e)
-            logging.error('Offending line %s: %s', linenumber, line[:-1])
+            logging.error("Error annotating feature file: %s", e)
+            logging.error("Offending line %s: %s", linenumber, line[:-1])
             continue
         feature_count += 1
 
@@ -463,38 +453,33 @@ def process_featurefile2(rundb, infile, outfile):
 
         # Output to annotated feature file
         outfile.write(path)
-        outfile.write(b'\t')
+        outfile.write(b"\t")
         outfile.write(feature)
-        outfile.write(b'\t')
+        outfile.write(b"\t")
         outfile.write(context)
 
         # If we found the data, output that
         if tpl:
             located_count += 1
-            outfile.write(b'\t')
-            outfile.write(b'\t'.join(tpl[2]))  # just the file info
+            outfile.write(b"\t")
+            outfile.write(b"\t".join(tpl[2]))  # just the file info
         else:
             unallocated_count += 1
-        outfile.write(b'\n')
+        outfile.write(b"\n")
 
     t1 = time.time()
-    for (title, value) in [["# Total features input: {}",
-                            feature_count],
-                           ["# Total features located to files: {}",
-                            located_count],
-                           ["# Total features in unallocated space: {}",
-                            unallocated_count],
-                           ["# Total features in encoded regions: {}",
-                            features_encoded],
-                           ["# Total processing time: {:.2} seconds",
-                            t1-t0]]:
-        outfile.write((title+"\n").format(value).encode('utf-8'))
+    for (title, value) in [
+        ["# Total features input: {}", feature_count],
+        ["# Total features located to files: {}", located_count],
+        ["# Total features in unallocated space: {}", unallocated_count],
+        ["# Total features in encoded regions: {}", features_encoded],
+        ["# Total processing time: {:.2} seconds", t1 - t0],
+    ]:
+        outfile.write((title + "\n").format(value).encode("utf-8"))
     return (feature_count, located_count)
 
 
-def annotate_feature_files(feature_files_dir,
-                           annotated_feature_path,
-                           dfxml_path):
+def annotate_feature_files(feature_files_dir, annotated_feature_path, dfxml_path):
     """
     Annotate bulk_extractor feature files for disk images
     to associate features to files in the image.
@@ -505,14 +490,16 @@ def annotate_feature_files(feature_files_dir,
     """
     # Make directory for annotated feature files
     if not os.path.exists(annotated_feature_path):
-            os.makedirs(annotated_feature_path)
+        os.makedirs(annotated_feature_path)
 
     # Read bulk_extractor report and DFXML file
     rundb = byterundb2()
     report = bulk_extractor_reader.BulkReport(feature_files_dir)
     rundb.read_xmlfile(dfxml_path)
     if len(rundb) == 0:
-        raise RuntimeError("\nERROR: No files detected in XML file {}\n".format(dfxml_path))
+        raise RuntimeError(
+            "\nERROR: No files detected in XML file {}\n".format(dfxml_path)
+        )
 
     # Process each feature file
     feature_file_list = report.feature_files()
@@ -521,16 +508,22 @@ def annotate_feature_files(feature_files_dir,
     except ValueError:
         pass
     for feature_file in feature_file_list:
-        output_fn = os.path.join(annotated_feature_path,
-                                 ("annotated_" + feature_file))
+        output_fn = os.path.join(annotated_feature_path, ("annotated_" + feature_file))
         if os.path.exists(output_fn):
             raise RuntimeError(output_fn + " exists")
         # print("feature_file:", feature_file)
         (feature_count, located_count) = process_featurefile2(
-            rundb,
-            report.open(feature_file, mode='rb'),
-            open(output_fn, 'wb')
+            rundb, report.open(feature_file, mode="rb"), open(output_fn, "wb")
         )
+
+
+def check_for_lightgrep(be_files):
+    """Return True if lightgrep file in bulk_extractor outputs.
+    """
+    filtered_lightgrep = [x for x in be_files if "lightgrep" in x]
+    if filtered_lightgrep:
+        return True
+    return False
 
 
 def read_features_to_db(feature_files_dir, br_session_id, session, args):
@@ -538,14 +531,15 @@ def read_features_to_db(feature_files_dir, br_session_id, session, args):
     Read information from appropriate feature files
     into database, adding feature type.
     """
-    for feature_file in os.listdir(feature_files_dir):
+    be_files = os.listdir(feature_files_dir)
+    for feature_file in be_files:
         # Absolute path for file
         ff_abspath = os.path.join(feature_files_dir, feature_file)
         # Skip empty files
         if not os.path.getsize(ff_abspath) > 0:
             continue
         # Skip directories
-        if os.path.isdir(feature_file):
+        if os.path.isdir(ff_abspath):
             continue
         # Skip bulk_extractor report
         if "report.xml" in feature_file:
@@ -567,6 +561,11 @@ def read_features_to_db(feature_files_dir, br_session_id, session, args):
         # Skip stoplist results
         if "_stopped" in feature_file:
             continue
+        # Skip find if lightgrep enabled
+        lightgrep = check_for_lightgrep(be_files)
+        if lightgrep:
+            if "find" in feature_file:
+                continue
         # Skip network/web results unless args specify otherwise
         if not args.include_network:
             if "url" in feature_file:
@@ -591,49 +590,55 @@ def parse_feature_file(feature_file, br_session_id, session):
     Parse features in bulk_extractor feature file and write
     each feature to database.
     """
-    with open(feature_file, 'r', encoding='utf-8') as f:
+    with open(feature_file, "r", encoding="utf-8") as f:
         for line in f:
             # Ignore commented lines
-            if line.startswith(('#')):
+            if line.startswith(("#")):
                 continue
             # Ignore blank lines
             if not line.strip():
                 continue
 
             # Parse and clean up tab-separated lines
-            DELIMITER = '\U0010001c'
-            forensic_path = ''
-            filepath = ''
-            feature = ''
-            context = ''
+            DELIMITER = "\U0010001c"
+            forensic_path = ""
+            filepath = ""
+            feature = ""
+            context = ""
             try:
-                (forensic_path, feature, context) = line.split('\t')
+                (forensic_path, feature, context) = line.split("\t")
                 filepath = forensic_path
                 if DELIMITER in forensic_path:
                     filepath = forensic_path.split(DELIMITER)[0]
                 context = context.rstrip()  # strip trailing newline
 
                 # Make filepath relative to match DFXML filename
-                source_path = session.query(BRSession).get(br_session_id).\
-                    source_path
-                substr = source_path + '/'
-                filepath = filepath.split(substr)[1]
+                source_path = session.query(BRSession).get(br_session_id).source_path
+                parent_dir = os.path.split(source_path)[1] + "/"
+                filepath = filepath.replace("//", "/").split(parent_dir)[1]
 
                 # Find matching file
                 try:
-                    matching_file = session.query(File).filter_by(
-                        filepath=filepath,
-                        session=br_session_id
-                    ).first()
+                    matching_file = (
+                        session.query(File)
+                        .filter_by(filepath=filepath, session=br_session_id)
+                        .first()
+                    )
                 except NoResultFound:
-                    logging.error("""
+                    logging.error(
+                        """
                         Matching file not found for file %s.
-                        """, filepath)
+                        """,
+                        filepath,
+                    )
                     continue
 
                 # Set feature type
                 ff_basename = os.path.basename(feature_file)
-                feature_type = user_friendly_feature_type(ff_basename)
+                try:
+                    feature_type = FEATURE_LABELS[ff_basename]
+                except KeyError:
+                    feature_type = ff_basename
 
                 # Write feature to database
                 postprocessed_feature = Feature(
@@ -642,13 +647,17 @@ def parse_feature_file(feature_file, br_session_id, session):
                     feature=feature,
                     context=context,
                     dismissed=False,
-                    file=matching_file.id
+                    file=matching_file.id,
                 )
                 session.add(postprocessed_feature)
                 session.commit()
             except Exception:
-                logging.warning("""Error processing line in feature file %s. Unread line: %s.\
-                    """, feature_file, line)
+                logging.warning(
+                    """Error processing line in feature file %s. Unread line: %s.\
+                    """,
+                    feature_file,
+                    line,
+                )
 
 
 def parse_annotated_feature_file(feature_file, br_session_id, session):
@@ -656,10 +665,10 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
     Parse features in annotated bulk_extractor feature file
     and write each feature to database.
     """
-    with open(feature_file, 'r', encoding='utf-8') as f:
+    with open(feature_file, "r", encoding="utf-8") as f:
         for line in f:
             # Ignore commented lines
-            if line.startswith(('#')):
+            if line.startswith(("#")):
                 continue
             # Ignore blank lines
             if not line.strip():
@@ -670,30 +679,33 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
 
                 # Assume 5 values in annotated line
                 try:
-                    (offset, feature, context, filepath,
-                        blockhash) = line.split('\t')
+                    (offset, feature, context, filepath, blockhash) = line.split("\t")
 
                 # Catch ValueError when line only has 3
                 except ValueError:
-                    (offset, feature, context) = line.split('\t')
+                    (offset, feature, context) = line.split("\t")
                     filepath = "<unallocated space>"
 
                 # Try to find matching file
                 try:
-                    matching_file = session.query(File).filter_by(
-                        filepath=filepath,
-                        session=br_session_id
-                    ).one()
+                    matching_file = (
+                        session.query(File)
+                        .filter_by(filepath=filepath, session=br_session_id)
+                        .one()
+                    )
 
                 # If matching file doesn't exist, match to placeholder
                 except NoResultFound:
 
                     # Use placeholder if it already exists
                     try:
-                        matching_file = session.query(File).filter_by(
-                            filepath="<unallocated space>",
-                            session=br_session_id
-                        ).one()
+                        matching_file = (
+                            session.query(File)
+                            .filter_by(
+                                filepath="<unallocated space>", session=br_session_id
+                            )
+                            .one()
+                        )
 
                     # Create and use placeholder if it doesn't already exist
                     except NoResultFound:
@@ -701,19 +713,24 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
                             filepath="<unallocated space>",
                             filename="<unallocated space>",
                             allocated=False,
-                            session=br_session_id
+                            session=br_session_id,
                         )
                         session.add(unallocated_placeholder)
                         session.commit()
-                        matching_file = session.query(File).filter_by(
-                            filepath="<unallocated space>",
-                            session=br_session_id
-                        ).one()
+                        matching_file = (
+                            session.query(File)
+                            .filter_by(
+                                filepath="<unallocated space>", session=br_session_id
+                            )
+                            .one()
+                        )
 
                 # Set feature type
-                ff_basename = os.path.basename(feature_file).\
-                    replace('annotated_', '')
-                feature_type = user_friendly_feature_type(ff_basename)
+                ff_basename = os.path.basename(feature_file).replace("annotated_", "")
+                try:
+                    feature_type = FEATURE_LABELS[ff_basename]
+                except KeyError:
+                    feature_type = ff_basename
 
                 # Write feature to database
                 postprocessed_feature = Feature(
@@ -722,14 +739,18 @@ def parse_annotated_feature_file(feature_file, br_session_id, session):
                     feature=feature,
                     context=context.rstrip(),
                     dismissed=False,
-                    file=matching_file.id
+                    file=matching_file.id,
                 )
                 session.add(postprocessed_feature)
                 session.commit()
 
             except Exception:
-                logging.warning("""Error processing line in feature file %s. Unread line: %s.\
-                    """, feature_file, line)
+                logging.warning(
+                    """Error processing line in feature file %s. Unread line: %s.\
+                    """,
+                    feature_file,
+                    line,
+                )
 
 
 def dict_factory(cursor, row):
@@ -766,10 +787,12 @@ def brv_to_json(brv_path, json_path):
             as feature_count \
         from file fl
         WHERE session='{}';
-        """.format(session_info['id'])
+        """.format(
+        session_info["id"]
+    )
     cursor.execute(files_sql_query)
     files = cursor.fetchall()
-    session_info['files'] = files
+    session_info["files"] = files
 
     # Add features to dictionary with filepaths
     features_sql_query = """\
@@ -778,41 +801,43 @@ def brv_to_json(brv_path, json_path):
             f.dismissed, f.file, fl.filepath
         from feature f, file fl
         WHERE f.file = fl.id
-        """.format(session_info['id'])
+        """.format(
+        session_info["id"]
+    )
     cursor.execute(features_sql_query)
     features = cursor.fetchall()
-    session_info['features'] = features
+    session_info["features"] = features
 
     # Replace sqlite integer boolean values in dict with Python booleans
-    if session_info['disk_image'] == 1:
-        session_info['disk_image'] = True
+    if session_info["disk_image"] == 1:
+        session_info["disk_image"] = True
     else:
-        session_info['disk_image'] = False
+        session_info["disk_image"] = False
 
-    if session_info['named_entity_extraction'] == 1:
-        session_info['named_entity_extraction'] = True
+    if session_info["named_entity_extraction"] == 1:
+        session_info["named_entity_extraction"] = True
     else:
-        session_info['named_entity_extraction'] = False
+        session_info["named_entity_extraction"] = False
 
-    for index, file_dict in enumerate(session_info['files']):
-        if file_dict['allocated'] == 1:
-            session_info['files'][index]['allocated'] = True
+    for index, file_dict in enumerate(session_info["files"]):
+        if file_dict["allocated"] == 1:
+            session_info["files"][index]["allocated"] = True
         else:
-            session_info['files'][index]['allocated'] = False
+            session_info["files"][index]["allocated"] = False
 
-        if file_dict['verified'] == 1:
-            session_info['files'][index]['verified'] = True
+        if file_dict["verified"] == 1:
+            session_info["files"][index]["verified"] = True
         else:
-            session_info['files'][index]['verified'] = False
+            session_info["files"][index]["verified"] = False
 
-    for index, feature_dict in enumerate(session_info['features']):
-        if feature_dict['dismissed'] == 1:
-            session_info['features'][index]['dismissed'] = True
+    for index, feature_dict in enumerate(session_info["features"]):
+        if feature_dict["dismissed"] == 1:
+            session_info["features"][index]["dismissed"] = True
         else:
-            session_info['features'][index]['dismissed'] = False
+            session_info["features"][index]["dismissed"] = False
 
     # Write dictionary as JSON to file
-    with open(json_path, 'w', encoding="utf-8") as outfile:
+    with open(json_path, "w", encoding="utf-8") as outfile:
         return json.dump(session_info, outfile, ensure_ascii=False, indent=2)
 
     # Close sqlite connection
@@ -820,325 +845,89 @@ def brv_to_json(brv_path, json_path):
     conn.close()
 
 
-def carve_file(filepath, fs_offset, disk_image, inode, file_dest):
-    """
-    Carve file from disk image using The Sleuth Kit's
-    icat command line utility.
-
-    Return True is successful, False if not.
-    """
-    icat_cmd = 'icat -o {0} "{1}" {2} > "{3}"'.format(
-        fs_offset,
-        disk_image,
-        inode,
-        file_dest
-    )
-    try:
-        subprocess.call(icat_cmd, shell=True)
-        logging.debug('File %s exported from disk image', filepath)
-        return True
-    except subprocess.CalledProcessError as e:
-        logging.error('Error exporting file %s: %s', filepath, e)
-        return False
-
-
-def time_to_int(str_time):
-    """
-    Convert datetime in format YYYY-MM-DDTHH:MM:SS
-    to integer representing Unix time.
-    """
-    dt = time.mktime(datetime.strptime(str_time,
-                     "%Y-%m-%dT%H:%M:%S").timetuple())
-    return dt
-
-
-def restore_modified_date(file_dest, date_modified, date_created):
-    """
-    Rewrite last modified date of file. Use modified date if
-    available, otherwise use created date.
-    """
-    if len(date_modified) > 0:
-        int_time = time_to_int(date_modified[:19])
-    elif len(date_created) > 0:
-        int_time = time_to_int(date_created[:19])
-    else:
-        logging.warning("No date to restore from recorded for file %s",
-                        file_dest)
-        return
-
-    try:
-        os.utime(file_dest, (int_time, int_time))
-    except OSError as e:
-        logging.warning("Error modifying modified date for %s. Error: %s",
-                        file_dest, e)
-
-
-def write_export_readme(dest_path, session_dict, export_type,
-                        files_with_pii, args):
-    """
-    Write README file in output directory for file export.
-    Include metadata about the session and export.
-    """
-    out_file = os.path.join(dest_path, '_BulkReviewer_README.txt')
-    time_of_export = str(datetime.now())[:19]
-    source_type = 'Directory'
-    if session_dict['disk_image'] is True:
-        source_type = 'Disk image'
-    private_faq = """
-\n\nFor private file exports, files are written to a flat directory.
-In order to prevent name collisions and to expedite redaction workflows,
-each file's unique ID (as assigned by Bulk Reviewer) is added to the
-beginning of the filename on export. These IDs can be matched to original
-filepaths and corresponding features using the Bulk Reviewer CSV export.
-    """
-
-    try:
-        with open(out_file, 'w') as f:
-            # Write metadata
-            f.write('Files exported from Bulk Reviewer')
-            f.write('\n================================')
-            f.write('\nType: {}'.format(export_type))
-            f.write('\nDate: {}'.format(time_of_export))
-            f.write('\nSource: {}'.format(session_dict['source_path']))
-            f.write('\nSource type: {}'.format(source_type))
-            # Include disk image file export options
-            if source_type == 'Disk image':
-                dates = str(args.restore_dates)
-                unalloc = str(args.unallocated)
-                f.write('\nModified dates restored: {}'.format(dates))
-                f.write('\nUnallocated files included: {}'.format(unalloc))
-
-            # For cleared export, write list of excluded files
-            if export_type == 'Cleared files (no PII)':
-                f.write("\n\nFiles excluded from export for containing PII:")
-                for pii_file in files_with_pii:
-                    f.write("\n{}".format(pii_file))
-
-            # For private export, write description of file IDs
-            if export_type == 'Private files':
-                f.write(private_faq)
-
-        logging.info('Created export README file %s', out_file)
-
-    except Exception as e:
-        logging.warning('Unable to create export README file %s. Details: %s',
-                        out_file, e)
-
-
-def export_files(json_path, dest_path, args):
-    """Exports files from source directory or disk image.
-
-    Takes Bulk Reviewer JSON as input and based on
-    user-supplied options exports either only files
-    with confirmed PII or only files clear of private
-    or otherwise sensitive information.
-    """
-
-    # Convert input json to dict
-    with open(json_path, 'r', encoding="utf-8") as f:
-        session_dict = json.load(f)
-
-    # Delete temp json file
-    try:
-        os.remove(json_path)
-    except OSError:
-        logging.warning('Unable to delete JSON file %s', json_path)
-
-    # Create list of files with PII
-    features = session_dict['features']
-    files_with_pii = []
-    for f in features:
-        if f['dismissed'] is False:
-            if f['filepath'] not in files_with_pii:
-                files_with_pii.append(f['filepath'])
-
-    # Create list of files without PII
-    files = session_dict['files']
-    files_without_pii = []
-    for f in files:
-        if f['filepath'] not in files_with_pii:
-            files_without_pii.append(f['filepath'])
-
-    # Export files from directory
-    if not args.diskimage:
-
-        # Export files without PII, replicating directory structure
-        if not args.pii:
-            for f in files_without_pii:
-                # Build paths for source and dest file
-                file_src = os.path.join(session_dict['source_path'], f)
-                file_dest = os.path.join(dest_path, f)
-                # Copy file, creating dirs if necessary
-                os.makedirs(os.path.dirname(file_dest), exist_ok=True)
-                try:
-                    shutil.copy2(file_src, file_dest)
-                except OSError as e:
-                    logging.error('Error copying file %s: %s', file_src, e)
-                    return False
-            write_export_readme(dest_path, session_dict,
-                                'Cleared files (no PII)',
-                                files_with_pii, args)
-            logging.info('Files without PII copied to %s', dest_path)
-            return True
-
-        # Export files with PII to flat directory
-        for f in files_with_pii:
-            # Get file information
-            filtered_files = [x for x in files if x['filepath'] == f]
-            file_info = filtered_files[0]
-            # Build path for source file
-            file_src = os.path.join(session_dict['source_path'], f)
-            # Build path for destination file, appending
-            # ID to filename to prevent filepath collisions
-            file_basename = str(file_info['id']) + '_' + os.path.basename(f)
-            file_dest = os.path.join(dest_path, file_basename)
-            # Copy file
-            try:
-                shutil.copy2(file_src, file_dest)
-            except OSError as e:
-                logging.error('Error copying file %s: %s', file_src, e)
-                return False
-        write_export_readme(dest_path, session_dict, 'Private files',
-                            files_with_pii, args)
-        logging.info('Files with PII copied to %s', dest_path)
-        return True
-
-    # Export files from disk image
-
-    # Export files without PII, replicating directory structure
-    if not args.pii:
-        for f in files_without_pii:
-            # Build path for destination file
-            file_dest = os.path.join(dest_path, f)
-            # Get file information
-            filtered_files = [x for x in files if x['filepath'] == f]
-            file_info = filtered_files[0]
-            # Skip unallocated files unless args.unallocated is True
-            if args.unallocated is not True:
-                if file_info['allocated'] is False:
-                    continue
-            # Create intermediate dirs if necessary
-            os.makedirs(os.path.dirname(file_dest), exist_ok=True)
-            # Carve file from disk image
-            carve_success = carve_file(f,
-                                       int(file_info['fs_offset']),
-                                       session_dict['source_path'],
-                                       int(file_info['inode']),
-                                       file_dest)
-            if carve_success is False:
-                return False
-            # Set modified date to modified or created value from DFXML
-            if args.restore_dates:
-                restore_modified_date(file_dest, file_info['date_modified'],
-                                      file_info['date_created'])
-        write_export_readme(dest_path, session_dict, 'Cleared files (no PII)',
-                            files_with_pii, args)
-        logging.info('Files without PII copied to %s', dest_path)
-        return True
-
-    # Export files with PII to flat directory
-    for f in files_with_pii:
-        # Get file information
-        filtered_files = [x for x in files if x['filepath'] == f]
-        file_info = filtered_files[0]
-        # Build path for destination file, appending
-        # ID to filename to prevent filepath collisions
-        file_basename = str(file_info['id']) + '_' + os.path.basename(f)
-        file_dest = os.path.join(dest_path, file_basename)
-        # Skip unallocated files unless args.unallocated is True
-        if args.unallocated is not True:
-            if file_info['allocated'] is False:
-                continue
-        # Create intermediate dirs if necessary
-        os.makedirs(os.path.dirname(file_dest), exist_ok=True)
-        # Carve file from disk image
-        carve_success = carve_file(f,
-                                   int(file_info['fs_offset']),
-                                   session_dict['source_path'],
-                                   int(file_info['inode']),
-                                   file_dest)
-        if carve_success is False:
-            return False
-        # Set modified date to modified or created value from DFXML
-        if args.restore_dates:
-            restore_modified_date(file_dest, file_info['date_modified'],
-                                  file_info['date_created'])
-    write_export_readme(dest_path, session_dict, 'Private files',
-                        files_with_pii, args)
-    logging.info('Files with PII copied to %s', dest_path)
-    return True
-
-
-def print_to_stderr_and_exit():
-    """
-    Print generic error message to stderr and exit with code 1.
-    """
-    print("See bulk-reviewer.log for details.", file=sys.stderr)
-    sys.exit(1)
-
-
 def _configure_logging(bulk_reviewer_dir):
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
-    handler = logging.FileHandler(os.path.join(bulk_reviewer_dir,
-                                  'bulk-reviewer.log'),
-                                  'w', 'utf-8')
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    handler = logging.FileHandler(
+        os.path.join(bulk_reviewer_dir, "bulk-reviewer.log"), "a", "utf-8"
+    )
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     handler.setFormatter(formatter)
     root_logger.addHandler(handler)
 
 
 def _make_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--quiet",
-                        help="",
-                        action="store_true")
-    parser.add_argument("-d",
-                        "--diskimage",
-                        help="Scan disk image",
-                        action="store_true")
-    parser.add_argument("--ssn",
-                        help="Specify Bulk Extractor ssn_mode (0, 1, or 2)",
-                        action="store",
-                        type=int)
-    parser.add_argument("--include_exif",
-                        help="Include EXIF metadata in results",
-                        action="store_true")
-    parser.add_argument("--include_network",
-                        help="Include domains/URLs/RFC822/httplogs in results",
-                        action="store_true")
-    parser.add_argument("--regex",
-                        help="Specify path to regex file",
-                        action="store")
-    parser.add_argument("--stoplists",
-                        help="Specify directory for bulk_extractor stoplists",
-                        action="store")
-    parser.add_argument("-n",
-                        "--named_entity_extraction",
-                        help="Extract named entities with Tika and spaCy",
-                        action="store_true")
-    parser.add_argument("--export",
-                        help="Use script in export mode \
-                            (export files based on JSON input)",
-                        action="store_true")
-    parser.add_argument("--pii",
-                        help="Export files with PII. \
-                            Used in tandem with --export flag",
-                        action="store_true")
-    parser.add_argument("--restore_dates",
-                        help="Restore modified dates for exported files to values in DFXML. \
-                            Used in tandem with --export flag",
-                        action="store_true")
-    parser.add_argument("--unallocated",
-                        help="Export unallocated files. \
-                            Used in tandem with --export flag",
-                        action="store_true")
-    parser.add_argument("source",
-                        help="Path to source directory or disk image")
-    parser.add_argument("destination",
-                        help="Path to directory to write output files")
-    parser.add_argument("filename",
-                        help="Filename for output file (no extension)")
+    parser.add_argument("--quiet", help="", action="store_true")
+    parser.add_argument(
+        "-d", "--diskimage", help="Scan disk image", action="store_true"
+    )
+    parser.add_argument(
+        "--ssn",
+        help="Specify Bulk Extractor ssn_mode (0, 1, or 2)",
+        action="store",
+        type=int,
+    )
+    parser.add_argument(
+        "--include_exif", help="Include EXIF metadata in results", action="store_true"
+    )
+    parser.add_argument(
+        "--include_network",
+        help="Include domains/URLs/RFC822/httplogs in results",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--be_reports",
+        help="Specify path to existing bulk_extractor reports directory",
+        action="store",
+    )
+    parser.add_argument("--regex", help="Specify path to regex file", action="store")
+    parser.add_argument(
+        "--stoplists",
+        help="Specify directory for bulk_extractor stoplists",
+        action="store",
+    )
+    parser.add_argument(
+        "-n",
+        "--named_entity_extraction",
+        help="Extract named entities with Tika and spaCy",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--export",
+        help="Use script in export mode (export files based on JSON input)",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--pii",
+        help="Export files with PII. Used in tandem with --export flag",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--flat",
+        help="Export private files in flat directory. \
+              Used in tandem with --export flag",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--restore_dates",
+        help="Restore modified dates for exported files to values in DFXML. \
+              Used in tandem with --export flag",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--unallocated",
+        help="Export unallocated files. Used in tandem with --export flag",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--tar",
+        help="Generate tar exclude file. Used in tandem with --export flag",
+        action="store_true",
+    )
+    parser.add_argument("source", help="Path to source directory or disk image")
+    parser.add_argument("destination", help="Path to directory to write output files")
+    parser.add_argument("filename", help="Filename for output file (no extension)")
 
     return parser
 
@@ -1152,16 +941,17 @@ def main():
     src = os.path.abspath(args.source)
     dest = os.path.abspath(args.destination)
     temp_dir = tempfile.mkdtemp()
-    db_path = os.path.join(temp_dir, args.filename + '.brv')
-    reports_path = os.path.join(dest, args.filename + '_reports')
-    dfxml_path = os.path.join(reports_path, 'dfxml.xml')
-    bulk_extractor_path = os.path.join(reports_path, 'bulk_extractor')
-    annotated_feature_path = os.path.join(
-        reports_path,
-        'bulk_extractor_annotated'
-    )
-    user_home_dir = os.path.abspath(os.path.expanduser('~'))
-    bulk_reviewer_dir = os.path.join(user_home_dir, 'bulk-reviewer')
+    db_path = os.path.join(temp_dir, args.filename + ".brv")
+    reports_path = os.path.join(dest, args.filename + "_reports")
+    dfxml_path = os.path.join(reports_path, "dfxml.xml")
+    annotated_feature_path = os.path.join(reports_path, "bulk_extractor_annotated")
+    user_home_dir = os.path.abspath(os.path.expanduser("~"))
+    bulk_reviewer_dir = os.path.join(user_home_dir, "bulk-reviewer")
+
+    if args.be_reports:
+        bulk_extractor_path = os.path.abspath(args.be_reports)
+    else:
+        bulk_extractor_path = os.path.join(reports_path, "bulk_extractor")
 
     # Make bulk_reviewer_dir if doesn't already exist
     if not os.path.exists(bulk_reviewer_dir):
@@ -1170,23 +960,30 @@ def main():
     # Configure logging
     _configure_logging(bulk_reviewer_dir)
 
-    # Check if script run in export mode
-    # If yes, run export_files and return
+    # If script run in export mode, run file export and return
     if args.export:
-        logging.info("""Running script in file export mode. JSON file: %s. Destination: %s.\
-            """, src, dest)
-        export_success = export_files(src, dest, args)
-        if export_success is False:
-            print_to_stderr_and_exit()
-        if args.pii:
-            print('Private files successfully exported to directory', dest)
-        else:
-            print('Cleared files successfully exported to directory', dest)
+        logging.info(
+            "Running script in file export mode. JSON file: %s. Destination: %s.",
+            src,
+            dest,
+        )
+        file_export = FileExport(
+            src,
+            dest,
+            args.diskimage,
+            args.pii,
+            args.flat,
+            args.restore_dates,
+            args.unallocated,
+            args.tar,
+        )
+        file_export.export_files()
         return
 
     # Otherwise, log starting message and continue
-    logging.info("""Running script in processing mode. Name: %s. Source: %s.\
-        """, args.filename, src)
+    logging.info(
+        "Running script in processing mode. Name: %s. Source: %s.", args.filename, src
+    )
 
     # Create output directories
     for out_dir in dest, reports_path, bulk_extractor_path:
@@ -1194,7 +991,7 @@ def main():
             os.makedirs(out_dir)
 
     # Create database and session
-    engine = create_engine('sqlite:///{}'.format(db_path))
+    engine = create_engine("sqlite:///{}".format(db_path))
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -1212,103 +1009,99 @@ def main():
         disk_image=args.diskimage,
         named_entity_extraction=args.named_entity_extraction,
         regex_file=args.regex,
-        ssn_mode=ssn_mode)
+        ssn_mode=ssn_mode,
+    )
     session.add(br_session)
     session.commit()
 
     # Store br_session_id
     try:
-        br_session_find = session.query(BRSession)\
-            .filter(BRSession.name == args.filename).one()
+        br_session_find = (
+            session.query(BRSession).filter(BRSession.name == args.filename).one()
+        )
         br_session_id = br_session_find.id
     except Exception:
-        logging.error('JSON file with same name already exists. Quitting')
-        print_to_stderr_and_exit()
+        logging.error("JSON file with same name already exists. Quitting")
+        print_to_stderr_and_exit("JSON file with same name already exists.")
 
     # Disk image - Write file info to db
     if args.diskimage:
 
         # Create dfxml
-        logging.info('Creating DFXML')
+        logging.info("Creating DFXML")
         dfxml_success = create_dfxml(src, dfxml_path)
         if dfxml_success is False:
-            print_to_stderr_and_exit()
+            print_to_stderr_and_exit("fiwalk unable to create DFXML.")
 
         # Parse dfxml to db
-        logging.info('Parsing DFXML to database')
+        logging.info("Parsing DFXML to database")
         try:
             parse_dfxml_to_db(session, br_session_id, dfxml_path)
         except Exception as e:
-            logging.error('Error parsing DFXML file %s: %s', dfxml_path, e)
-            print_to_stderr_and_exit()
+            logging.error("Error parsing DFXML file %s: %s", dfxml_path, e)
+            print_to_stderr_and_exit("Error parsing DFXML file.")
+
+        # Write error message and quit if no files found
+        num_files = session.query(func.count(File.id)).scalar()
+        if num_files == 0:
+            logging.error(
+                "No files found. File system may be unsupported by fiwalk. Quitting."
+            )
+            print_to_stderr_and_exit(
+                "No files found. File system may be unsupported by fiwalk."
+            )
 
     # Directory - Write file info to db
     else:
-        logging.info('Writing source file metadata to database')
+        logging.info("Writing source file metadata to database")
         write_filesystem_metadata_to_db(session, br_session_id, src)
 
-    # Run bulk_extractor
-    logging.info('Running bulk_extractor')
-    stoplist_dir = ''
-    if args.stoplists:
-        stoplist_dir = os.path.abspath(args.stoplists)
-    bulk_extractor_success = run_bulk_extractor(
-        src, bulk_extractor_path,
-        stoplist_dir,
-        ssn_mode,
-        args
-    )
-    if bulk_extractor_success is False:
-        print_to_stderr_and_exit()
+    # Run bulk_extractor if reports aren't already provided
+    if not args.be_reports:
+        logging.info("Running bulk_extractor")
+        stoplist_dir = ""
+        if args.stoplists:
+            stoplist_dir = os.path.abspath(args.stoplists)
+        bulk_extractor_success = run_bulk_extractor(
+            src, bulk_extractor_path, stoplist_dir, ssn_mode, args
+        )
+        if bulk_extractor_success is False:
+            print_to_stderr_and_exit("Error running bulk_extractor.")
 
     if args.diskimage:
         # Disk image source: Annotate feature files and read into database
-        logging.info('Annotating feature files')
-        annotate_feature_files(
-            bulk_extractor_path,
-            annotated_feature_path,
-            dfxml_path
-        )
-        logging.info('Reading feature files to database')
-        read_features_to_db(
-            annotated_feature_path,
-            br_session_id,
-            session,
-            args
-        )
+        logging.info("Annotating feature files")
+        annotate_feature_files(bulk_extractor_path, annotated_feature_path, dfxml_path)
+        logging.info("Reading feature files to database")
+        read_features_to_db(annotated_feature_path, br_session_id, session, args)
 
     else:
         # Directory source: read feature files into database
-        logging.info('Reading feature files to database')
-        read_features_to_db(
-            bulk_extractor_path,
-            br_session_id,
-            session,
-            args
-        )
+        logging.info("Reading feature files to database")
+        read_features_to_db(bulk_extractor_path, br_session_id, session, args)
 
     # TODO : Get named entities (directories only)
 
     # Create JSON output
-    json_path = os.path.join(dest, args.filename + '.json')
+    json_path = os.path.join(dest, args.filename + ".json")
     try:
         brv_to_json(db_path, json_path)
-        logging.info('Created JSON file %s', json_path)
+        logging.info("Created JSON file %s", json_path)
         # print path to stdout as utf-8 (supports utf-8 chars/emojis)
-        sys.stdout.buffer.write(json_path.encode('utf-8'))
+        sys.stdout.buffer.write(json_path.encode("utf-8"))
     except Exception as e:
-        logging.error('Error creating JSON file %s: %s', json_path, e)
-        print_to_stderr_and_exit()
+        logging.error("Error creating JSON file %s: %s", json_path, e)
+        print_to_stderr_and_exit("Error creating JSON file.")
 
     # Delete temp_dir with .brv file
     try:
         shutil.rmtree(temp_dir)
-        logging.info('Deleted tempdir')
+        logging.info("Deleted tempdir")
     except Exception:
-        logging.warning('Unable to delete tempdir %s', temp_dir)
+        logging.warning("Unable to delete tempdir %s", temp_dir)
 
-    logging.info('Complete')
+    logging.info("Complete")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

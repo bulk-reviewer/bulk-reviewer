@@ -6,7 +6,14 @@
 
 For detailed installation and use instructions, see the [documentation](https://bulk-reviewer.readthedocs.io/en/latest/index.html).
 
-Bulk Reviewer is an Electron desktop application that aids in identification, review, and removal of sensitive files in directories and disk images. Bulk Reviewer scans directories and disk images for personally identifiable information (PII) and other sensitive information using [bulk_extractor](https://github.com/simsong/bulk_extractor), a best-in-class digital forensics tool. The desktop application enables users to configure, start, and review scans; generate CSV reports of features found; and export sets of files (either those free of sensitive information, or those with PII that should be restricted or run though redaction software).
+Bulk Reviewer is an Electron desktop application that aids in identification, review, and removal of sensitive files in directories and disk images. Bulk Reviewer scans directories and disk images for personally identifiable information (PII) and other sensitive information using [bulk_extractor](https://github.com/simsong/bulk_extractor), a best-in-class digital forensics tool. The desktop application enables users to:
+
+* Scan disk images and directories for private information with bulk_extractor (configurable with user-supplied regular expressions and stoplist files)
+* Review features found by type and by file in a user-friendly dashboard that supports annotation and dismissing features as false positives
+* Generate CSV reports of features found
+* Export sets of files
+	* Cleared: Files free of PII
+	* Private: Files with PII that should be restricted or run through redaction software
 
 Currently, Bulk Reviewer can scan directories and disk images for:
 
@@ -15,6 +22,7 @@ Currently, Bulk Reviewer can scan directories and disk images for:
 * Credit card numbers
 * Email addresses
 * Phone numbers
+* vCards (Virtual Contact Files)
 * URLs, web domains, RFC822 headers, and HTTP logs
 * GPS data
 * EXIF metadata
@@ -54,29 +62,31 @@ Scripts for installing system dependencies for macOS and Ubuntu 18.04 are includ
 
 1. Download the `BulkReviewer-x.x.x-x86_64.AppImage` [AppImage](https://appimage.org/) from the [latest Bulk Reviewer release](https://github.com/bulk-reviewer/bulk-reviewer/releases).
 
-2. Move the AppImage to the "Forensics and Reporting" folder on the BitCurator desktop.
+2. Save the AppImage file to location of your choice (e.g. the "Forensics and Reporting" folder on the BitCurator desktop).
 
-3. Make the Bulk Reviewer AppImage executable (with `chmod a+x FILE` in terminal or by right-clicking the AppImage, selecting Properties, and then selecting "Allow executing file as program" under the Permissions tab).
+3. Make the Bulk Reviewer AppImage executable (with `chmod +x FILE` in terminal or by right-clicking the AppImage, selecting Properties, and then selecting "Allow executing file as program" under the Permissions tab).
 
 4. Double-click the AppImage. A prompt will ask if you want to integrate Bulk Reviewer with your system. Choose "Yes" to install Bulk Reviewer.
 
-From this point forward, Bulk Reviewer can be launched by selecting it from the Applications menu or double-clicking on the AppImage file in the "Forensics and Reporting" folder.
+From this point forward, Bulk Reviewer can be launched by selecting it from the Applications menu or double-clicking on the AppImage file.
 
 ### Ubuntu 18.04
 
-1. Install dependencies in a terminal:
+1. Install dependencies in a terminal (you can skip this step if bulk_extractor and Sleuth Kit are already installed):
 
 ``` bash
 wget "https://github.com/bulk-reviewer/bulk-reviewer/blob/master/install_ubuntu18.sh"
-chmod a+x install_ubuntu18.sh
+chmod +x install_ubuntu18.sh
 sudo ./install_ubuntu18.sh
 ```
 
-2. Download the Bulk Reviewer [AppImage](https://appimage.org/) `BulkReviewer-x.x.x-x86_64.AppImage` from the [latest Bulk Reviewer release](https://github.com/bulk-reviewer/bulk-reviewer/releases).
+2. Download the Bulk Reviewer [AppImage](https://appimage.org/) `BulkReviewer-x.x.x.AppImage` from the [latest Bulk Reviewer release](https://github.com/bulk-reviewer/bulk-reviewer/releases).
 
-3. Move the AppImage to your home directory or desktop and make the file executable.
+3. Save the AppImage to location of your choice (e.g. your home folder or desktop).
 
-4. Double-click the AppImage. A prompt will ask if you want to integrate Bulk Reviewer with your system. Choose "Yes" to install Bulk Reviewer.
+4. Make the Bulk Reviewer AppImage executable (with `chmod +x FILE` in terminal or by right-clicking the AppImage, selecting Properties, and then selecting "Allow executing file as program" under the Permissions tab).
+
+5. Double-click the AppImage. A prompt will ask if you want to integrate Bulk Reviewer with your system. Choose "Yes" to install Bulk Reviewer.
 
 From this point forward, Bulk Reviewer can be launched by selecting it from the Applications menu or double-clicking on the AppImage file.
 
@@ -84,23 +94,21 @@ From this point forward, Bulk Reviewer can be launched by selecting it from the 
 
 1. Make sure you have [Homebrew](https://brew.sh/) and [XCode](https://developer.apple.com/xcode/) installed.
 
-2. Download the `install_mac.sh` script from this repository.
-
-3. In a terminal, change directory to where you saved the `install_mac.sh` script and install dependencies:
+2. Install dependencies in a terminal (you can skip this step if bulk_extractor and Sleuth Kit are already installed):
 
 ``` bash
-brew install libewf afflib sleuthkit
-chmod a+x install_mac.sh
+wget "https://github.com/bulk-reviewer/bulk-reviewer/blob/master/install_mac.sh"
+chmod +x install_mac.sh
 ./install_mac.sh
 ```
 
-4. Download the `BulkReviewer-x.x.x.dmg` from the [latest Bulk Reviewer release](https://github.com/bulk-reviewer/bulk-reviewer/releases).
+3. Download the `BulkReviewer-x.x.x.dmg` from the [latest Bulk Reviewer release](https://github.com/bulk-reviewer/bulk-reviewer/releases).
 
-5. Double-click the dmg to open the Bulk Reviewer installer. Drag the Bulk Reviewer icon to the Applications folder to install.
+4. Double-click the dmg to open the Bulk Reviewer installer. Drag the Bulk Reviewer icon to the Applications folder to install.
 
 ## Development
 
-Bulk Reviewer is an Electron desktop application with a Python backend. Local development requires Python 3, Node, and npm/yarn (instructions here use yarn).
+Bulk Reviewer is an Electron desktop application with a Python backend. Local development requires Python 3, Node 10, and npm or yarn (instructions here use yarn).
 
 1. Clone this repository
 
@@ -111,6 +119,8 @@ git clone https://github.com/bulk-reviewer/bulk-reviewer
 2. Prepare Python virtual environment
 
 ``` bash
+cd bulk-reviewer/
+
 # First time
 virtualenv -p python3 env
 source env/bin/activate
@@ -139,23 +149,28 @@ yarn run dev
 2. Package Python script as executable
 
 ``` bash
-cd src/main
-pyinstaller backend/br_processor.py --distpath backend_dist
-rm -rf br_processor.spec
-rm -rf build
+./build-backend.sh
 ```
+
+(If build-backend script is not executable, make it executable with `chmod +x build-backend.sh`)
 
 3. Build Electron application for production
 
 ``` bash
-# Return to main bulk-reviewer directory
-cd ../..
-
-# Run build command
 yarn run build
 ```
 
 The resulting built application can be found in the `build` directory.
+
+## Test
+
+1. Follow Development steps 1-2 above
+
+2. Run backend tests
+
+``` bash
+python src/main/backend/test.py
+```
 
 ## Logo design
 [Bailey McGinn](https://baileymcginn.com/)

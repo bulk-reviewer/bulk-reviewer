@@ -49,6 +49,10 @@
           Email address 
           ({{ featureCountByType(emailFilter) }})
         </option>
+        <option value="vcard">
+          vCard (Virtual Contact File)
+          ({{ featureCountByType(vcardFilter) }})
+        </option>
         <option value="regex">
           User-supplied regular expressions 
           ({{ featureCountByType(regexFilter) }})
@@ -379,6 +383,8 @@ export default {
           return this.phoneFilter
         case 'email':
           return this.emailFilter
+        case 'vcard':
+          return this.vcardFilter
         case 'regex':
           return this.regexFilter
         case 'url':
@@ -409,6 +415,9 @@ export default {
     },
     emailFilter () {
       return this.tableData.filter(f => f.feature_type === 'Email address')
+    },
+    vcardFilter () {
+      return this.tableData.filter(f => f.feature_type === 'vCard (Virtual Contact File)')
     },
     regexFilter () {
       return this.tableData.filter(f => f.feature_type === 'Regular expression')
