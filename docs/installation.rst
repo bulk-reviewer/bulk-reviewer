@@ -22,9 +22,9 @@ For production systems, a recent CPU with 4+ cores and at least 8 GB of RAM is r
 
 Installation in BitCurator
 --------------------------
-1. Download the ``BulkReviewer-x.x.x-x86_64.AppImage`` `AppImage <https://appimage.org/>`_ from the `latest Bulk Reviewer release <https://github.com/bulk-reviewer/bulk-reviewer/releases/>`_.
+1. Download the ``BulkReviewer-x.x.x.AppImage`` `AppImage <https://appimage.org/>`_ from the `latest Bulk Reviewer release <https://github.com/bulk-reviewer/bulk-reviewer/releases/>`_.
 
-2. Move the AppImage to the "Forensics and Reporting" folder on the BitCurator desktop.
+2. Move the AppImage to the "Forensics and Reporting" folder or another appropriate location on the BitCurator desktop.
 
 3. Make the Bulk Reviewer AppImage executable (right-click on the AppImage file, select Properties, and then select "Allow executing file as program" under the Permissions tab; or change the file permissions with ``chmod u+x`` in a terminal).
 
@@ -42,7 +42,7 @@ Installation in Ubuntu 18.04
     chmod a+x install_ubuntu18.sh
     sudo ./install_ubuntu18.sh
 
-2. Download the ``BulkReviewer-x.x.x-x86_64.AppImage`` `AppImage <https://appimage.org/>`_ from the `latest Bulk Reviewer release <https://github.com/bulk-reviewer/bulk-reviewer/releases/>`_.
+2. Download the ``BulkReviewer-x.x.x.AppImage`` `AppImage <https://appimage.org/>`_ from the `latest Bulk Reviewer release <https://github.com/bulk-reviewer/bulk-reviewer/releases/>`_.
 
 3. Move the AppImage to your home directory or desktop and make the file executable (right-click on the AppImage file, select Properties, and then select "Allow executing file as program" under the Permissions tab; or change the file permissions with ``chmod u+x`` in a terminal).
 
