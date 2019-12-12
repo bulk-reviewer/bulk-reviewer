@@ -92,10 +92,6 @@ Bulk Reviewer supports two main types of file exports: Cleared and Private. To c
 
 For **disk image sources**, two additional checkbox options enable users to indicate whether exported files should have their last modified dates restored from values recorded in the DFXML for the disk image and whether to include unallocated files (e.g. deleted files) in exports. These options apply to both Cleared and Private exports.
 
-.. image:: images/ActionsDiskImage.png
-  :width: 250
-  :alt: Image of Actions dropdown with disk image options
-
 Downloading CSV reports
 -----------------------
 To download a CSV representation of the feature data for a Bulk Reviewer session, choose "Download CSV report" from the Actions dropdown menu. The resulting dialog will prompt you to choose a location and filename for the CSV file. These reports may be particularly helpful in supporting redaction workflows in tandem with flattened Private file exports.
