@@ -94,7 +94,7 @@ For **disk image sources**, two additional checkbox options enable users to indi
 
 Downloading CSV reports
 -----------------------
-To download a CSV representation of the feature data for a Bulk Reviewer session, choose "Download CSV report" from the Actions dropdown menu. The resulting dialog will prompt you to choose a location and filename for the CSV file. These reports may be particularly helpful in supporting redaction workflows in tandem with flattened Private file exports.
+To download a CSV representation of the feature data for a Bulk Reviewer session, click the "Download CSV" button, located near the top of the screen. The resulting dialog will prompt you to choose a location and filename for the CSV file. These reports may be particularly helpful in supporting redaction workflows in tandem with flattened Private file exports.
 
 .. image:: images/Actions.png
   :width: 250
