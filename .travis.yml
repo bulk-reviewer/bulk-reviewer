@@ -32,7 +32,7 @@ matrix:
             - sleuthkit
             - bulk_extractor
 install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then git clone --recursive https://github.com/timothyryanwalsh/bulk_extractor && cd bulk_extractor && chmod 755 bootstrap.sh && ./bootstrap.sh && ./configure && make && sudo make install && cd ..; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then git clone --recursive https://github.com/tw4l/bulk_extractor && cd bulk_extractor && chmod 755 bootstrap.sh && ./bootstrap.sh && ./configure && make && sudo make install && cd ..; fi
   - nvm install 10
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - source ~/.bashrc
