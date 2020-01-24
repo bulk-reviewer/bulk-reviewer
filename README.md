@@ -39,7 +39,7 @@ Scanners planned but not yet implemented include:
 
 The application is designed to aid archivists and librarians in processing and providing access to digital collections but may be useful in other domains as well. Bulk Reviewer has been made possible in part by the generous support of a [Harvard Library Innovation Lab](https://lil.law.harvard.edu) summer fellowship and a [Concordia University Library](https://library.concordia.ca) Research Grant.
 
-An earlier server-based prototype of Bulk Reviewer developed using Django, Django REST Framework, and Vue.js can be found [here](https://github.com/timothyryanwalsh/bulk-reviewer).
+An earlier server-based prototype of Bulk Reviewer developed using Django, Django REST Framework, and Vue.js can be found [here](https://github.com/tw4l/bulk-reviewer).
 
 Contributions are welcome! Interested in getting involved? [Get in touch](mailto:tim@bitarchivist.net)!
 
