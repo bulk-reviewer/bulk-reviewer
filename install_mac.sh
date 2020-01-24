@@ -6,7 +6,7 @@ brew install libewf afflib sleuthkit
 
 # Install bulk_extractor 1.6.0-dev from fork
 echo "Building bulk_extractor from source..."
-git clone --recursive https://github.com/timothyryanwalsh/bulk_extractor
+git clone --recursive https://github.com/tw4l/bulk_extractor
 
 # Export env vars so bulk_extractor does not complain that openssl isn't installed
 export LDFLAGS="-L/usr/local/opt/openssl/lib -L/usr/local/lib -L/usr/local/opt/expat/lib"
