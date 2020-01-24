@@ -22,7 +22,7 @@ apt-get update && apt-get install -y \
 
 # Install bulk_extractor 1.6.0-dev from fork
 echo "Building bulk_extractor from source..."
-git clone --recursive https://github.com/timothyryanwalsh/bulk_extractor
+git clone --recursive https://github.com/tw4l/bulk_extractor
 
 # Build from source
 cd bulk_extractor && \
