@@ -75,7 +75,7 @@ From this point forward, Bulk Reviewer can be launched by selecting it from the 
 1. Install dependencies in a terminal (you can skip this step if bulk_extractor and Sleuth Kit are already installed):
 
 ``` bash
-wget "https://github.com/bulk-reviewer/bulk-reviewer/blob/master/install_ubuntu18.sh"
+wget "https://raw.githubusercontent.com/bulk-reviewer/bulk-reviewer/master/install_ubuntu18.sh"
 chmod +x install_ubuntu18.sh
 sudo ./install_ubuntu18.sh
 ```
@@ -97,7 +97,7 @@ From this point forward, Bulk Reviewer can be launched by selecting it from the 
 2. Install dependencies in a terminal (you can skip this step if bulk_extractor and Sleuth Kit are already installed):
 
 ``` bash
-wget "https://github.com/bulk-reviewer/bulk-reviewer/blob/master/install_mac.sh"
+wget "https://raw.githubusercontent.com/bulk-reviewer/bulk-reviewer/master/install_mac.sh"
 chmod +x install_mac.sh
 ./install_mac.sh
 ```
