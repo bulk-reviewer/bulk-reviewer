@@ -44,5 +44,5 @@ script:
   - python backend/test.py && yarn run build
 branches:
   only:
-  - master
+  - main
   - prerelease
