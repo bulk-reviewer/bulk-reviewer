@@ -2,7 +2,7 @@
 
 ## Identify, review, and remove sensitive files
 
-[![Build Status](https://travis-ci.org/bulk-reviewer/bulk-reviewer.svg?branch=master)](https://travis-ci.org/bulk-reviewer/bulk-reviewer)
+[![Build Status](https://travis-ci.org/bulk-reviewer/bulk-reviewer.svg?branch=main)](https://travis-ci.org/bulk-reviewer/bulk-reviewer)
 
 For detailed installation and use instructions, see the [documentation](https://bulk-reviewer.readthedocs.io/en/latest/index.html).
 
@@ -75,7 +75,7 @@ From this point forward, Bulk Reviewer can be launched by selecting it from the 
 1. Install dependencies in a terminal (you can skip this step if bulk_extractor and Sleuth Kit are already installed):
 
 ``` bash
-wget "https://raw.githubusercontent.com/bulk-reviewer/bulk-reviewer/master/install_ubuntu18.sh"
+wget "https://raw.githubusercontent.com/bulk-reviewer/bulk-reviewer/main/install_ubuntu18.sh"
 chmod +x install_ubuntu18.sh
 sudo ./install_ubuntu18.sh
 ```
@@ -97,7 +97,7 @@ From this point forward, Bulk Reviewer can be launched by selecting it from the 
 2. Install dependencies in a terminal (you can skip this step if bulk_extractor and Sleuth Kit are already installed):
 
 ``` bash
-wget "https://raw.githubusercontent.com/bulk-reviewer/bulk-reviewer/master/install_mac.sh"
+wget "https://raw.githubusercontent.com/bulk-reviewer/bulk-reviewer/main/install_mac.sh"
 chmod +x install_mac.sh
 ./install_mac.sh
 ```
