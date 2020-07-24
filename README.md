@@ -1,4 +1,4 @@
-![Bulk Reviewer logo](https://github.com/bulk-reviewer/bulk-reviewer/blob/master/full-logo.png)
+![Bulk Reviewer logo](https://github.com/bulk-reviewer/bulk-reviewer/blob/main/full-logo.png)
 
 ## Identify, review, and remove sensitive files
 
