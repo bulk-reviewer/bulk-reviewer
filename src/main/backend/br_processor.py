@@ -105,8 +105,8 @@ class byterundb:
     corresponds to a byte run.
 
     Class slightly modified from:
-    https://github.com/bulk-reviewer/bulk-reviewer/blob/
-    master/scripts/identify_filenames.py
+    https://github.com/simsong/bulk_extractor/blob/
+    master/python/identify_filenames.py
     """
 
     def __init__(self):
@@ -191,8 +191,8 @@ class byterundb2:
     one for unallocated files.
 
     Class slightly modified from:
-    https://github.com/bulk-reviewer/bulk-reviewer/blob/
-    master/scripts/identify_filenames.py
+    https://github.com/simsong/bulk_extractor/blob/
+    master/python/identify_filenames.py
     """
 
     def __init__(self):
@@ -416,8 +416,8 @@ def process_featurefile2(rundb, infile, outfile):
     writes results to outfile.
 
     Slightly modified from:
-    https://github.com/bulk-reviewer/bulk-reviewer/blob/
-    master/scripts/identify_filenames.py
+    https://github.com/simsong/bulk_extractor/blob/
+    master/python/identify_filenames.py
     """
     # Stats
     unallocated_count = 0
@@ -485,8 +485,8 @@ def annotate_feature_files(feature_files_dir, annotated_feature_path, dfxml_path
     to associate features to files in the image.
 
     Based on:
-    https://github.com/bulk-reviewer/bulk-reviewer/blob/
-    master/scripts/identify_filenames.py
+    https://github.com/simsong/bulk_extractor/blob/
+    master/python/identify_filenames.py
     """
     # Make directory for annotated feature files
     if not os.path.exists(annotated_feature_path):
@@ -586,14 +586,19 @@ def read_features_to_db(feature_files_dir, br_session_id, session, args):
 
 
 def parse_feature_file(feature_file, br_session_id, session):
+    """Write features from bulk_extractor feature file to the database
+
+    Feature files can be encoded in one of several character encodings.
+    We read the input file as bytes and get valid Unicode for each line
+    wihout UnicodeDecodeErrors with the help bulk_extractor_reader's
+    decode_feature helper.
     """
-    Parse features in bulk_extractor feature file and write
-    each feature to database.
-    """
-    with open(feature_file, "r", encoding="utf-8") as f:
+    with open(feature_file, "rb") as f:
         for line in f:
+            line = bulk_extractor_reader.decode_feature(line)
+
             # Ignore commented lines
-            if line.startswith(("#")):
+            if line.startswith("#"):
                 continue
             # Ignore blank lines
             if not line.strip():
@@ -661,11 +666,16 @@ def parse_feature_file(feature_file, br_session_id, session):
 
 
 def parse_annotated_feature_file(feature_file, br_session_id, session):
+    """Write features from annotated feature file to the database
+
+    Annotated feature files contain information about filepaths that is
+    otherwise missing from feature files describing disk images.
+
+    Annotated feature files are written as UTF-8 so we shouldn't get
+    UnicodeDecodeErrors, but handle errors with surrogateescape just to
+    be safe.
     """
-    Parse features in annotated bulk_extractor feature file
-    and write each feature to database.
-    """
-    with open(feature_file, "r", encoding="utf-8") as f:
+    with open(feature_file, "r", encoding="utf-8", errors="surrogateescape") as f:
         for line in f:
             # Ignore commented lines
             if line.startswith(("#")):
