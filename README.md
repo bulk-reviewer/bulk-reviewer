@@ -41,7 +41,7 @@ The application is designed to aid archivists and librarians in processing and p
 
 An earlier server-based prototype of Bulk Reviewer developed using Django, Django REST Framework, and Vue.js can be found [here](https://github.com/tw4l/bulk-reviewer).
 
-Contributions are welcome! Interested in getting involved? [Get in touch](mailto:tim@bitarchivist.net)!
+Contributions are welcome! Interested in getting involved? [Get in touch](mailto:tessa@bitarchivist.net)!
 
 ## Dependencies
 

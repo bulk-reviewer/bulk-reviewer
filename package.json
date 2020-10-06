@@ -1,7 +1,7 @@
 {
   "name": "BulkReviewer",
-  "version": "0.2.0",
-  "author": "Tim Walsh <tim@bitarchivist.net>",
+  "version": "0.2.1",
+  "author": "Tessa Walsh <tessa@bitarchivist.net>",
   "description": "Identify, review, and remove private information",
   "license": "GPL-3.0-only",
   "main": "./dist/electron/main.js",
