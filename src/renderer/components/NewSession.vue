@@ -1,161 +1,192 @@
 <template>
   <section class="padded">
-    <h1 class="title is-3">New session</h1>
+    <h1 class="title is-3" style="padding-left: 10px;">New session</h1>
     <form ref="form" @submit.prevent="onSubmit">
-      
-      <b-field label="Name">
-        <b-input
-          v-model="name"
-          placeholder="Name, accession number, or other identifier"
-          style="max-width: 700px;"
-          required>
-        </b-input>
-      </b-field>
 
-      <!-- Disk image? -->
-      <b-field label="Source directory/disk image">
-        <b-select
-          placeholder="Select type"
-          v-model="sourceType"
-          required>
-          <option value="directory">Directory</option>
-          <option value="diskImage">Disk Image</option>
-        </b-select>
-      </b-field>
+      <!-- Primary fields -->
+      <div class="fun-box">
 
-      <b-field>
-        <section>
+        <b-field grouped group-multiline>
+          <!-- Type selector -->
+          <b-field label="Type">
+            <b-select
+              placeholder="Select type"
+              v-model="sourceType">
+              <option value="directory">Directory</option>
+              <option value="diskImage">Disk Image</option>
+            </b-select>
+          </b-field>
+
+          <!-- Name -->
+          <b-field label="Name">
+            <b-input
+              v-model="name"
+              placeholder="Enter name here (required)"
+              style="width: 500px;">
+            </b-input>
+          </b-field>
+        </b-field>
+
+        <!-- Choose source button -->
+        <b-field>
           <button
             class="button is-light"
             @click.prevent="chooseDirectory"
             v-if="sourceType === 'directory'">
-            Choose directory
+            Browse
           </button>
           <button
             class="button is-light"
             @click.prevent="chooseFile"
             v-else>
-            Choose file
+            Browse
           </button>
-          <div style="margin: 5px;">
+          <div style="margin-left:10px; vertical-align: center;">
             <span v-if="sourcePath">
               {{ sourcePath }}
-              <!-- button to reset sourcePath -->
-              <button class="button is-light is-small" @click="resetSourcePath">
+              <button
+                class="button is-light is-small"
+                style="margin-left: 5px;"
+                @click="resetSourcePath">
                 <b-icon icon="times"></b-icon>
               </button>
             </span>
-            <span v-else>
-              None selected.
-            </span>
           </div>
-        </section>
-    </b-field>
+        </b-field>
+      </div>
 
-    <b-field label="Use existing bulk_extractor reports">
-      <section>
-        <div class="field">
-          <b-checkbox v-model="useExistingBEReports">Use existing bulk_extractor reports directory</b-checkbox>
-        </div>
-        <button
-          class="button is-light"
-          @click.prevent="chooseBEReportsDir">
-          Choose directory
-        </button>
-        <div style="margin: 5px;">
-          <span v-if="bulkextractorReportsDirPath">
-            {{ bulkextractorReportsDirPath }}
-            <!-- button to reset sourcePath -->
-            <button class="button is-light is-small" @click="resetBEReportsFilePath">
-              <b-icon icon="times"></b-icon>
+      <!-- Options -->
+      <div class="fun-box" v-if="showOptions">
+        <h2 class="title is-4">
+          Options
+          <button
+            class="button is-secondary is-small"
+            @click.prevent="toggleOptions">
+            -
+          </button>
+        </h2>
+
+        <b-field label="Use existing bulk_extractor reports">
+          <b-field grouped group-multiline>
+            <button
+              class="button is-light"
+              @click.prevent="chooseBEReportsDir">
+              Choose directory
             </button>
-          </span>
-          <span v-else>
-            None selected.
-          </span>
-        </div>
-      </section>
-    </b-field>
+            <div style="margin: 5px;">
+              <span v-if="bulkextractorReportsDirPath">
+                {{ bulkextractorReportsDirPath }}
+                <!-- button to reset sourcePath -->
+                <button class="button is-light is-small" @click="resetBEReportsFilePath">
+                  <b-icon icon="times"></b-icon>
+                </button>
+              </span>
+              <span v-else>
+                None selected.
+              </span>
+            </div>
+          </b-field>
+        </b-field>
 
-    <!-- Named entity extraction -->
+        <hr class="hr500">
 
-    <b-field label="Regular expressions file">
-      <section>
-        <button
-          class="button is-light"
-          @click.prevent="chooseRegexFile">
-          Choose file
-        </button>
-        <div style="margin: 5px;">
-          <span v-if="regexFilePath">
-            {{ regexFilePath }}
-            <!-- button to reset sourcePath -->
-            <button class="button is-light is-small" @click="resetRegexFilePath">
-              <b-icon icon="times"></b-icon>
+        <b-field label="Social Security Number identification mode">
+          <b-select
+            placeholder="SSN mode"
+            v-model="ssnMode"
+            required>
+            <option value="0"><strong>Strict:</strong> must be labelled "SSN" (ssn_mode=0)</option>
+            <option value="1"><strong>Medium:</strong> xxx-xx-xxxx with dashes (ssn_mode=1)</option>
+            <option value="2"><strong>Lenient:</strong> 9 digits, no dashes required (ssn_mode=2)</option>
+          </b-select>
+        </b-field>
+
+        <!-- Named entity extraction -->
+
+        <b-field label="Regular expressions file">
+          <b-field grouped group-multiline>
+            <button
+              class="button is-light"
+              @click.prevent="chooseRegexFile">
+              Choose file
             </button>
-          </span>
-          <span v-else>
-            None selected.
-          </span>
-        </div>
-      </section>
-    </b-field>
+            <div style="margin: 5px;">
+              <span v-if="regexFilePath">
+                {{ regexFilePath }}
+                <!-- button to reset sourcePath -->
+                <button class="button is-light is-small" @click="resetRegexFilePath">
+                  <b-icon icon="times"></b-icon>
+                </button>
+              </span>
+              <span v-else>
+                None selected.
+              </span>
+            </div>
+          </b-field>
+        </b-field>
 
-    <b-field label="Stoplist directory">
-      <section>
-        <button
-          class="button is-light"
-          @click.prevent="chooseStoplistDir">
-          Choose directory
-        </button>
-        <div style="margin: 5px;">
-          <span v-if="stoplistDirPath">
-            {{ stoplistDirPath }}
-            <!-- button to reset sourcePath -->
-            <button class="button is-light is-small" @click="resetStoplistDirPath">
-              <b-icon icon="times"></b-icon>
+        <b-field label="Stoplist directory" style="margin-top: 20px;">
+          <b-field grouped group-multiline>
+            <button
+              class="button is-light"
+              @click.prevent="chooseStoplistDir">
+              Choose directory
             </button>
-          </span>
-          <span v-else>
-            None selected.
-          </span>
-        </div>
-      </section>
-    </b-field>
+            <div style="margin: 5px;">
+              <span v-if="stoplistDirPath">
+                {{ stoplistDirPath }}
+                <!-- button to reset sourcePath -->
+                <button class="button is-light is-small" @click="resetStoplistDirPath">
+                  <b-icon icon="times"></b-icon>
+                </button>
+              </span>
+              <span v-else>
+                None selected.
+              </span>
+            </div>
+          </b-field>
+        </b-field>
 
-    <b-field label="Social Security Number identification mode">
-      <b-select
-        placeholder="SSN mode"
-        v-model="ssnMode"
-        required>
-        <option value="0"><strong>Strict:</strong> must be labelled "SSN" (ssn_mode=0)</option>
-        <option value="1"><strong>Medium:</strong> No “SSN” required; dashes required (ssn_mode=1)</option>
-        <option value="2"><strong>Lenient:</strong> No dashes required (ssn_mode=2)</option>
-      </b-select>
-    </b-field>
+        <hr class="hr500">
 
-    <b-field label="Scanner options">
-      <section>
-        <div class="field">
-          <b-checkbox v-model="includeExifResults">Include EXIF metadata in results</b-checkbox>
-        </div>
-        <div class="field">
-          <b-checkbox v-model="includeNetworkResults">Include network data (domains, URLs, RFC822 headers, HTTP logs) in results</b-checkbox>
-        </div>
-      </section>
-    </b-field>
+        <b-field>
+          <div>
+            <div class="field">
+              <b-checkbox v-model="includeExifResults">Include EXIF metadata in results</b-checkbox>
+            </div>
+            <div class="field">
+              <b-checkbox v-model="includeNetworkResults">Include network data (domains, URLs, RFC822 headers, HTTP logs) in results</b-checkbox>
+            </div>
+          </div>
+        </b-field>
+      </div>
 
-      <button 
-        class="button is-success"
-        @click.prevent="onSubmit"
-        :disabled="isDisabled">
-        Start scan
-      </button>
-      <button 
-        class="button is-light"
-        @click="resetForm">
-        Reset
-      </button>
+      <div class="fun-box" v-else>
+        <h2 class="title is-4">
+          Options
+          <button
+          class="button is-secondary is-small"
+          @click.prevent="toggleOptions">
+            +
+          </button>
+        </h2>
+      </div>
+      <!-- /Options -->
+
+      <!-- Submit + Reset Buttons -->
+      <div style="margin-left:15px;">
+        <button 
+          class="button is-success"
+          @click.prevent="onSubmit"
+          :disabled="isDisabled">
+          Start scan
+        </button>
+        <button 
+          class="button is-light"
+          @click.prevent="resetForm">
+          Reset
+        </button>
+      </div>
 
     </form>
 
@@ -181,11 +212,11 @@ export default {
       bulkextractorReportsDirPath: '',
       regexFilePath: '',
       stoplistDirPath: '',
-      ssnMode: '0',
+      ssnMode: '1',
       loading: false,
       includeExifResults: false,
       includeNetworkResults: false,
-      useExistingBEReports: false
+      showOptions: false
     }
   },
   methods: {
@@ -198,6 +229,9 @@ export default {
       dialog.showOpenDialog({ properties: ['openFile'] }, (filename) => {
         this.sourcePath = filename.toString()
       })
+    },
+    toggleOptions () {
+      this.showOptions = !this.showOptions
     },
     chooseBEReportsDir () {
       dialog.showOpenDialog({ properties: ['openDirectory'] }, (dirName) => {
@@ -234,10 +268,9 @@ export default {
       this.bulkextractorReportsDirPath = ''
       this.regexFilePath = ''
       this.stoplistDirPath = ''
-      this.ssnMode = '0'
+      this.ssnMode = '1'
       this.includeExifResults = false
       this.includeNetworkResults = false
-      this.useExistingBEReports = false
     },
     // determine if python is packaged as executable by checking
     // for presence of backend_dist directory
@@ -305,7 +338,7 @@ export default {
       if (this.includeNetworkResults === true) {
         sessionParameters.splice(1, 0, '--include_network')
       }
-      if (this.useExistingBEReports === true) {
+      if (this.bulkextractorReportsDirPath.length > 0) {
         sessionParameters.splice(1, 0, '--be_reports')
         sessionParameters.splice(2, 0, this.bulkextractorReportsDirPath)
       }

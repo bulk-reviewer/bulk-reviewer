@@ -21,3 +21,14 @@
   border: 2px solid;
   border-color: black !important;
 }
+.fun-box {
+  margin:20px 0px 20px 0px;
+  padding: 20px 20px 35px 20px;
+  border: solid 1px gray;
+  border-radius: 25px;
+  box-shadow: 2px 3px;
+  width: 750px;
+}
+.hr500 {
+  width: 500px;
+}
