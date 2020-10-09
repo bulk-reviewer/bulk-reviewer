@@ -1,6 +1,6 @@
 {
   "name": "BulkReviewer",
-  "version": "0.2.1",
+  "version": "0.3.0-dev",
   "author": "Tessa Walsh <tessa@bitarchivist.net>",
   "description": "Identify, review, and remove private information",
   "license": "GPL-3.0-only",
