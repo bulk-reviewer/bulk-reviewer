@@ -152,7 +152,7 @@
         <b-field>
           <div>
             <div class="field">
-              <b-checkbox v-model="includeExifResults">Include EXIF metadata in results</b-checkbox>
+              <b-checkbox v-model="includeExifResults">Include full EXIF metadata in results</b-checkbox>
             </div>
             <div class="field">
               <b-checkbox v-model="includeNetworkResults">Include network data (domains, URLs, RFC822 headers, HTTP logs) in results</b-checkbox>
