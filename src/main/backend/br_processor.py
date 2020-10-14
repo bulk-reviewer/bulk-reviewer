@@ -7,7 +7,7 @@ Creates Bulk Reviewer JSON file and DFXML
 and bulk_extractor output directories for input
 directory or disk image.
 
-Tim Walsh, 2019
+Tessa Walsh, 2019-2020
 https://bitarchivist.net
 Licensed under GNU General Public License 3
 https://www.gnu.org/licenses/gpl-3.0.en.html
