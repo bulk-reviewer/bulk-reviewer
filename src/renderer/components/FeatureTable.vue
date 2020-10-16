@@ -129,7 +129,7 @@
       narrowed>
 
       <template slot-scope="props">
-        
+
         <b-table-column
           field="feature"
           label="Feature"
@@ -223,7 +223,10 @@
                 </button>
               </p>
               <!-- Feature in context -->
-              <p v-if="props.row.context"><strong>Feature in context:</strong> {{ unescapeText(props.row.context) }}</p>
+              <p v-if="props.row.context">
+                <strong>Feature in context: </strong>
+                {{ featureContextPrefix(props.row.feature, props.row.context) }}<span class="highlight">{{ unescapeText(props.row.feature) }}</span>{{ featureContextSuffix(props.row.feature, props.row.context) }}
+              </p>
               <p v-else><strong>Feature in context:</strong> n/a</p>
               <!-- Forensic path (directories only) -->
               <span v-if="props.row.forensic_path" style="margin-top: 5px;">
@@ -258,6 +261,18 @@ export default {
     // display text after unescaping characters
     unescapeText (escapedText) {
       return escapedText.replace(/\\x[a-fA-F0-9]{2}/g, String.fromCharCode('$1'))
+    },
+    // return context up to feature
+    featureContextPrefix (feature, context) {
+      return this.unescapeText(
+        context.substring(0, context.indexOf(feature))
+      )
+    },
+    // return context after feature
+    featureContextSuffix (feature, context) {
+      return this.unescapeText(
+        context.substring(context.indexOf(feature) + feature.length)
+      )
     },
     // toggle dismissed boolean for feature with given id
     toggleFeatureDismissedStatus (featureID) {

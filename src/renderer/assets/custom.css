@@ -1,12 +1,20 @@
+:focus {
+  border: 2px solid;
+  border-color: black !important;
+}
+
 .padded {
   padding: 20px;
 }
+
 .dismissed {
   color: #a9a9a9;
 }
+
 .verified {
   color: green;
 }
+
 #fileSelector {
   border: 2px solid;
   border-radius: 5px;
@@ -14,13 +22,11 @@
   margin: 10px;
   font-size: 90%;
 }
+
 #featureExplorer {
   margin-top: 20px;
 }
-:focus {
-  border: 2px solid;
-  border-color: black !important;
-}
+
 .fun-box {
   margin:20px 0px 20px 0px;
   padding: 20px 20px 35px 20px;
@@ -29,6 +35,11 @@
   box-shadow: 2px 3px;
   width: 750px;
 }
+
 .hr500 {
   width: 500px;
+}
+
+.highlight {
+  background-color: #FFFFE0;
 }
