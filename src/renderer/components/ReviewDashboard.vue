@@ -277,7 +277,7 @@ export default {
       const shell = require('electron').shell
       const path = require('path')
       let fileAbspath = path.join(this.$store.state.BRSession.brSession.source_path, myFile)
-      shell.openItem(fileAbspath)
+      shell.openPath(fileAbspath)
     },
     // return count of non-dismissed features associated with file
     fileFeatureCount (filepath) {
@@ -293,8 +293,8 @@ export default {
       const remote = require('electron').remote
       const dialog = remote.dialog
       let defaultFileName = this.sessionNameWithoutSpaces + '.json'
-      dialog.showSaveDialog({ defaultPath: defaultFileName }, (filename) => {
-        this.saveToJSONFile(filename.toString(), false)
+      dialog.showSaveDialog({ defaultPath: defaultFileName }).then(result => {
+        this.saveToJSONFile(result.filePath, false)
       })
     },
     // save current state to JSON file on disk
@@ -317,8 +317,8 @@ export default {
       const fs = require('fs')
       // show user dialog to select file to save to
       let defaultCSVReportName = this.sessionNameWithoutSpaces + '.csv'
-      dialog.showSaveDialog({ defaultPath: defaultCSVReportName }, (filename) => {
-        let csvFile = filename.toString()
+      dialog.showSaveDialog({ defaultPath: defaultCSVReportName }).then(result => {
+        const csvFile = result.filePath
         // write csv report to selected file
         const ws = fs.createWriteStream(csvFile)
         let data = this.brSession.features
@@ -441,8 +441,8 @@ export default {
       const dialog = remote.dialog
 
       // prompt user for output directory and call python script
-      dialog.showOpenDialog({ properties: ['openDirectory', 'createDirectory'] }, (dirName) => {
-        const outDir = dirName.toString()
+      dialog.showOpenDialog({ properties: ['openDirectory', 'createDirectory'] }).then(result => {
+        const outDir = result.filePaths[0].toString()
 
         // create temp JSON file with current state
         const homeDir = app.getPath('home')
@@ -492,8 +492,8 @@ export default {
 
       // show user dialog to select file to save to
       let defaultTarExcludeFilename = this.sessionNameWithoutSpaces + '_tar_exclude.txt'
-      dialog.showSaveDialog({ defaultPath: defaultTarExcludeFilename }, (filename) => {
-        const outFile = filename.toString()
+      dialog.showSaveDialog({ defaultPath: defaultTarExcludeFilename }).then(result => {
+        const outFile = result.filePath
         // create temp JSON file with current state
         const homeDir = app.getPath('home')
         const brDir = path.join(homeDir, 'bulk-reviewer')

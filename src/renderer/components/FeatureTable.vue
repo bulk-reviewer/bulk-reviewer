@@ -292,7 +292,7 @@ export default {
       const shell = require('electron').shell
       const path = require('path')
       let fileAbspath = path.join(this.$store.state.BRSession.brSession.source_path, myFile)
-      shell.openItem(fileAbspath)
+      shell.openPath(fileAbspath)
     },
     // send signal to parent component to make selected null
     nullifySelected () {
