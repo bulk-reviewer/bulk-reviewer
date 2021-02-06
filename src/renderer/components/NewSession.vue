@@ -221,12 +221,12 @@ export default {
   },
   methods: {
     chooseDirectory () {
-      dialog.showOpenDialog({ properties: ['openDirectory'] }).then(result => {
+      dialog.showOpenDialog(remote.getCurrentWindow(), { properties: ['openDirectory'] }).then(result => {
         this.sourcePath = result.filePaths[0].toString()
       })
     },
     chooseFile () {
-      dialog.showOpenDialog({ properties: ['openFile'] }).then(result => {
+      dialog.showOpenDialog(remote.getCurrentWindow(), { properties: ['openFile'] }).then(result => {
         this.sourcePath = result.filePaths[0].toString()
       })
     },
@@ -234,17 +234,17 @@ export default {
       this.showOptions = !this.showOptions
     },
     chooseBEReportsDir () {
-      dialog.showOpenDialog({ properties: ['openDirectory'] }).then(result => {
+      dialog.showOpenDialog(remote.getCurrentWindow(), { properties: ['openDirectory'] }).then(result => {
         this.bulkextractorReportsDirPath = result.filePaths[0].toString()
       })
     },
     chooseRegexFile () {
-      dialog.showOpenDialog({ properties: ['openFile'] }).then(result => {
+      dialog.showOpenDialog(remote.getCurrentWindow(), { properties: ['openFile'] }).then(result => {
         this.regexFilePath = result.filePaths[0].toString()
       })
     },
     chooseStoplistDir () {
-      dialog.showOpenDialog({ properties: ['openDirectory'] }).then(result => {
+      dialog.showOpenDialog(remote.getCurrentWindow(), { properties: ['openDirectory'] }).then(result => {
         this.stoplistDirPath = result.filePaths[0].toString()
       })
     },

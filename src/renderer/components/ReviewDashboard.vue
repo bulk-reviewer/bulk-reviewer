@@ -293,7 +293,7 @@ export default {
       const remote = require('electron').remote
       const dialog = remote.dialog
       let defaultFileName = this.sessionNameWithoutSpaces + '.json'
-      dialog.showSaveDialog({ defaultPath: defaultFileName }).then(result => {
+      dialog.showSaveDialog(remote.getCurrentWindow(), { defaultPath: defaultFileName }).then(result => {
         this.saveToJSONFile(result.filePath, false)
       })
     },
@@ -317,7 +317,7 @@ export default {
       const fs = require('fs')
       // show user dialog to select file to save to
       let defaultCSVReportName = this.sessionNameWithoutSpaces + '.csv'
-      dialog.showSaveDialog({ defaultPath: defaultCSVReportName }).then(result => {
+      dialog.showSaveDialog(remote.getCurrentWindow(), { defaultPath: defaultCSVReportName }).then(result => {
         const csvFile = result.filePath
         // write csv report to selected file
         const ws = fs.createWriteStream(csvFile)
@@ -441,7 +441,7 @@ export default {
       const dialog = remote.dialog
 
       // prompt user for output directory and call python script
-      dialog.showOpenDialog({ properties: ['openDirectory', 'createDirectory'] }).then(result => {
+      dialog.showOpenDialog(remote.getCurrentWindow(), { properties: ['openDirectory', 'createDirectory'] }).then(result => {
         const outDir = result.filePaths[0].toString()
 
         // create temp JSON file with current state
@@ -492,7 +492,7 @@ export default {
 
       // show user dialog to select file to save to
       let defaultTarExcludeFilename = this.sessionNameWithoutSpaces + '_tar_exclude.txt'
-      dialog.showSaveDialog({ defaultPath: defaultTarExcludeFilename }).then(result => {
+      dialog.showSaveDialog(remote.getCurrentWindow(), { defaultPath: defaultTarExcludeFilename }).then(result => {
         const outFile = result.filePath
         // create temp JSON file with current state
         const homeDir = app.getPath('home')

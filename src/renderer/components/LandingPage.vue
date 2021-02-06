@@ -23,7 +23,7 @@ export default {
   name: 'landing-page',
   methods: {
     loadFromFile () {
-      dialog.showOpenDialog({ properties: ['openFile'] }).then(result => {
+      dialog.showOpenDialog(remote.getCurrentWindow(), { properties: ['openFile'] }).then(result => {
         let jsonFile = result.filePaths[0].toString()
         this.$store.dispatch('loadFromJSON', jsonFile)
         this.$router.push('review')
