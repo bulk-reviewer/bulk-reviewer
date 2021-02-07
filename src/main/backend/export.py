@@ -118,7 +118,8 @@ class FileExport:
                     private_filepath = os.path.join(
                         self.session_dict["source_path"], private_file
                     )
-                    f.write(private_filepath + "\n")
+                    escaped_private_filepath = private_filepath.replace(" ", "\\ ")
+                    f.write(escaped_private_filepath + "\n")
             logging.info("Created tar exclude file %s", str(self.destination))
             print("Tar exclude file written to {}".format(str(self.destination)))
         except Exception as e:
