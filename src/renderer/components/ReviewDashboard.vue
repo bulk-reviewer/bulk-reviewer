@@ -179,33 +179,32 @@
 
           <!-- Columns -->
           <b-table-column
+            field="verified"
+            label="Seen"
+            sortable>
+            <span @click="toggleFileVerifiedStatus(props.row.id)">
+              <b-icon
+                v-if="props.row.verified === true"
+                icon="eye"
+                class="verified">
+              </b-icon>
+              <b-icon
+                v-else
+                icon="eye-slash">
+              </b-icon>
+            </span>
+          </b-table-column>
+
+          <b-table-column
             field="filepath"
             label="File"
             sortable>
-            <span v-show="props.row.verified === true">
-              <b-icon
-                icon="check"
-                class="verified">
-              </b-icon>
-            </span>
             {{ props.row.filepath }}
             <span 
               v-show="props.row.allocated === false"
               class="tag is-light">
               Unallocated file
             </span>
-            <button
-              v-if="props.row.verified !== true"
-              class="button is-small is-light"
-              @click="toggleFileVerifiedStatus(props.row.id)">
-              Verify
-            </button>
-            <button
-              v-else
-              class="button is-small is-light"
-              @click="toggleFileVerifiedStatus(props.row.id)">
-              Unverify
-            </button>
           </b-table-column>
 
           <b-table-column field="date_modified" label="Modified" sortable v-if="brSession.disk_image === false">
