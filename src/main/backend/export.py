@@ -128,9 +128,7 @@ class FileExport:
                 str(self.destination),
                 e,
             )
-            print_to_stderr_and_exit(
-                "Unable to create tar exclude file %s.", str(self.destination)
-            )
+            print_to_stderr_and_exit(f"Unable to create tar exclude file {self.destination}")
 
     def _export_files_private_diskimage(self):
         """Export private files from disk image.
