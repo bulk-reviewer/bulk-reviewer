@@ -15,6 +15,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - uses: c-hive/gha-yarn-cache@v1
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
@@ -53,17 +54,18 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 14
+      - name: Install yarn packages
+        run: |
+          yarn install
       - name: Build electron app
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/prerelease'
         run: |
-          yarn install
           yarn run build
       - name: Build and release electron app
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/prerelease'
         run: |
-          yarn install
           yarn run build --publish always
