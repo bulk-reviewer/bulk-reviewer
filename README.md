@@ -2,8 +2,6 @@
 
 ## Identify, review, and remove sensitive files
 
-[![Build Status](https://travis-ci.org/bulk-reviewer/bulk-reviewer.svg?branch=main)](https://travis-ci.org/bulk-reviewer/bulk-reviewer)
-
 For detailed installation and use instructions, see the [documentation](https://bulk-reviewer.readthedocs.io/en/latest/index.html).
 
 Bulk Reviewer is an Electron desktop application that aids in identification, review, and removal of sensitive files in directories and disk images. Bulk Reviewer scans directories and disk images for personally identifiable information (PII) and other sensitive information using [bulk_extractor](https://github.com/simsong/bulk_extractor), a best-in-class digital forensics tool. The desktop application enables users to:
