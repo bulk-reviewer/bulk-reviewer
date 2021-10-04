@@ -7,7 +7,7 @@ To scan a new directory or disk image for sensitive information, first click on 
   :width: 600
   :alt: Image of Bulk Reviewer New session form
 
-  .. image:: images/NewSessionOptions.png
+.. image:: images/NewSessionOptions.png
   :width: 600
   :alt: Image of Bulk Reviewer New session form with Options menu expanded
 
