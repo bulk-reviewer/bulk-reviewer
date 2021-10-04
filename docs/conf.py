@@ -20,13 +20,13 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Bulk Reviewer'
-copyright = '2019 Tim Walsh'
-author = 'Tim Walsh'
+copyright = '2019-2021 Tessa Walsh'
+author = 'Tessa Walsh'
 
 # The short X.Y version
-version = '0.2'
+version = '0.3'
 # The full version, including alpha/beta/rc tags
-release = '0.2.0'
+release = '0.3.0'
 
 
 # -- General configuration ---------------------------------------------------
