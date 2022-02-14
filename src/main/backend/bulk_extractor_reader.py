@@ -38,20 +38,20 @@ def be_version(exe):
 
 def decode_feature(ffmt):
     """Decodes a feature in a feature file into Unicode"""
-    tbin = ffmt.decode('unicode_escape', errors="ignore")
+    tbin = ffmt.decode('unicode_escape')
     bin = tbin.encode('latin1')
     if b"\000" in bin:
         # If it has a \000 in it, must be UTF-16
         try:
-            return bin.decode('utf-16-le', errors="ignore")
+            return bin.decode('utf-16-le')
         except UnicodeDecodeError:
             return tbin
     try:
-        return bin.decode('utf-8', errors="ignore")
+        return bin.decode('utf-8', errors='replace')
     except UnicodeDecodeError:
         pass
     try:
-        return bin.decode('utf-16-le', errors="ignore")
+        return bin.decode('utf-16-le', errors='replace')
     except UnicodeDecodeError:
         pass
     return tbin
