@@ -95,7 +95,7 @@ class FileExport:
         """Save Bulk Reviewer JSON data to session_dict.
         """
         self._clear_data()
-        with open(self.json_path, "r", encoding="utf-8") as f:
+        with open(self.json_path, "r", encoding="utf-8", errors="ignore") as f:
             self.session_dict = json.load(f)
 
     def _clear_data(self):

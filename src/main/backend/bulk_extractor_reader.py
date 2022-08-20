@@ -20,10 +20,11 @@ so the "b" must be added.
 
 """
 
+# Code from bulk_extractor
+# https://github.com/simsong/bulk_extractor/blob/main/python/bulk_extractor_reader.py
+# Modified by Tessa Walsh for Python 3
+__version__ = "1.5.1"
 
-__version__ = "1.5.0"
-
-b'This module needs Python 2.7 or later.'
 import zipfile,os,os.path,glob,codecs,re
 
 property_re = re.compile("# ([a-z0-9\-_]+):(.*)",re.I)
