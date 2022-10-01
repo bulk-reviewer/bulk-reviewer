@@ -1,6 +1,6 @@
 {
   "name": "BulkReviewer",
-  "version": "0.3.1",
+  "version": "0.4.0-rc1",
   "author": "Tessa Walsh <tessa@bitarchivist.net>",
   "description": "Identify, review, and remove private information",
   "license": "GPL-3.0-only",
@@ -17,6 +17,10 @@
     "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
     "postinstall": "npm run lint:fix"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/bulk-reviewer/bulk-reviewer.git"
   },
   "build": {
     "productName": "BulkReviewer",
@@ -69,6 +73,7 @@
     "axios": "^0.21.1",
     "buefy": "^0.7.3",
     "builder": "^4.0.0",
+    "electron-updater": "^5.2.1",
     "fast-csv": "^4.3.6",
     "fix-path": "^2.1.0",
     "processor": "^0.1.9",
