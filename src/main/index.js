@@ -1,7 +1,7 @@
 'use strict'
 
 import { app, BrowserWindow, Menu, shell } from 'electron'
-import { autoUpdater } from "electron-updater"
+import { autoUpdater } from 'electron-updater'
 
 /**
  * Set `__static` path to static files in production

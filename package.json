@@ -1,6 +1,6 @@
 {
   "name": "BulkReviewer",
-  "version": "0.4.0-rc1",
+  "version": "0.4.0-rc2",
   "author": "Tessa Walsh <tessa@bitarchivist.net>",
   "description": "Identify, review, and remove private information",
   "license": "GPL-3.0-only",
@@ -19,12 +19,12 @@
     "postinstall": "npm run lint:fix"
   },
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/bulk-reviewer/bulk-reviewer.git"
+    "type": "git",
+    "url": "https://github.com/bulk-reviewer/bulk-reviewer.git"
   },
   "build": {
     "productName": "BulkReviewer",
-    "appId": "com.example.bulkreviewer",
+    "appId": "com.bulkreviewer.bulkreviewer",
     "directories": {
       "output": "build"
     },
@@ -33,8 +33,8 @@
     ],
     "extraResources": [
       {
-        "from": "src/main/backend_dist",
-        "to": "backend_dist"
+        "from": "src/main/backend_dist/br_processor/br_processor",
+        "to": "br_processor/br_processor"
       }
     ],
     "dmg": {
@@ -54,7 +54,14 @@
     },
     "mac": {
       "icon": "build/icons/512x512.png",
-      "target": "dmg"
+      "target": "dmg",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "binaries": [
+        "build/mac/BulkReviewer.app/Contents/Resources/br_processor/br_processor"
+      ]
     },
     "win": {
       "icon": "build/icons/512x512.png"
@@ -62,7 +69,8 @@
     "linux": {
       "icon": "build/icons/512x512.png",
       "target": "AppImage"
-    }
+    },
+    "afterSign": "notarize.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.11.2",
@@ -105,6 +113,7 @@
     "electron-builder": "^22.0.0",
     "electron-debug": "^1.5.0",
     "electron-devtools-installer": "^2.2.4",
+    "electron-notarize": "^1.2.1",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^11.0.0",
     "eslint-friendly-formatter": "^4.0.1",
