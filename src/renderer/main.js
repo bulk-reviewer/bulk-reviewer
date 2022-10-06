@@ -16,7 +16,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-import { remote } from 'electron'
+const remote = require('@electron/remote/main')
 
 remote.globalShortcut.register('CommandOrControl+Shift+K', () => {
   remote.BrowserWindow.getFocusedWindow().webContents.openDevTools()

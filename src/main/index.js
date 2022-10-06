@@ -33,6 +33,8 @@ function createWindow () {
     }
   })
 
+  require('@electron/remote/main').enable(mainWindow.webContents)
+
   mainWindow.loadURL(winURL)
 
   mainWindow.on('closed', () => {
@@ -75,6 +77,10 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow()
   }
+})
+
+app.on('browser-window-created', (_, window) => {
+  require('@electron/remote/main').enable(window.webContents)
 })
 
 // Auto update

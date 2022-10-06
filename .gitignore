@@ -20,3 +20,4 @@ src/main/build/
 br_processor.spec
 env/
 docs/_build/
+package-lock.json
