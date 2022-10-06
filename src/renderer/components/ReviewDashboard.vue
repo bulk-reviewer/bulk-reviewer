@@ -289,7 +289,7 @@ export default {
     },
     // show user dialog to select file to save to
     openSaveFileDialog () {
-      const remote = require('electron').remote
+      const remote = require('@electron/remote')
       const dialog = remote.dialog
       let defaultFileName = this.sessionNameWithoutSpaces + '.json'
       dialog.showSaveDialog(remote.getCurrentWindow(), { defaultPath: defaultFileName }).then(result => {
@@ -310,7 +310,7 @@ export default {
     },
     // write CSV report of all features
     downloadCSVFeaturesReport () {
-      const remote = require('electron').remote
+      const remote = require('@electron/remote')
       const dialog = remote.dialog
       const fastcsv = require('fast-csv')
       const fs = require('fs')
@@ -337,7 +337,7 @@ export default {
     // get path to script or executable as appropriate
     getScriptPath () {
       const path = require('path')
-      const remote = require('electron').remote
+      const remote = require('@electron/remote')
       const app = remote.app
       // check if app has been built
       // if yes, get path to python script in asar
@@ -364,7 +364,7 @@ export default {
     },
     // call python backend
     callBackend (scriptParameters) {
-      const remote = require('electron').remote
+      const remote = require('@electron/remote')
       const app = remote.app
 
       // fix for mac os to make system PATH available to node
@@ -435,7 +435,7 @@ export default {
     // start file export to user-supplied destination
     exportFiles () {
       const path = require('path')
-      const remote = require('electron').remote
+      const remote = require('@electron/remote')
       const app = remote.app
       const dialog = remote.dialog
 
@@ -485,7 +485,7 @@ export default {
     // trigger backend to write tar exclude file
     downloadTarExcludeFile () {
       const path = require('path')
-      const remote = require('electron').remote
+      const remote = require('@electron/remote')
       const app = remote.app
       const dialog = remote.dialog
 

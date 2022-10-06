@@ -3,6 +3,8 @@
 import { app, BrowserWindow, Menu, shell } from 'electron'
 import { autoUpdater } from 'electron-updater'
 
+require('@electron/remote/main').initialize()
+
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -26,7 +28,8 @@ function createWindow () {
     width: 1100,
     webPreferences: {
       enableRemoteModule: true,
-      nodeIntegration: true
+      nodeIntegration: true,
+      contextIsolation: false
     }
   })
 

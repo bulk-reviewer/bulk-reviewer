@@ -197,7 +197,7 @@
 </template>
 
 <script>
-const remote = require('electron').remote
+const remote = require('@electron/remote')
 const dialog = remote.dialog
 const app = remote.app
 

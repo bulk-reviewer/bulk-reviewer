@@ -16,7 +16,7 @@
 </template>
 
 <script>
-const remote = require('electron').remote
+const remote = require('@electron/remote')
 const dialog = remote.dialog
 
 export default {

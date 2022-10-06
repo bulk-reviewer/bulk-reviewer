@@ -1,6 +1,6 @@
 {
   "name": "BulkReviewer",
-  "version": "0.4.0-rc2",
+  "version": "0.4.0-rc3",
   "author": "Tessa Walsh <tessa@bitarchivist.net>",
   "description": "Identify, review, and remove private information",
   "license": "GPL-3.0-only",
@@ -73,6 +73,7 @@
     "afterSign": "notarize.js"
   },
   "dependencies": {
+    "@electron/remote": "^2.0.8",
     "@fortawesome/fontawesome-free": "^5.11.2",
     "@fortawesome/fontawesome-free-webfonts": "^1.0.9",
     "@fortawesome/fontawesome-svg-core": "^1.2.25",
@@ -109,7 +110,7 @@
     "css-loader": "^0.28.11",
     "del": "^3.0.0",
     "devtron": "^1.4.0",
-    "electron": "^11.2.2",
+    "electron": "^21.1.0",
     "electron-builder": "^22.0.0",
     "electron-debug": "^1.5.0",
     "electron-devtools-installer": "^2.2.4",
