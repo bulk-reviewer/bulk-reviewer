@@ -68,7 +68,7 @@
     "@fortawesome/vue-fontawesome": "^0.1.8",
     "axios": "^0.21.1",
     "buefy": "^0.7.3",
-    "builder": "^4.0.0",
+    "builder": "^5.0.0",
     "fast-csv": "^4.3.6",
     "fix-path": "^2.1.0",
     "processor": "^0.1.9",
